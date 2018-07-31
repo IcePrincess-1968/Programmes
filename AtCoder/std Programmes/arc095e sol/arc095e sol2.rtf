@@ -1,0 +1,302 @@
+{\rtf1\ansi\ansicpg936\deff0\nouicompat\deflang1033\deflangfe2052{\fonttbl{\f0\fnil\fcharset134 \'cb\'ce\'cc\'e5;}}
+{\*\generator Riched20 10.0.16299}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang2052 kawatea\par
+\par
+using namespace std;\par
+ \par
+int h, w;\par
+char s[12][13];\par
+string ss[12];\par
+int a[12];\par
+int b[12];\par
+ \par
+void dfs1(int x, bool f) \{\par
+    if (x == w) \{\par
+        puts("YES");\par
+        exit(0);\par
+    \} else if (b[x] != -1) \{\par
+        dfs1(x + 1, f);\par
+    \} else \{\par
+        int i, j;\par
+        \par
+        for (i = x + 1; i < w; i++) \{\par
+            if (b[i] != -1) continue;\par
+            \par
+            for (j = 0; j < h; j++) \{\par
+                if (s[j][x] != s[a[j]][i]) break;\par
+            \}\par
+            \par
+            if (j == h) \{\par
+                b[x] = i;\par
+                b[i] = x;\par
+                \par
+                dfs1(x + 1, f);\par
+                \par
+                b[x] = b[i] = -1;\par
+            \}\par
+        \}\par
+        \par
+        if (!f) \{\par
+            for (j = 0; j < h; j++) \{\par
+                if (s[j][x] != s[a[j]][x]) break;\par
+            \}\par
+            \par
+            if (j == h) \{\par
+                b[x] = x;\par
+                \par
+                dfs1(x + 1, true);\par
+                \par
+                b[x] = -1;\par
+            \}\par
+        \}\par
+    \}\par
+\}\par
+ \par
+void dfs2(int x, bool f) \{\par
+    if (x == h) \{\par
+        dfs1(0, w % 2 == 0);\par
+    \} else if (a[x] != -1) \{\par
+        dfs2(x + 1, f);\par
+    \} else \{\par
+        int i;\par
+        \par
+        for (i = x + 1; i < h; i++) \{\par
+            if (a[i] != -1) continue;\par
+            if (ss[x] != ss[i]) continue;\par
+            \par
+            a[x] = i;\par
+            a[i] = x;\par
+            \par
+            dfs2(x + 1, f);\par
+            \par
+            a[x] = a[i] = -1;\par
+        \}\par
+        \par
+        if (!f) \{\par
+            a[x] = x;\par
+            \par
+            dfs2(x + 1, true);\par
+            \par
+            a[x] = -1;\par
+        \}\par
+    \}\par
+\}\par
+ \par
+int main() \{\par
+    int i;\par
+    \par
+    scanf("%d %d", &h, &w);\par
+    \par
+    for (i = 0; i < h; i++) scanf("%s", s[i]);\par
+    \par
+    for (i = 0; i < h; i++) \{\par
+        ss[i] = s[i];\par
+        sort(ss[i].begin(), ss[i].end());\par
+    \}\par
+    \par
+    for (i = 0; i < h; i++) a[i] = -1;\par
+    for (i = 0; i < w; i++) b[i] = -1;\par
+    \par
+    dfs2(0, h % 2 == 0);\par
+    \par
+    puts("NO");\par
+    \par
+    return 0;\par
+\}\par
+\par
+\par
+latte\par
+\par
+#include<bits/stdc++.h>\par
+using namespace std;\par
+ \par
+#define int long long\par
+ \par
+#define rep(i,n) for(int i=0;i<(n);i++)\par
+#define pb push_back\par
+#define all(v) (v).begin(),(v).end()\par
+#define fi first\par
+#define se second\par
+typedef vector<int>vint;\par
+typedef pair<int,int>pint;\par
+typedef vector<pint>vpint;\par
+ \par
+template<typename A,typename B>inline void chmin(A &a,B b)\{if(a>b)a=b;\}\par
+template<typename A,typename B>inline void chmax(A &a,B b)\{if(a<b)a=b;\}\par
+ \par
+int H,W;\par
+string S[12];\par
+string T[12];\par
+ \par
+bool ans;\par
+ \par
+void uku()\{\par
+    map<string,int>cnt;\par
+    rep(j,W)\{\par
+        string s;\par
+        rep(i,H)\{\par
+            if(T[i][j]=='*')s+=T[H-1-i][j];\par
+            else s+=T[i][j];\par
+        \}\par
+        string t=s;\par
+        reverse(all(t));\par
+        cnt[min(s,t)]++;\par
+    \}\par
+ \par
+    bool flag=false;\par
+    for(auto &p:cnt)\{\par
+        string s=p.fi;\par
+        string t=s;reverse(all(t));\par
+ \par
+        if(p.se%2==0)continue;\par
+        if(s!=t)return;\par
+        if(flag)return;\par
+        flag=true;\par
+    \}\par
+    ans=true;\par
+\}\par
+ \par
+void ei(int b,int k)\{\par
+    if(b==0)\{\par
+        uku();\par
+        return;\par
+    \}\par
+ \par
+    int s=0;\par
+    while(~b>>s&1)s++;\par
+    T[k]=S[s];\par
+    for(int i=s+1;i<H;i++)if(b>>i&1)\{\par
+        T[H-1-k]=S[i];\par
+        ei(b^(1<<s)^(1<<i),k+1);\par
+    \}\par
+\}\par
+ \par
+signed main()\{\par
+    cin>>H>>W;\par
+    rep(i,H)cin>>S[i];\par
+ \par
+    if(H&1)\{\par
+        S[H]=string(W,'*');\par
+        H++;\par
+    \}\par
+    ei((1<<H)-1,0);\par
+    if(ans)cout<<"YES"<<endl;\par
+    else cout<<"NO"<<endl;\par
+\}\par
+\par
+logicmachine\par
+\par
+using namespace std;\par
+using pii = pair<int, int>;\par
+using ull = unsigned long long;\par
+static int dp[1 << 12];\par
+ \par
+int match_test(const string& s, const string& t)\{\par
+\tab const int n = s.size();\par
+\tab map<pii, int> mp;\par
+\tab for(int i = 0; i < n; ++i)\{\par
+\tab\tab ++mp[pii(s[i], t[i])];\par
+\tab\}\par
+\tab int c = -1;\par
+\tab for(const auto p : mp)\{\par
+\tab\tab const pii key(p.first.second, p.first.first);\par
+\tab\tab const int x = p.second;\par
+\tab\tab const int y = (mp.find(key) != mp.end()) ? mp[key] : 0;\par
+\tab\tab if(x != y)\{ return -1; \}\par
+\tab\tab if(key.first == key.second && x % 2 != 0)\{\par
+\tab\tab\tab if(n % 2 == 0 || c >= 0)\{ return -1; \}\par
+\tab\tab\tab c = key.first;\par
+\tab\tab\}\par
+\tab\}\par
+\tab int mask = 0;\par
+\tab for(int i = 0; i < n; ++i)\{\par
+\tab\tab if(s[i] == c && t[i] == c)\{ mask |= (1 << i); \}\par
+\tab\}\par
+\tab return mask;\par
+\}\par
+ \par
+int palindrome_test(const string& s)\{\par
+\tab const int n = s.size();\par
+\tab vector<int> h(26);\par
+\tab for(const int c : s)\{ ++h[c - 'a']; \}\par
+\tab int odd = -1;\par
+\tab for(int i = 0; i < 26; ++i)\{\par
+\tab\tab if(h[i] % 2 == 1)\{\par
+\tab\tab\tab if(odd >= 0)\{ return -1; \}\par
+\tab\tab\tab odd = i;\par
+\tab\tab\}\par
+\tab\}\par
+\tab int mask = 0;\par
+\tab for(int i = 0; i < n; ++i)\{\par
+\tab\tab if(s[i] == odd + 'a')\{ mask |= (1 << i); \}\par
+\tab\}\par
+\tab return mask;\par
+\}\par
+ \par
+int main()\{\par
+\tab ios_base::sync_with_stdio(false);\par
+\tab int n, m;\par
+\tab cin >> n >> m;\par
+\tab vector<string> s(n);\par
+\tab for(int i = 0; i < n; ++i)\{ cin >> s[i]; \}\par
+\tab vector<vector<int>> matching(n, vector<int>(n, -1));\par
+\tab for(int i = 0; i < n; ++i)\{\par
+\tab\tab matching[i][i] = palindrome_test(s[i]);\par
+\tab\tab for(int j = 1; j < n; ++j)\{\par
+\tab\tab\tab matching[i][j] = matching[j][i] = match_test(s[i], s[j]);\par
+\tab\tab\}\par
+\tab\}\par
+\tab bool answer = false;\par
+\tab for(int i = 0; i < (1 << n); ++i)\{\par
+\tab\tab if(__builtin_popcount(i) != n / 2)\{ continue; \}\par
+\tab\tab vector<int> used, unused;\par
+\tab\tab used.reserve(n / 2);\par
+\tab\tab unused.reserve((n + 1) / 2);\par
+\tab\tab for(int j = 0; j < n; ++j)\{\par
+\tab\tab\tab if(i & (1 << j))\{\par
+\tab\tab\tab\tab used.push_back(j);\par
+\tab\tab\tab\}else\{\par
+\tab\tab\tab\tab unused.push_back(j);\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\tab vector<int> perm(unused.size());\par
+\tab\tab for(int j = 0; j < unused.size(); ++j)\{ perm[j] = j; \}\par
+\tab\tab do \{\par
+\tab\tab\tab int bits = 0;\par
+\tab\tab\tab for(int j = 0; j < n / 2; ++j)\{\par
+\tab\tab\tab\tab bits |= matching[used[j]][unused[perm[j]]];\par
+\tab\tab\tab\}\par
+\tab\tab\tab if(n % 2 == 1)\{\par
+\tab\tab\tab\tab bits |= matching[unused[perm.back()]][unused[perm.back()]];\par
+\tab\tab\tab\}\par
+\tab\tab\tab if(bits < 0)\{ continue; \}\par
+\tab\tab\tab if(m % 2 != 0 && bits == 0)\{ continue; \}\par
+\tab\tab\tab map<ull, int> mp;\par
+\tab\tab\tab for(int j = 0; j < m; ++j)\{\par
+\tab\tab\tab\tab ull h = 0;\par
+\tab\tab\tab\tab for(int k = 0; k < n / 2; ++k)\{ h = (h << 5) + (s[used[k]][j] - 'a'); \}\par
+\tab\tab\tab\tab for(int k = 0; k < n / 2; ++k)\{ h = (h << 5) + (s[unused[perm[k]]][j] - 'a'); \}\par
+\tab\tab\tab\tab ++mp[h];\par
+\tab\tab\tab\}\par
+\tab\tab\tab bool accept = true;\par
+\tab\tab\tab for(const auto p : mp)\{\par
+\tab\tab\tab\tab const int shift = (n / 2 * 5);\par
+\tab\tab\tab\tab const ull h = p.first;\par
+\tab\tab\tab\tab const ull lo = h & ((1ull << shift) - 1);\par
+\tab\tab\tab\tab const ull hi = h >> shift;\par
+\tab\tab\tab\tab const ull key = (lo << shift) | hi;\par
+\tab\tab\tab\tab const int x = p.second;\par
+\tab\tab\tab\tab const int y = (mp.find(key) != mp.end()) ? mp[key] : 0;\par
+\tab\tab\tab\tab if(x != y)\{ accept = false; \}\par
+\tab\tab\tab\}\par
+\tab\tab\tab if(accept)\{\par
+\tab\tab\tab\tab answer = true;\par
+\tab\tab\tab\tab break;\par
+\tab\tab\tab\}\par
+\tab\tab\} while(next_permutation(perm.begin(), perm.end()));\par
+\tab\}\par
+\tab cout << (answer ? "YES" : "NO") << endl;\par
+\tab return 0;\par
+\}\par
+}
+ 

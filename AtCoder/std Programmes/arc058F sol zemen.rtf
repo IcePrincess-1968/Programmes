@@ -1,0 +1,335 @@
+{\rtf1\ansi\deff3\adeflang1025
+{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\froman\fprq2\fcharset2 Symbol;}{\f2\fswiss\fprq2\fcharset0 Arial;}{\f3\froman\fprq2\fcharset0 Liberation Serif{\*\falt Times New Roman};}{\f4\fswiss\fprq2\fcharset0 Liberation Sans{\*\falt Arial};}{\f5\froman\fprq2\fcharset128 \'91\'76\'91\'cc;}{\f6\fnil\fprq2\fcharset128 \'91\'76\'91\'cc;}{\f7\fnil\fprq2\fcharset0 Noto Sans CJK SC Regular;}{\f8\fswiss\fprq0\fcharset128 Noto Sans CJK SC Regular;}}
+{\colortbl;\red0\green0\blue0;\red0\green0\blue255;\red0\green255\blue255;\red0\green255\blue0;\red255\green0\blue255;\red255\green0\blue0;\red255\green255\blue0;\red255\green255\blue255;\red0\green0\blue128;\red0\green128\blue128;\red0\green128\blue0;\red128\green0\blue128;\red128\green0\blue0;\red128\green128\blue0;\red128\green128\blue128;\red192\green192\blue192;}
+{\stylesheet{\s0\snext0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033 Normal;}
+{\s15\sbasedon0\snext16\sb240\sa120\keepn\dbch\af6\dbch\af7\afs28\loch\f4\fs28 \u26631\'3f\u39064\'3f\u26679\'3f\u24335\'3f;}
+{\s16\sbasedon0\snext16\sl288\slmult1\sb0\sa140 \u27491\'3f\u25991\'3f;}
+{\s17\sbasedon16\snext17\sl288\slmult1\sb0\sa140\dbch\af8 \u21015\'3f\u34920\'3f;}
+{\s18\sbasedon0\snext18\sb120\sa120\noline\i\dbch\af8\afs24\ai\fs24 \u39064\'3f\u27880\'3f;}
+{\s19\sbasedon0\snext19\noline\dbch\af8 \u32034\'3f\u24341\'3f;}
+}{\*\generator LibreOffice/5.3.1.2$Linux_X86_64 LibreOffice_project/30m0$Build-2}{\info{\creatim\yr0\mo0\dy0\hr0\min0}{\revtim\yr2018\mo2\dy6\hr16\min0}{\printim\yr0\mo0\dy0\hr0\min0}}{\*\userprops}\deftab720
+\viewscale120
+{\*\pgdsctbl
+{\pgdsc0\pgdscuse451\pgwsxn12240\pghsxn15840\marglsxn1800\margrsxn1800\margtsxn1440\margbsxn1440\pgdscnxt0 \u40664\'3f\u35748\'3f\u26679\'3f\u24335\'3f;}}
+\formshade{\*\pgdscno0}\paperh15840\paperw12240\margl1800\margr1800\margt1440\margb1440\sectd\sbknone\sectunlocked1\pgndec\pgwsxn12240\pghsxn15840\marglsxn1800\margrsxn1800\margtsxn1440\margbsxn1440\ftnbj\ftnstart1\ftnrstcont\ftnnar\aenddoc\aftnrstcont\aftnstart1\aftnnrlc
+{\*\ftnsep}\pgndec\pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//}{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+N: num of the strings}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//K: needed length}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//find smallest string with length K}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+#include <bits/stdc++.h>}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+using namespace std;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+#define sz(x) ((int) (x).size())}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+#define forn(i,n) for (int i = 0; i < int(n); ++i)}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+typedef long long ll;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+typedef long long i64;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+typedef long double ld;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+const int inf = int(1e9) + int(1e5);}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+const ll infl = ll(2e18) + ll(1e10);}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+ }
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+typedef pair<int, int> pii;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+ }
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+const int maxn = 2005;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+const int maxk = 10005;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+string s[maxn];}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+bitset<maxk> can[maxn];}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+pii pos[2][1000051];}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+ }
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+int chch[1000];}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+ }
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+int TM = 0;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+inline bool tl() \{}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+if (++TM == 10000) \{}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+TM = 0;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+if (clock() > CLOCKS_PER_SEC * 4.6)}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+            }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+return true;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+\}}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+return false;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+\}}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+ }
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+int main() \{}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+#ifdef LOCAL}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+assert(freopen("f.in", "r", stdin));}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+#else}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+#endif}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+cin.tie(0);}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+cin.sync_with_stdio(false);}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+int n, k;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+cin >> n >> k;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+forn (i, n) \{}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+cin >> s[i];}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+for (auto c: s[i])}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+            }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+++chch[c];}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+\}}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//}{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+chch[i]: num of char \uc2 \u8216\'81\'65i\u8217\'81\'66\uc1 }
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+int cch = 0;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+for (char c = 'z'; c >= 'a'; --c) \{}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+cch += (chch[c] > 0);}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+\}}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//}{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+cch: num of different chars}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+if (cch == 1) \{}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+for (char c = 'a'; c <= 'z'; ++c)}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+            }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+if (chch[c] > 0) \{}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+                }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+cout << string(k, c) << '\\n';}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+            }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+\}}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+return 0;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+\}}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+ }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//}{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+only one kind of char: connect all}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+can[n][0] = 1;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+for (int i = n; i > 0; --i)}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+can[i - 1] = can[i] | (can[i] << s[i \u8211\'3f 1].length());}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//}{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+can[i]: the lengths that can be formed using strings from i to n-1}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+string ans;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+int q = 0, cnt = 0;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+forn (i, n)}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+if (can[i + 1][k \u8211\'3f sz(s[i])])}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//}{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+exist a solution by putting i at the first place}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+            }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+pos[q][cnt++] = \{i, 0\};}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//}{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+first: id of the string; second: pos of s[id];}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//}{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+cnt: num of string that satisfying such condition}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+forn (i, k) \{}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+char minCh = 'z';}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+cnt = min(cnt, 10000);}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+forn (ii, cnt) \{}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+            }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+int sid = pos[q][ii].first;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+            }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+int spos = pos[q][ii].second;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+            }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+minCh = min(minCh, s[sid][spos]);}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+\}}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//}{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+choose the smallest char from current}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+ans.push_back(minCh);}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+int ncnt = 0;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+int minSt = inf;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+forn (ii, cnt) \{}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+            }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+int sid = pos[q][ii].first;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+            }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+int spos = pos[q][ii].second;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+            }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+if (s[sid][spos] != minCh)}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+                }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+continue;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//find a minCh}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+            }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+if (spos + 1 == sz(s[sid]))}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//}{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+this is the end of a string}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+                }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+minSt = min(minSt, sid + 1);}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//}{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+record the \uc2 \u8216\'81\'65youngest\u8217\'81\'66next beginning\uc1 }
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+            }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+else}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+                }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+pos[q ^ 1][ncnt++] = \{sid, spos + 1\};}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//}{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+you\uc2 \u8217\'81\'66ll be put to the next round if and only if your current char is the smallest\uc1 }
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//the current strings are at different positions, but have the same prefix}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+\}}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//}{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+if no string meets an end, new strings will not be added}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//if multiple strings meet an end, the earliest will be chosen, the strings behind will be readded if it still satisfies the condition}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//ans doesn\uc2 \u8217\'81\'66t care which string it chooses, but the final string\uc1 }
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+for (int j = minSt; j < n; ++j)}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+            }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+if (k - i - 1 - sz(s[j]) >= 0 && can[j + 1][k - i - 1 - sz(s[j])])}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+                }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+pos[q ^ 1][ncnt++] = \{j, 0\};}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+q ^= 1;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+        }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+cnt = ncnt;}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+\}}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\f5\hich\af5\fs22\lang2052
+    }{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+cout << ans << '\\n';}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+\}}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//pos[i][j] considering the ith char, there\uc2 \u8217\'81\'66re j possibilities\uc1 }
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//use rolling dp}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200\rtlch \ltrch\loch
+
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//time limit problem?}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//2000 \uc2 \u8216\'81\'65aaa...a\u8217\'81\'66(100 a) K=10000\uc1 }
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//all the 2000 string will be added at the same time}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//lots of strings will be added}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200{\rtlch \ltrch\loch\fs22\lang2052\loch\f5\hich\af5
+//will brutely min(cnt,10000) cause a WA?}
+\par \pard\plain \s0\nowidctlpar\hyphpar0\cf0\kerning1\dbch\af6\langfe2052\dbch\af7\afs24\alang1081\loch\f3\hich\af3\fs24\lang1033\sl276\slmult1\sb0\sa200\rtlch \ltrch\loch
+
+\par }

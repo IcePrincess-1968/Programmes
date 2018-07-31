@@ -1,0 +1,381 @@
+{\rtf1\ansi\ansicpg936\deff0\nouicompat\deflang1033\deflangfe2052{\fonttbl{\f0\fnil\fcharset134 \'cb\'ce\'cc\'e5;}}
+{\*\generator Riched20 10.0.16299}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang2052 #include <iostream>\par
+#include <cstdio>\par
+#include <vector>\par
+#include <algorithm>\par
+#pragma comment (linker, "/STACK:256000000")\par
+\par
+using namespace std;\par
+\par
+const int maxN = 210000;\par
+const long long P = 1000000007LL;\par
+int n;\par
+vector < int > g[maxN];\par
+int s[maxN], used[maxN], d[maxN], nodes[maxN];\par
+\par
+int next_node[maxN], length_to_the_node[maxN];\par
+\par
+int is_node(int v) \{\par
+\tab return g[v].size() == 3;\par
+\}\par
+\par
+void dfs(int v, int depth = 0) \{\par
+\tab used[v] = true;\par
+\tab d[v] = depth;\par
+\tab\par
+\tab s[v] = 1;\par
+\tab if (is_node(v)) \{\par
+\tab\tab ++nodes[v];\par
+\tab\}\par
+\par
+\tab for (int i = 0; i < g[v].size(); ++i) \{\par
+\tab\tab if (!used[g[v][i]]) \{\par
+\tab\tab\tab dfs(g[v][i], depth + 1);\par
+\tab\tab\tab next_node[v] = next_node[g[v][i]];\par
+\tab\tab\tab length_to_the_node[v] = length_to_the_node[g[v][i]] + 1;\par
+\tab\tab\tab s[v] += s[g[v][i]];\par
+\tab\tab\tab nodes[v] += nodes[g[v][i]];\par
+\tab\tab\}\par
+\tab\}\par
+\par
+\tab if (is_node(v)) \{\par
+\tab\tab next_node[v] = v;\par
+\tab\tab length_to_the_node[v] = 1;\par
+\tab\}\par
+\}\par
+\par
+long long ways[maxN];\par
+vector < long long > double_ways[maxN];\par
+vector < pair < int, int > > children[maxN];\par
+\par
+void generate_sons(int v, int sons[]) \{\par
+\tab int counter = 0;\par
+\tab for (int i = 0; i < g[v].size(); ++i) \{\par
+\tab\tab if (d[v] + 1 == d[g[v][i]]) \{\par
+\tab\tab\tab sons[counter ++] = g[v][i];\par
+\tab\tab\}\par
+\tab\}\par
+\}\par
+\par
+int get_unique_son(int v) \{\par
+\tab for (int i = 0; i < g[v].size(); ++i) \{\par
+\tab\tab if (d[v] + 1 == d[g[v][i]]) \{\par
+\tab\tab\tab return g[v][i];\par
+\tab\tab\}\par
+\tab\}\par
+\}\par
+\par
+void generate_node(int v, int &node, int &length) \{\par
+\tab node = next_node[v], length = length_to_the_node[v];\par
+\}\par
+\par
+long long get_ways(int head, int up, int down) \{\par
+\tab for (int i = 0; i < double_ways[head].size(); ++i) \{\par
+\tab\tab if (children[head][i] == make_pair(up, down)) \{\par
+\tab\tab\tab return double_ways[head][i];\par
+\tab\tab\}\par
+\tab\}\par
+\tab return 0;\par
+\}\par
+\par
+void update_ways(int head, int up, int down, long long value, bool deletion = false) \{\par
+\tab for (int i = 0; i < double_ways[head].size(); ++i) \{\par
+\tab\tab if (children[head][i] == make_pair(up, down)) \{\par
+\tab\tab\tab double_ways[head][i] += value;\par
+\tab\tab\tab double_ways[head][i] %= P;\par
+\tab\tab\tab if (deletion) \{\par
+\tab\tab\tab\tab ways[head] -= value;\par
+\tab\tab\tab\tab ways[head] %= P;\par
+\tab\tab\tab\tab ways[head] = (ways[head] + P) % P;\par
+\tab\tab\tab\}\par
+\tab\tab\tab return ;\par
+\tab\tab\}\par
+\tab\}\par
+\tab double_ways[head].push_back(value);\par
+\tab children[head].push_back(make_pair(up, down));\par
+\tab if (deletion) \{\par
+\tab\tab ways[head] -= value;\par
+\tab\tab ways[head] %= P;\par
+\tab\tab ways[head] = (ways[head] + P) % P;\par
+\tab\}\par
+\}\par
+\par
+void generate_ways(int head, int up, int down, bool deletion = false) \{\par
+\tab if ((s[up] + s[down]) % 2 != 0) \{\par
+\tab\tab return ;\par
+\tab\}\par
+\tab if (nodes[up] != 0 && nodes[down] != 0) \{\par
+\tab\tab return ;\par
+\tab\}\par
+\tab if (nodes[up] == 0 && nodes[down] == 0) \{\par
+\tab\tab int first_chain = s[up], second_chain = s[down];\par
+\tab\tab if (first_chain < second_chain) \{\par
+\tab\tab\tab swap(first_chain, second_chain);\par
+\tab\tab\}\par
+\tab\tab int value = max(1, (first_chain - second_chain) / 2);\par
+\tab\tab update_ways(head, up, down, value, deletion);\par
+\tab\tab return ;\par
+\tab\}\par
+\par
+\tab if (nodes[up] != 0) \{\par
+\tab\tab int node, length;\par
+\tab\tab generate_node(up, node, length);\par
+\tab\tab int sons[2];\par
+\tab\tab generate_sons(node, sons);\par
+\par
+\tab\tab for (int i = 0; i < 2; ++i, swap(sons[0], sons[1])) \{\par
+\tab\tab\tab if (nodes[sons[0]] == 0 && (s[sons[0]] + s[down]) <= length - 2 && (s[sons[0]] + s[down] + length) % 2 == 0) \{\par
+\tab\tab\tab\tab update_ways(head, up, down, ways[sons[1]], deletion);\par
+\tab\tab\tab\}\par
+\tab\tab\tab if (nodes[sons[0]] == 0 && (s[sons[0]] + s[down]) <= length && (s[sons[0]] + s[down] + length) % 2 == 0) \{\par
+\tab\tab\tab\tab update_ways(head, up, down, ways[sons[1]], deletion);\par
+\tab\tab\tab\}\par
+\tab\tab\tab if (is_node(sons[0])) \{\par
+\tab\tab\tab\tab int grandsons[2];\par
+\tab\tab\tab\tab generate_sons(sons[0], grandsons);\par
+\par
+\tab\tab\tab\tab for (int j = 0; j < 2; ++j, swap(grandsons[0], grandsons[1])) \{\par
+\tab\tab\tab\tab\tab if (nodes[grandsons[0]] == 0 && s[grandsons[0]] + s[down] + 1 <= length && (s[grandsons[0]] + s[down] + 1 + length) % 2 == 0) \{\par
+\tab\tab\tab\tab\tab\tab update_ways(head, up, down, get_ways(node, sons[1], grandsons[1]), deletion);\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\} else \{\par
+\tab\tab\tab\tab if (s[sons[0]] != 1) \{\par
+\tab\tab\tab\tab\tab int grandson = get_unique_son(sons[0]);\par
+\tab\tab\tab\tab\tab if (s[down] <= length - 1 && (s[down] + length + 1) % 2 == 0) \{\par
+\tab\tab\tab\tab\tab\tab update_ways(head, up, down, get_ways(node, sons[1], grandson), deletion);\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\} else \{\par
+\tab\tab int node, length;\par
+\tab\tab generate_node(down, node, length);\par
+\tab\tab int sons[2];\par
+\tab\tab generate_sons(node, sons);\par
+\par
+\tab\tab for (int i = 0; i < 2; ++i, swap(sons[0], sons[1])) \{\par
+\tab\tab\tab if (nodes[sons[0]] == 0 && (s[sons[0]] + s[up]) <= length - 2 && (s[sons[0]] + s[up] + length) % 2 == 0) \{\par
+\tab\tab\tab\tab update_ways(head, up, down, ways[sons[1]], deletion);\par
+\tab\tab\tab\}\par
+\tab\tab\tab if (nodes[sons[0]] == 0 && (s[sons[0]] + s[up]) <= length && (s[sons[0]] + s[up] + length) % 2 == 0) \{\par
+\tab\tab\tab\tab update_ways(head, up, down, ways[sons[1]], deletion);\par
+\tab\tab\tab\}\par
+\tab\tab\tab if (is_node(sons[0])) \{\par
+\tab\tab\tab\tab int grandsons[2];\par
+\tab\tab\tab\tab generate_sons(sons[0], grandsons);\par
+\par
+\tab\tab\tab\tab for (int j = 0; j < 2; ++j, swap(grandsons[0], grandsons[1])) \{\par
+\tab\tab\tab\tab\tab if (nodes[grandsons[0]] == 0 && s[grandsons[0]] + s[up] + 1 <= length && (s[grandsons[0]] + s[up] + 1 + length) % 2 == 0) \{\par
+\tab\tab\tab\tab\tab\tab update_ways(head, up, down, get_ways(node, sons[1], grandsons[1]), deletion);\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\} else \{\par
+\tab\tab\tab\tab if (s[sons[0]] != 1) \{\par
+\tab\tab\tab\tab\tab int grandson = get_unique_son(sons[0]);\par
+\tab\tab\tab\tab\tab if (s[up] <= length - 1 && (s[up] + length + 1) % 2 == 0) \{\par
+\tab\tab\tab\tab\tab\tab update_ways(head, up, down, get_ways(node, sons[1], grandson), deletion);\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\}\par
+\}\par
+\par
+void calculate_ways(int v) \{\par
+\tab for (int i = 0; i < g[v].size(); ++i) \{\par
+\tab\tab if (d[v] + 1 == d[g[v][i]]) \{\par
+\tab\tab\tab calculate_ways(g[v][i]);\par
+\tab\tab\}\par
+\tab\}\par
+\par
+\tab vector < int > children;\par
+\tab for (int i = 0; i < g[v].size(); ++i) \{\par
+\tab\tab if (d[v] + 1 == d[g[v][i]]) \{\par
+\tab\tab\tab children.push_back(g[v][i]);\par
+\tab\tab\}\par
+\tab\}\par
+\par
+\tab if (children.size() == 1) \{\par
+\tab\tab if (nodes[v] == 0) \{\par
+\tab\tab\tab ways[v] = s[v] / 2;\par
+\tab\tab\tab return ;\par
+\tab\tab\}\par
+\par
+\tab\tab int node, length, sons[2];\par
+\tab\tab generate_node(v, node, length);\par
+\tab\tab generate_sons(node, sons);\par
+\par
+\tab\tab for (int i = 0; i < 2; ++i, swap(sons[0], sons[1])) \{\par
+\tab\tab\tab if (nodes[sons[0]] == 0 && s[sons[0]] <= length - 2 && (s[sons[0]] + length) % 2 == 0) \{\par
+\tab\tab\tab\tab ways[v] += ways[sons[1]];\par
+\tab\tab\tab\tab ways[v] %= P;\par
+\tab\tab\tab\}\par
+\tab\tab\tab if (nodes[sons[0]] == 0 && s[sons[0]] <= length && (s[sons[0]] + length) % 2 == 0) \{\par
+\tab\tab\tab\tab ways[v] += ways[sons[1]];\par
+\tab\tab\tab\tab ways[v] %= P;\par
+\tab\tab\tab\}\par
+\par
+\tab\tab\tab if (is_node(sons[0])) \{\par
+\tab\tab\tab\tab int grandsons[2];\par
+\tab\tab\tab\tab generate_sons(sons[0], grandsons);\par
+\par
+\tab\tab\tab\tab for (int j = 0; j < 2; ++j, swap(grandsons[0], grandsons[1])) \{\par
+\tab\tab\tab\tab\tab if (nodes[grandsons[0]] == 0 && s[grandsons[0]] <= length - 1 && (s[grandsons[0]] + length + 1) % 2 == 0) \{\par
+\tab\tab\tab\tab\tab\tab ways[v] += get_ways(node, sons[1], grandsons[1]);\par
+\tab\tab\tab\tab\tab\tab ways[v] %= P;\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\} else \{\par
+\tab\tab\tab\tab if (s[sons[0]] != 1) \{\par
+\tab\tab\tab\tab\tab int grandson = get_unique_son(sons[0]);\par
+\tab\tab\tab\tab\tab if ((length + 1) % 2 == 0) \{\par
+\tab\tab\tab\tab\tab\tab ways[v] += get_ways(node, sons[1], grandson);\par
+\tab\tab\tab\tab\tab\tab ways[v] %= P;\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\} else if (children.size() == 2) \{\par
+\tab\tab int sons[2];\par
+\tab\tab generate_sons(v, sons);\par
+\par
+\tab\tab for (int i = 0; i < 2; ++i, swap(sons[0], sons[1])) \{\par
+\tab\tab\tab if (is_node(sons[0])) \{\par
+\tab\tab\tab\tab int grandsons[2];\par
+\tab\tab\tab\tab generate_sons(sons[0], grandsons);\par
+\par
+\tab\tab\tab\tab for (int j = 0; j < 2; ++j, swap(grandsons[0], grandsons[1])) \{\par
+\tab\tab\tab\tab\tab generate_ways(v, sons[1], grandsons[1], true);\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab continue;\par
+\tab\tab\tab\}\par
+\par
+\tab\tab\tab if (s[sons[0]] == 1) \{\par
+\tab\tab\tab\tab ways[v] += ways[sons[1]];\par
+\tab\tab\tab\tab ways[v] %= P;\par
+\tab\tab\tab\tab continue;\par
+\tab\tab\tab\}\par
+\par
+\tab\tab\tab int up = sons[1], down = get_unique_son(sons[0]);\par
+\tab\tab\tab generate_ways(v, up, down);\par
+\tab\tab\}\par
+\par
+\tab\tab for (int i = 0; i < double_ways[v].size(); ++i) \{\par
+\tab\tab\tab ways[v] += double_ways[v][i];\par
+\tab\tab\tab ways[v] %= P;\par
+\tab\tab\}\par
+\tab\}\par
+\}\par
+\par
+long long get_sum(int v) \{\par
+\tab long long res = 0;\par
+\tab for (int i = 0; i < double_ways[v].size(); ++i) \{\par
+\tab\tab res += double_ways[v][i];\par
+\tab\tab res %= P;\par
+\tab\}\par
+\tab return res;\par
+\}\par
+\par
+void clear_ways(int v) \{\par
+\tab double_ways[v].clear();\par
+\tab children[v].clear();\par
+\}\par
+\par
+void solve(int root) \{\par
+\tab calculate_ways(root);\par
+\tab int sons[3];\par
+\tab generate_sons(root, sons);\par
+\tab sort(sons, sons + 3);\par
+\par
+\tab long long res = 0;\par
+\tab do \{\par
+\tab\tab int a = sons[0], b = sons[1], c = sons[2];\par
+\tab\tab if (!is_node(b)) \{\par
+\tab\tab\tab if (s[b] == 1) \{\par
+\tab\tab\tab\tab if ((s[a] + s[b] + 1) % 2 == 0 && (s[c] + s[b] + 1) % 2 == 0) \{\par
+\tab\tab\tab\tab\tab res += ways[a] * ways[c];\par
+\tab\tab\tab\tab\tab res %= P;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\} else \{\par
+\tab\tab\tab\tab for (int i = 0; i < 2; ++i, swap(a, c)) \{\par
+\tab\tab\tab\tab\tab if ((s[a] + s[b] + 1) % 2 == 0 && !is_node(a)) \{\par
+\tab\tab\tab\tab\tab\tab int up = a, down = get_unique_son(b);\par
+\tab\tab\tab\tab\tab\tab clear_ways(root);\par
+\tab\tab\tab\tab\tab\tab generate_ways(root, up, down);\par
+\tab\tab\tab\tab\tab\tab res += get_sum(root) * ways[c];\par
+\tab\tab\tab\tab\tab\tab res %= P;\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\}\par
+\tab\tab\} else \{\par
+\tab\tab\tab int grandsons[2];\par
+\tab\tab\tab generate_sons(b, grandsons);\par
+\tab\tab\tab for (int i = 0; i < 2; ++i, swap(grandsons[0], grandsons[1])) \{\par
+\tab\tab\tab\tab clear_ways(root);\par
+\tab\tab\tab\tab generate_ways(root, a, grandsons[0]);\par
+\tab\tab\tab\tab if ((s[a] + s[grandsons[0]]) % 2 != 0) \{\par
+\tab\tab\tab\tab\tab continue;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab long long left = get_sum(root);\par
+\par
+\tab\tab\tab\tab clear_ways(root);\par
+\tab\tab\tab\tab if ((s[c] + s[grandsons[1]]) % 2 != 0) \{\par
+\tab\tab\tab\tab\tab continue;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab generate_ways(root, c, grandsons[1]);\par
+\tab\tab\tab\tab long long right = get_sum(root);\par
+\par
+\tab\tab\tab\tab res += left * right;\par
+\tab\tab\tab\tab res %= P;\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\} while (next_permutation(sons, sons + 3));\par
+\par
+\tab res += res;\par
+\tab res %= P;\par
+\tab printf("%d\\n", (int)(res));\par
+\}\par
+\par
+int main() \{\par
+\tab //freopen("input.txt", "r", stdin);\par
+\tab //freopen("output.txt", "w", stdout);\par
+\par
+\tab scanf("%d", &n);\par
+\tab for (int i = 1; i < n + n; ++i) \{\par
+\tab\tab int u, v;\par
+\tab\tab scanf("%d%d", &u, &v);\par
+\tab\tab g[u].push_back(v);\par
+\tab\tab g[v].push_back(u);\par
+\tab\}\par
+\par
+\tab int root = -1;\par
+\tab for (int i = 1; i <= n + n; ++i) \{\par
+\tab\tab if (g[i].size() > 3) \{\par
+\tab\tab\tab printf("0\\n");\par
+\tab\tab\tab return 0;\par
+\tab\tab\}\par
+\tab\tab if (g[i].size() == 3) \{\par
+\tab\tab\tab root = i;\par
+\tab\tab\}\par
+\tab\}\par
+\par
+\tab if (root == -1) \{\par
+\tab\tab if (n == 1) \{\par
+\tab\tab\tab printf("2\\n");\par
+\tab\tab\} else \{\par
+\tab\tab\tab long long m = n;\par
+\tab\tab\tab long long res = (2LL * (m * m - m + 2)) % P;\par
+\tab\tab\tab printf("%d\\n", (int)(res));\par
+\tab\tab\}\par
+\tab\tab return 0;\par
+\tab\}\par
+\par
+\tab dfs(root);\par
+\tab solve(root);\par
+\par
+\tab return 0;\par
+\}\par
+}
+ 

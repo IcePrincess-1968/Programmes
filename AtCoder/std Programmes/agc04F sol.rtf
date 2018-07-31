@@ -1,0 +1,826 @@
+{\rtf1\ansi\ansicpg936\deff0\nouicompat\deflang1033\deflangfe2052{\fonttbl{\f0\fnil\fcharset134 \'cb\'ce\'cc\'e5;}}
+{\*\generator Riched20 10.0.16299}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang2052 enot\par
+\par
+#define __USE_MINGW_ANSI_STDIO 0\par
+#include <bits/stdc++.h>\par
+ \par
+#define F first\par
+#define S second\par
+#define pb push_back\par
+#define mp make_pair\par
+#define forn(i, n) for(int i = 0 ; (i) < (n) ; ++i)\par
+#define eprintf(...) fprintf(stderr, __VA_ARGS__),fflush(stderr)\par
+#define sz(a) ((int)(a).size())\par
+#define all(a) (a).begin(),a.end()\par
+#define pw(x) (1LL<<(x))\par
+ \par
+using namespace std;\par
+ \par
+typedef long long ll;\par
+typedef double dbl;\par
+typedef vector<int> vi;\par
+typedef pair<int, int> pi;\par
+ \par
+const int inf = 1.01e9;\par
+const dbl eps = 1e-9;\par
+ \par
+/* --- main part --- */\par
+ \par
+int n, m;\par
+ \par
+namespace task1\par
+\{\par
+ \par
+const int N = 1e5 + 10;\par
+ \par
+int mark[N];\par
+vi v[N];\par
+int d[N][2];\par
+ll res = 0;\par
+ \par
+void dfs(int x)\par
+\{\par
+    mark[x] = 1;\par
+    d[x][0] = 1;\par
+    d[x][1] = 0;\par
+    for (int y : v[x])\par
+    \{\par
+        if (mark[y] == 1) continue;\par
+        dfs(y);\par
+        d[x][0] += d[y][1];\par
+        d[x][1] += d[y][0];\par
+    \}\par
+    res += abs(d[x][0] - d[x][1]);\par
+\}\par
+ \par
+void run()\par
+\{\par
+    forn(i, n - 1)\par
+    \{\par
+        int x, y;\par
+        scanf("%d%d", &x, &y);\par
+        --x, --y;\par
+        v[x].pb(y);\par
+        v[y].pb(x);\par
+    \}\par
+    dfs(0);\par
+    if (d[0][0] != d[0][1]) res = -1;\par
+    printf("%lld\\n", res);\par
+    exit(0);\par
+\}    \par
+ \par
+\}\par
+ \par
+const int N = 1e5 + 10;\par
+ \par
+vi v[N];\par
+vi cycle;\par
+int cyc[N];\par
+int mark[N];\par
+int st[N], stc = 0;\par
+int found = 0;\par
+ \par
+void dfs(int x, int pr = -1)\par
+\{\par
+    mark[x] = 1;\par
+    st[stc++] = x;\par
+    for (int y : v[x])\par
+    \{\par
+        if (y == pr) continue;\par
+        if (mark[y] == 1)\par
+        \{\par
+            if (found) continue;\par
+            found = 1;\par
+            for (int i = stc - 1; i >= 0; --i)\par
+            \{\par
+                int z = st[i];\par
+                cycle.pb(z);\par
+                cyc[z] = 1;\par
+                if (z == y) break;\par
+            \}\par
+        \}\par
+        else\par
+        \{\par
+            dfs(y, x);\par
+        \}\par
+    \}\par
+    stc--;\par
+\}\par
+ \par
+ll res = 0;        \par
+int d[N][2];\par
+ \par
+void calc(int x)\par
+\{\par
+    mark[x] = 1;\par
+    d[x][0] = 1;\par
+    d[x][1] = 0;\par
+    for (int y : v[x])\par
+    \{\par
+        if (!cyc[y] && mark[y] == 0)\par
+        \{\par
+            calc(y);\par
+            d[x][0] += d[y][1];\par
+            d[x][1] += d[y][0];\par
+        \}\par
+    \}\par
+    if (!cyc[x]) res += abs(d[x][0] - d[x][1]);\par
+\}\par
+            \par
+int cnt[N];\par
+ \par
+ll f(int x, vi &v1, vi &v2)\par
+\{\par
+    ll r = 0;\par
+    forn(i, sz(v1)) r += abs(v1[i] - x);\par
+    forn(i, sz(v2)) r += abs(v2[i] + x);\par
+    return r;\par
+\}\par
+ \par
+ \par
+int main()\par
+\{\par
+    #ifdef home\par
+        assert(freopen("1.in", "r", stdin));\par
+        assert(freopen("1.out", "w", stdout));\par
+    #endif\par
+    scanf("%d%d", &n, &m);\par
+    if (n == m + 1)\par
+    \{\par
+        task1::run();\par
+        return 0;\par
+    \}\par
+    forn(i, m)\par
+    \{\par
+        int x, y;\par
+        scanf("%d%d", &x, &y);\par
+        --x, --y;\par
+        v[x].pb(y);\par
+        v[y].pb(x);\par
+    \}\par
+    dfs(0);\par
+    memset(mark, 0, sizeof mark);\par
+    ll val = 0;\par
+    forn(i, n) if (cyc[i])\par
+    \{\par
+        calc(i);\par
+        val += abs(d[i][0] - d[i][1]);\par
+    \}\par
+ \par
+    int cc = sz(cycle);\par
+    /*forn(i, sz(cycle))\par
+    \{\par
+        eprintf("%d%c", cycle[i], " \\n"[i + 1 == sz(cycle)]);\par
+    \}  */\par
+    forn(i, cc)\par
+    \{\par
+        cnt[i] = d[cycle[i]][0] - d[cycle[i]][1];\par
+    \}        \par
+ \par
+    int ok = val % 2 == 0;\par
+    if (!ok) return 0 * printf("-1\\n");\par
+ \par
+    int a = 1, b = 0;\par
+    for (int i = 1; i < cc; ++i)\par
+    \{\par
+        int a2 = -a;\par
+        int b2 = cnt[i] - b;\par
+        a = a2, b = b2;\par
+    \}\par
+ \par
+    if (a == 1)\par
+    \{\par
+        assert((cnt[0] - b) % 2 == 0);\par
+        int x = (cnt[0] - b) / 2;\par
+        res += abs(x);\par
+        for (int i = 1; i < cc; ++i)\par
+        \{\par
+            x = cnt[i] - x;\par
+            res += abs(x);\par
+        \}\par
+        printf("%lld\\n", res);\par
+    \}\par
+    else\par
+    \{\par
+        if (b != cnt[0]) return 0 * printf("-1\\n");\par
+        vi v1, v2;\par
+        int x = 0;\par
+        v1.pb(x);\par
+        for (int i = 1; i < cc; ++i)\par
+        \{\par
+            x = cnt[i] - x;\par
+            if (i % 2 == 0) v1.pb(x);\par
+            else v2.pb(x);\par
+        \}\par
+        int L = -1e8;\par
+        int R = 1e8;\par
+        while (R - L > 10)\par
+        \{\par
+            int m1 = (2 * L + R) / 3;\par
+            int m2 = (L + 2 * R) / 3;\par
+            ll f1 = f(m1, v1, v2);\par
+            ll f2 = f(m2, v1, v2);\par
+            if (f1 < f2) R = m2;\par
+            else L = m1;\par
+        \}\par
+        ll ans = 1e18;\par
+        for (int i = L; i <= R; ++i) ans = min(ans, f(i, v1, v2));\par
+        res += ans;\par
+        printf("%lld\\n", res);\par
+    \}\par
+    #ifdef home\par
+        eprintf("time = %d ms\\n", (int)(clock() * 1000. / CLOCKS_PER_SEC));\par
+    #endif\par
+    return 0;\par
+\}\par
+\par
+\par
+tourist\par
+\par
+#include <bits/stdc++.h>\par
+ \par
+using namespace std;\par
+ \par
+const int N = 1234567;\par
+ \par
+vector <int> g[N];\par
+int was[N];\par
+ \par
+vector <int> c;\par
+bool found;\par
+ \par
+int nnn;\par
+ \par
+void dfs_cycle(int v, int pr) \{\par
+  if (found) \{\par
+    return;\par
+  \}\par
+  c.push_back(v);\par
+  was[v] = 1;\par
+  int sz = g[v].size();\par
+  for (int j = 0; j < sz; j++) \{\par
+    int u = g[v][j];\par
+    if (u == pr) \{\par
+      continue;\par
+    \}\par
+    if (was[u] == 0) \{\par
+      dfs_cycle(u, v);\par
+      if (found) \{\par
+        return;\par
+      \}\par
+      continue;\par
+    \}\par
+    if (was[u] == 1) \{\par
+      vector <int> new_c;\par
+      for (int pos = 0; pos < (int) c.size(); pos++) \{\par
+        if (c[pos] == u) \{\par
+          for (int z = pos; z < (int) c.size(); z++) \{\par
+            new_c.push_back(c[z]);\par
+          \}\par
+          break;\par
+        \}\par
+      \}\par
+      c = new_c;\par
+      found = true;\par
+      return;\par
+    \}\par
+  \}\par
+  c.pop_back();\par
+\}\par
+ \par
+vector <int> find_cycle() \{\par
+  c.clear();\par
+  found = false;\par
+  dfs_cycle(0, -1);\par
+  return c;\par
+\}\par
+ \par
+long long ans;\par
+bool on_cycle[N];\par
+ \par
+long long dfs(int v, int pr) \{\par
+  int sz = g[v].size();\par
+  long long sum = 0;\par
+  for (int j = 0; j < sz; j++) \{\par
+    int u = g[v][j];\par
+    if (u == pr || on_cycle[u]) \{\par
+      continue;\par
+    \}\par
+    long long cur = dfs(u, v);\par
+    sum += cur;\par
+  \}\par
+  long long up = 1 - sum;\par
+  ans += (up > 0 ? up : -up);\par
+  return up;\par
+\}\par
+ \par
+int main() \{\par
+  int n, m;\par
+  scanf("%d %d", &n, &m);\par
+  for (int i = 0; i < m; i++) \{\par
+    int x, y;\par
+    scanf("%d %d", &x, &y);\par
+    x--; y--;\par
+    g[x].push_back(y);\par
+    g[y].push_back(x);\par
+  \}\par
+  if (m == n - 1) \{\par
+    ans = 0;\par
+    if (dfs(0, -1) != 0) \{\par
+      cout << -1 << endl;\par
+    \} else \{\par
+      cout << ans << endl;\par
+    \}\par
+  \} else \{\par
+    vector <int> cycle = find_cycle();\par
+    assert(!cycle.empty());\par
+    for (int i = 0; i < n; i++) \{\par
+      on_cycle[i] = false;\par
+    \}\par
+    for (int p : cycle) \{\par
+      on_cycle[p] = true;\par
+    \}\par
+    vector <long long> z;\par
+    ans = 0;\par
+    for (int i = 0; i < (int) cycle.size(); i++) \{\par
+      z.push_back(dfs(cycle[i], -1));\par
+      ans -= (z.back() > 0 ? z.back() : -z.back());\par
+    \}\par
+    int m = z.size();\par
+    if (m % 2 == 1) \{\par
+      long long total = 0;\par
+      for (int i = m - 1; i >= 0; i--) \{\par
+        if (i % 2 == (m - 1) % 2) \{\par
+          total += z[i];\par
+        \} else \{\par
+          total -= z[i];\par
+        \}\par
+      \}\par
+      if (total % 2 != 0) \{\par
+        cout << -1 << endl;\par
+      \} else \{\par
+        long long x = total / 2;\par
+        for (int i = 0; i < m; i++) \{\par
+          ans += (x > 0 ? x : -x);\par
+          x = z[i] - x;\par
+        \}\par
+        cout << ans << endl;\par
+      \}\par
+    \} else \{\par
+      long long total = 0;\par
+      for (int i = m - 1; i >= 0; i--) \{\par
+        if (i % 2 == (m - 1) % 2) \{\par
+          total += z[i];\par
+        \} else \{\par
+          total -= z[i];\par
+        \}\par
+      \}\par
+      if (total != 0) \{\par
+        cout << -1 << endl;\par
+      \} else \{\par
+        vector <long long> h;\par
+        long long value = 0;\par
+        for (int i = 0; i < m; i++) \{\par
+          if (i % 2 == 0) \{\par
+            h.push_back(-value);\par
+          \} else \{\par
+            h.push_back(value);\par
+          \}\par
+          value = z[i] - value;\par
+        \}\par
+        sort(h.begin(), h.end());\par
+        long long x = h[m / 2];\par
+        for (int i = 0; i < m; i++) \{\par
+          ans += (x > 0 ? x : -x);\par
+          x = z[i] - x;\par
+        \}\par
+        cout << ans << endl;\par
+      \}\par
+    \}\par
+  \}\par
+  return 0;\par
+\}\par
+\par
+LHiC\par
+\par
+\par
+#define mp make_pair\par
+#define pb push_back\par
+ \par
+ \par
+typedef long long ll;\par
+typedef long double ld;\par
+ \par
+using namespace std;\par
+ll ans = 0;\par
+int was[120000];\par
+vector<int> eds[120000];\par
+int cl[120000];\par
+int cc[120000][2];\par
+int a[120000];\par
+int n, m;\par
+ \par
+void dfs1(int v, int c) \{\par
+\tab was[v] = 1;\par
+\tab cl[v] = c;\par
+\tab ++cc[v][c];\par
+\tab for (int u: eds[v]) \{\par
+\tab\tab if (!was[u]) \{\par
+\tab\tab\tab dfs1(u, c^1);\par
+\tab\tab\tab cc[v][0] += cc[u][0];\par
+\tab\tab\tab cc[v][1] += cc[u][1];\par
+\tab\tab\}\par
+\tab\}\par
+\tab ans += abs(cc[v][0] - cc[v][1]);\par
+\}\par
+ \par
+vector<int> vv;\par
+vector<int> st;\par
+ \par
+int dfs2(int v, int fr) \{\par
+\tab st.push_back(v);\par
+\tab was[v] = 1;\par
+\tab for (int u: eds[v]) \{\par
+\tab\tab if (u == fr)\par
+\tab\tab\tab continue;\par
+\tab\tab if (!was[u]) \{\par
+\tab\tab\tab if (dfs2(u, v))\par
+\tab\tab\tab\tab return 1;\par
+\tab\tab\}\par
+\tab\tab else \{\par
+\tab\tab\tab while (st.back() != u)\par
+\tab\tab\tab\tab vv.push_back(st.back()), st.pop_back();\par
+\tab\tab\tab vv.push_back(u);\par
+\tab\tab\tab return 1;\par
+\tab\tab\}\par
+\tab\}\par
+\tab st.pop_back();\par
+\tab return 0;\par
+\}\par
+ \par
+ll get(int x) \{\par
+\tab ll ans = 0;\par
+\tab ll now = x;\par
+\tab for (int i = 0; i < n; ++i) \{\par
+\tab\tab now += a[i];\par
+\tab\tab ans += abs(now);\par
+\tab\}\par
+\tab return ans;\par
+\}\par
+ \par
+int main() \{\par
+\tab scanf("%d%d", &n, &m);\par
+\tab if (n % 2 == 1) \{\par
+\tab\tab cout << -1 << "\\n";\par
+\tab\tab return 0;\par
+\tab\}\par
+\tab for (int i = 0; i < m; ++i) \{\par
+\tab\tab int a, b;\par
+\tab\tab scanf("%d%d", &a, &b);\par
+\tab\tab --a;\par
+\tab\tab --b;\par
+\tab\tab eds[a].push_back(b);\par
+\tab\tab eds[b].push_back(a);\par
+\tab\}\par
+\tab if (m == n - 1) \{\par
+\tab\tab dfs1(0, 0);\par
+\tab\tab if (cc[0][0] != cc[0][1]) \{\par
+\tab\tab\tab cout << -1 << "\\n";\par
+\tab\tab\}\par
+\tab\tab else \{\par
+\tab\tab\tab cout << ans << "\\n";\par
+\tab\tab\}\par
+\tab\}\par
+\tab else \{\par
+\tab\tab dfs2(0, -1);\par
+\tab\tab memset(was, 0, sizeof(was));\par
+\tab\tab for (int i: vv)\par
+\tab\tab\tab was[i] = 1;\par
+\tab\tab for (int i = 0; i < (int)vv.size(); ++i) \{\par
+\tab\tab\tab dfs1(vv[i], i % 2);\par
+\tab\tab\tab a[i] = cc[vv[i]][0] - cc[vv[i]][1];\par
+\tab\tab\tab ans -= abs(a[i]);\par
+\tab\tab\}\par
+\tab\tab int sum = 0;\par
+\tab\tab for (int i = 0; i < (int)vv.size(); ++i)\par
+\tab\tab\tab sum += a[i];\par
+\tab\tab n = vv.size();\par
+\tab\tab if ((int)vv.size() % 2 == 0) \{\par
+\tab\tab\tab if (sum != 0) \{\par
+\tab\tab\tab\tab cout << -1 << "\\n";\par
+\tab\tab\tab\tab return 0;\par
+\tab\tab\tab\}\par
+\tab\tab\tab int lb = -120000;\par
+\tab\tab\tab int rb = 120000;\par
+\tab\tab\tab while (rb - lb > 3) \{\par
+\tab\tab\tab\tab int m1 = lb + (rb - lb) / 3;\par
+\tab\tab\tab\tab int m2 = m1 + (rb - lb) / 3;\par
+\tab\tab\tab\tab if (get(m1) > get(m2))\par
+\tab\tab\tab\tab\tab lb = m1;\par
+\tab\tab\tab\tab else\par
+\tab\tab\tab\tab\tab rb = m2;\par
+\tab\tab\tab\}\par
+\tab\tab\tab ll aans = 1e11;\par
+\tab\tab\tab for (int j = lb; j <= rb; ++j)\par
+\tab\tab\tab\tab aans = min(aans, get(j));\par
+\tab\tab\tab cout << ans + aans << "\\n";\par
+\tab\tab\}\par
+\tab\tab else \{\par
+\tab\tab\tab sum /= 2;\par
+\tab\tab\tab ans += abs(sum);\par
+\tab\tab\tab a[0] -= sum;\par
+\tab\tab\tab a[n - 1] -= sum;\par
+\tab\tab\tab cout << ans + get(0) << "\\n";\par
+\tab\tab\}\par
+\tab\}\par
+\tab return 0;\par
+\}\par
+ \par
+\par
+hogloid\par
+\par
+#include<bits/stdc++.h>\par
+#define REP(i,m) for(int i=0;i<(m);++i)\par
+#define REPN(i,m,in) for(int i=(in);i<(m);++i)\par
+#define ALL(t) (t).begin(),(t).end()\par
+#define CLR(a) memset((a),0,sizeof(a))\par
+#define pb push_back\par
+#define mp make_pair\par
+#define fr first\par
+#define sc second\par
+ \par
+using namespace std;\par
+ \par
+ \par
+#ifdef DEB\par
+#define dump(x)  cerr << #x << " = " << (x) << endl\par
+#define prl cerr<<"called:"<< __LINE__<<endl\par
+#define dumpR(x) cerr<<"\\x1b[31m"<<#x<<" = " <<(x)<<"\\x1b[39m"<<endl\par
+#define dumpY(x) cerr<<"\\x1b[33m"<<#x<<" = " <<(x)<<"\\x1b[39m"<<endl\par
+#define dumpG(x) cerr<<"\\x1b[32m"<<#x<<" = " <<(x)<<"\\x1b[39m"<<endl\par
+template<class T> void debug(T a,T b)\{ for(;a!=b;++a) cerr<<*a<<' ';cerr<<endl;\}\par
+#else\par
+#define dump(x) ;\par
+#define dumpR(x) ;\par
+#define dumpY(x) ;\par
+#define dumpG(x) ;\par
+#define prl ;\par
+template<class T> void debug(T a,T b)\{ ;\}\par
+#endif\par
+ \par
+template<class T> void chmin(T& a,const T& b) \{ if(a>b) a=b; \}\par
+template<class T> void chmax(T& a,const T& b) \{ if(a<b) a=b; \}\par
+ \par
+typedef long long int lint;\par
+typedef pair<lint,lint> pi;\par
+ \par
+namespace std\{\par
+  template<class S,class T>\par
+  ostream &operator <<(ostream& out,const pair<S,T>& a)\{\par
+    out<<'('<<a.fr<<','<<a.sc<<')';\par
+    return out;\par
+  \}\par
+\}\par
+ \par
+//const int INF=5e8;\par
+int n,m;\par
+vector<int> g[100005];\par
+void ng()\{\par
+  puts("-1");\par
+  exit(0);\par
+\}\par
+pi dfs(int v,int p)\{\par
+  int cost=0,flip=0;\par
+  for(auto to:g[v])\{\par
+    if(to==p) continue;\par
+    pi nxt=dfs(to,v);\par
+    cost+=nxt.fr;\par
+    flip+=nxt.sc;\par
+  \}\par
+  if(flip==1) return mp(cost,0);\par
+  else return mp(cost+abs(flip-1),1-flip);\par
+\}\par
+ \par
+void solve1()\{\par
+  REP(i,n-1)\{\par
+    int a,b;scanf("%d%d",&a,&b);--a;--b;\par
+    g[a].pb(b);\par
+    g[b].pb(a);\par
+  \}\par
+  pi res=dfs(0,-1);\par
+  if(res.sc) ng();\par
+  printf("%lld\\n",res.fr);\par
+\}\par
+ \par
+ \par
+struct uf\{\par
+ \par
+  static const int MAXN=100005;\par
+  int par[MAXN];\par
+  int size[MAXN];\par
+  void init()\{\par
+    memset(par,-1,sizeof(par));\par
+    REP(i,MAXN) size[i]=1;\par
+  \}\par
+  int root(int a)\{\par
+    if(par[a]==-1) return a;\par
+    return par[a]=root(par[a]);\par
+  \}\par
+  void unite(int a,int b)\{\par
+    a=root(a);b=root(b);\par
+    if(a==b) return;\par
+    if(size[a]<size[b]) swap(a,b);\par
+ \par
+    par[b]=a;\par
+    size[a]+=size[b];\par
+  \}\par
+  bool same(int a,int b)\{\par
+    return root(a)==root(b);\par
+  \}\par
+\};\par
+uf u;\par
+ \par
+vector<int> path,ever;\par
+bool inCycle[100005];\par
+void findpath(int a,int p,int b)\{\par
+  ever.pb(a);\par
+  if(a==b)\{\par
+    path=ever;\par
+  \}\par
+  for(auto to:g[a])\{\par
+    if(to==p) continue;\par
+    findpath(to,a,b);\par
+  \}\par
+  ever.pop_back();\par
+\}\par
+pi dfs2(int v,int p)\{\par
+  int cost=0,flip=0;\par
+  for(auto to:g[v])\{\par
+    if(to==p || inCycle[to]) continue;\par
+    pi nxt=dfs2(to,v);\par
+    cost+=nxt.fr;\par
+    flip+=nxt.sc;\par
+  \}\par
+  if(flip==1) return mp(cost,0);\par
+  else return mp(cost+abs(flip-1),1-flip);\par
+\}\par
+pi es[100005];\par
+ \par
+void massert(bool a)\{\par
+  if(!a) while(1)\{\};\par
+\}\par
+ \par
+void solve2()\{\par
+  u.init();\par
+  REP(i,m)\{\par
+    int a,b;scanf("%d%d",&a,&b);--a;--b;\par
+    es[i]=mp(a,b);\par
+    if(u.same(a,b))\{\par
+      findpath(a,-1,b);\par
+    \}else\{\par
+      u.unite(a,b);\par
+      g[a].pb(b);\par
+      g[b].pb(a);\par
+    \}\par
+  \}\par
+  debug(ALL(path));\par
+  for(auto e:path) inCycle[e]=1;\par
+ \par
+  REP(i,n) g[i].clear();\par
+ \par
+  REP(i,m)\{\par
+    int a=es[i].fr,b=es[i].sc;\par
+    if(!inCycle[a] || !inCycle[b])\{\par
+      g[a].pb(b);\par
+      g[b].pb(a);\par
+    \}\par
+  \}\par
+ \par
+  lint res=0,sum=0;\par
+  vector<lint> ar(path.size());\par
+  REP(i,path.size())\{\par
+    int v=path[i];\par
+    pi nxt=dfs2(v,-1);\par
+    dump(nxt);\par
+    nxt.fr-=abs(nxt.sc);\par
+    res+=nxt.fr;\par
+    ar[i]=nxt.sc;\par
+    sum+=ar[i];\par
+  \}\par
+  if(sum&1) ng();\par
+  dump(res);\par
+ \par
+  int n2=ar.size();\par
+  vector<lint> prev=ar;\par
+  debug(ALL(ar));\par
+  REP(i,n2-1)\{\par
+    ar[i+1]-=ar[i];\par
+  \}\par
+  res+=abs(ar[n2-1])/2;\par
+  if(ar[n2-1]!=0 && n2%2==0) ng();\par
+ \par
+  if(n2&1)\{\par
+    debug(ALL(ar));\par
+    prev[0]-=ar[n2-1]/2;\par
+    prev[n2-1]-=ar[n2-1]/2;\par
+    ar=prev;\par
+    debug(ALL(prev));\par
+    REP(i,n2-1)\{\par
+      ar[i+1]-=ar[i];\par
+      res+=abs(ar[i]);\par
+      dump(res);\par
+    \}\par
+  \}else\{\par
+    ar=prev;\par
+    pi val=mp(1,ar[0]);\par
+    vector<lint> pivs;pivs.pb(0);\par
+    REP(i,n2-1)\{\par
+      dump(val);\par
+      pivs.pb(-val.sc*val.fr);\par
+      pi nxt=mp(-val.fr,ar[i+1]-val.sc);\par
+      val=nxt;\par
+    \}\par
+    dump(val);\par
+    sort(ALL(pivs));\par
+    debug(ALL(pivs));\par
+    lint v=pivs[n2/2];\par
+    REP(i,n2) res+=abs(pivs[i]-v);\par
+  \}\par
+  cout<<res<<endl;\par
+\}\par
+ \par
+int main()\{\par
+  cin>>n>>m;\par
+  if(n&1) ng();\par
+  if(m==n-1) solve1();\par
+  else solve2();\par
+  return 0;\par
+\}\par
+\par
+laofu\par
+\par
+#include<bits/stdc++.h>\par
+using namespace std;\par
+typedef long long LL;\par
+const int N=2e5;\par
+int head[N],nxt[N],to[N],st[N];\par
+int fa[N];inline int find(int x) \{ return fa[x]==x?x:fa[x]=find(fa[x]); \}\par
+LL ans,sum[N],siz[N];\par
+bool vis[N];\par
+inline int dfs(int k) \{\par
+\tab int t;\par
+\tab for (int i=head[k];i;i=nxt[i])\par
+\tab\tab if (!vis[to[i]]) \{\par
+\tab\tab\tab vis[to[i]]=true;\par
+\tab\tab\tab t=dfs(to[i]);\par
+\tab\tab\tab ans+=abs(t);\par
+\tab\tab\tab siz[k]-=t;\par
+\tab\tab\}\par
+\tab return siz[k];\par
+\}\par
+inline void get(int k) \{\par
+\tab for (int i=head[k];i;i=nxt[i])\par
+\tab\tab if (to[i]!=fa[k])\par
+\tab\tab\tab fa[to[i]]=k,get(to[i]);\par
+\}\par
+int main()\par
+\{\par
+\tab int n,m,i,tot=0,a,b,A,B,top=0,t,k;cin>>n>>m;\par
+\tab for (i=1;i<=n;i++) fa[i]=i,siz[i]=1;\par
+\tab for (i=1;i<=m;i++) \{\par
+\tab\tab cin>>a>>b;\par
+\tab\tab if (find(a)==find(b)) A=a,B=b;\par
+\tab\tab else \{\par
+\tab\tab\tab fa[fa[a]]=b;\par
+\tab\tab\tab to[++tot]=b,nxt[tot]=head[a],head[a]=tot;\par
+\tab\tab\tab to[++tot]=a,nxt[tot]=head[b],head[b]=tot;\par
+\tab\tab\}\par
+\tab\}\par
+\tab if (m==n-1)\par
+\tab\tab vis[1]=true,printf("%lld\\n",dfs(1)?-1:ans);\par
+\tab else \{\par
+\tab\tab for (i=1;i<=n;i++) fa[i]=0;\par
+\tab\tab get(A);\par
+\tab\tab for (k=B;k;k=fa[k]) st[++top]=k;\par
+\tab\tab if (top&1) \{\par
+\tab\tab\tab vis[A]=true;t=dfs(A);\par
+\tab\tab\tab for (i=1;i<=n;i++) vis[i]=false,siz[i]=1;\par
+\tab\tab\tab if (t%2) return puts("-1"),0;\par
+\tab\tab\tab siz[A]-=t/2,siz[B]-=t/2;\par
+\tab\tab\tab ans=abs(t/2);\par
+\tab\tab\tab vis[A]=true;dfs(A);\par
+\tab\tab\} else \{\par
+\tab\tab\tab for (i=1;i<=top;i++) vis[st[i]]=true;\par
+\tab\tab\tab for (i=1;i<=top;i++) sum[i]=sum[i-1]+(i&1?-1:1)*dfs(st[i]);\par
+\tab\tab\tab if (sum[top]) return puts("-1"),0;\par
+\tab\tab\tab sort(sum+1,sum+1+top);\par
+\tab\tab\tab for (i=1;i<=top;i++) ans+=abs(sum[top/2]-sum[i]);\par
+\tab\tab\}\par
+\tab\tab printf("%lld\\n",ans);\par
+\tab\}\par
+\tab return 0;\par
+\}\par
+\par
+}
+ 

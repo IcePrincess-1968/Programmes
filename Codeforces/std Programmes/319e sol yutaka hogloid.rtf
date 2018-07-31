@@ -1,0 +1,305 @@
+{\rtf1\ansi\ansicpg936\deff0\nouicompat\deflang1033\deflangfe2052{\fonttbl{\f0\fnil\fcharset134 \'cb\'ce\'cc\'e5;}}
+{\*\generator Riched20 10.0.16299}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang2052 #include <cstdio>\par
+#include <cstdlib>\par
+#include <algorithm>\par
+#include <vector>\par
+#include <cstring>\par
+#define SIZE 200005\par
+#define BT 1024*256*2\par
+\par
+using namespace std;\par
+typedef pair <int,int> P;\par
+\par
+int memo[SIZE];\par
+int msz;\par
+struct segtree\par
+\{\par
+\tab vector <int> seg[BT];\par
+\tab int mum;\par
+\tab\par
+\tab void init(int n)\par
+\tab\{\par
+\tab\tab mum=1;\par
+\tab\tab while(mum<n) mum<<=1;\par
+\tab\tab for(int i=0;i<mum*2;i++) seg[i].clear();\par
+\tab\}\par
+\tab void update(int a,int b,int k,int l,int r,int v)\par
+\tab\{\par
+\tab\tab if(b<=l||r<=a) return;\par
+\tab\tab if(a<=l&&r<=b) seg[k].push_back(v);\par
+\tab\tab else\par
+\tab\tab\{\par
+\tab\tab\tab update(a,b,k*2+1,l,(l+r)/2,v);\par
+\tab\tab\tab update(a,b,k*2+2,(l+r)/2,r,v);\par
+\tab\tab\}\par
+\tab\}\par
+\tab void update(int a,int b,int v)\par
+\tab\{\par
+\tab\tab update(a,b,0,0,mum,v);\par
+\tab\}\par
+\tab void rem(int k)\par
+\tab\{\par
+\tab\tab for(int i=0;i<seg[k].size();i++)\par
+\tab\tab\{\par
+\tab\tab\tab int v=seg[k][i];\par
+\tab\tab\tab memo[msz++]=v;\par
+\tab\tab\}\par
+\tab\tab seg[k].clear();\par
+\tab\}\par
+\tab void get(int k)\par
+\tab\{\par
+\tab\tab msz=0;\par
+\tab\tab k+=mum-1;\par
+\tab\tab rem(k);\par
+\tab\tab while(k>0)\par
+\tab\tab\{\par
+\tab\tab\tab k=(k-1)/2;\par
+\tab\tab\tab rem(k);\par
+\tab\tab\}\par
+\tab\}\par
+\};\par
+struct UF\par
+\{\par
+\tab int par[SIZE],rank[SIZE];\par
+\tab\par
+\tab void init(int n)\par
+\tab\{\par
+\tab\tab for(int i=0;i<n;i++)\par
+\tab\tab\{\par
+\tab\tab\tab par[i]=i;\par
+\tab\tab\tab rank[i]=0;\par
+\tab\tab\}\par
+\tab\}\par
+\tab int find(int x)\par
+\tab\{\par
+\tab\tab if(par[x]==x) return x;\par
+\tab\tab return par[x]=find(par[x]);\par
+\tab\}\par
+\tab void unite(int x,int y)//x->y\par
+\tab\{\par
+\tab\tab x=find(x);\par
+\tab\tab y=find(y);\par
+\tab\tab if(x==y) return;\par
+\tab\tab par[x]=y;\par
+\tab\}\par
+\tab bool same(int x,int y)\par
+\tab\{\par
+\tab\tab return find(x)==find(y);\par
+\tab\}\par
+\};\par
+segtree seg;\par
+UF uf;\par
+vector <int> vx;\par
+int T[SIZE],X[SIZE],Y[SIZE];\par
+int id[SIZE];\par
+P pos[SIZE];\par
+\par
+P merge(P p,P q)\par
+\{\par
+\tab return P(min(p.first,q.first),max(p.second,q.second));\par
+\}\par
+int main()\par
+\{\par
+\tab int n;\par
+\tab scanf("%d",&n);\par
+\tab uf.init(n+2);\par
+\tab int sz=0;\par
+\tab for(int i=0;i<n;i++)\par
+\tab\{\par
+\tab\tab int tp,x,y;\par
+\tab\tab scanf("%d %d %d",&tp,&x,&y);x--;y--;\par
+\tab\tab T[i]=tp,X[i]=x,Y[i]=y;\par
+\tab\tab if(tp==1)\par
+\tab\tab\{\par
+\tab\tab\tab vx.push_back(x);\par
+\tab\tab\tab vx.push_back(y);\par
+\tab\tab\tab id[sz++]=i;\par
+\tab\tab\}\par
+\tab\}\par
+\tab sort(vx.begin(),vx.end());\par
+\tab vx.erase(unique(vx.begin(),vx.end()),vx.end());\par
+\tab seg.init(vx.size()+2);\par
+\tab for(int i=0;i<n;i++)\par
+\tab\{\par
+\tab\tab if(T[i]==1)\par
+\tab\tab\{\par
+\tab\tab\tab X[i]=lower_bound(vx.begin(),vx.end(),X[i])-vx.begin();\par
+\tab\tab\tab Y[i]=lower_bound(vx.begin(),vx.end(),Y[i])-vx.begin();\par
+\tab\tab\tab pos[i]=P(X[i],Y[i]);\par
+\tab\tab\tab seg.get(X[i]);\par
+\tab\tab\tab for(int j=0;j<msz;j++)\par
+\tab\tab\tab\{\par
+\tab\tab\tab\tab uf.unite(memo[j],i);\par
+\tab\tab\tab\tab pos[i]=merge(pos[i],pos[memo[j]]);\par
+\tab\tab\tab\}\par
+\tab\tab\tab seg.get(Y[i]);\par
+\tab\tab\tab for(int j=0;j<msz;j++)\par
+\tab\tab\tab\{\par
+\tab\tab\tab\tab uf.unite(memo[j],i);\par
+\tab\tab\tab\tab pos[i]=merge(pos[i],pos[memo[j]]);\par
+\tab\tab\tab\}\par
+\tab\tab\tab if(pos[i].first+1<=pos[i].second-1) seg.update(pos[i].first+1,pos[i].second,i);\par
+\tab\tab\}\par
+\tab\tab else\par
+\tab\tab\{\par
+\tab\tab\tab int a=id[X[i]],b=id[Y[i]];\par
+\tab\tab\tab P p=pos[uf.find(b)];\par
+\tab\tab\tab if((p.first<X[a]&&X[a]<p.second)||(p.first<Y[a]&&Y[a]<p.second)) puts("YES");\par
+\tab\tab\tab else puts("NO");\par
+\tab\tab\}\par
+\tab\}\par
+\tab return 0;\par
+\}\par
+\par
+\par
+\par
+\par
+#define DEB\par
+#include<bits/stdc++.h>\par
+#define REP(i,m) for(int i=0;i<(m);++i)\par
+#define REPN(i,m,in) for(int i=(in);i<(m);++i)\par
+#define ALL(t) (t).begin(),(t).end()\par
+#define CLR(a) memset((a),0,sizeof(a))\par
+#define pb push_back\par
+#define mp make_pair\par
+#define fr first\par
+#define sc second\par
+\par
+using namespace std;\par
+\par
+\par
+#ifdef DEB\par
+#define dump(x)  cerr << #x << " = " << (x) << endl\par
+#define prl cerr<<"called:"<< __LINE__<<endl\par
+template<class T> void debug(T a,T b)\{ for(;a!=b;++a) cerr<<*a<<' ';cerr<<endl;\}\par
+#else\par
+#define dump(x) ;\par
+#define prl ;\par
+template<class T> void debug(T a,T b)\{ ;\}\par
+#endif\par
+\par
+template<class T> void chmin(T& a,const T& b) \{ if(a>b) a=b; \}\par
+template<class T> void chmax(T& a,const T& b) \{ if(a<b) a=b; \}\par
+\par
+typedef long long int lint;\par
+typedef pair<int,int> pi;\par
+\par
+namespace std\{\par
+  template<class S,class T>\par
+  ostream &operator <<(ostream& out,const pair<S,T>& a)\{\par
+    out<<'('<<a.fr<<','<<a.sc<<')';\par
+    return out;\par
+  \}\par
+\}\par
+\par
+const int INF=1e9+5;\par
+struct uf\{\par
+  static const int MAXN=100005;\par
+  int par[MAXN];\par
+  int size[MAXN];\par
+  void init()\{\par
+    memset(par,-1,sizeof(par));\par
+    REP(i,MAXN) size[i]=1;\par
+  \}\par
+  int root(int a)\{\par
+    if(par[a]==-1) return a;\par
+    return par[a]=root(par[a]);\par
+  \}\par
+  void unite(int a,int b)\{\par
+    a=root(a);b=root(b);\par
+    if(a==b) return;\par
+    par[b]=a;\par
+    size[a]+=size[b];\par
+  \}\par
+  bool same(int a,int b)\{\par
+    return root(a)==root(b);\par
+  \}\par
+\};\par
+\par
+uf u;\par
+\par
+\par
+int n;\par
+pair<int,pi> eve[100005];\par
+int zip[200005],zn;\par
+\par
+\par
+pi range[100005];\par
+\par
+struct segtree\{\par
+  int n;\par
+  vector<int> cover[550000];\par
+  void init(int n_)\{\par
+    n=1;\par
+    while(n<n_) n<<=1;\par
+  \}\par
+  void merge(int i,int l,int r,int p,int id)\{\par
+    if(!(l<=p && p<r)) return;\par
+    for(auto e:cover[i])\{\par
+      int p=u.root(e);\par
+      chmin(range[id].fr,range[p].fr);\par
+      chmax(range[id].sc,range[p].sc);\par
+      u.unite(id,e);\par
+    \}\par
+    cover[i].clear();\par
+    if(r-l==1) return;\par
+    int md=(l+r)>>1;\par
+    merge(i*2+1,l,md,p,id);\par
+    merge(i*2+2,md,r,p,id);\par
+  \}\par
+  void insert(int a,int b,int i,int l,int r,int id)\{\par
+    if(a<=l && r<=b)\{\par
+      cover[i].pb(id);\par
+      return;\par
+    \}\par
+    if(b<=l || r<=a) return;\par
+    int md=(l+r)>>1;\par
+    insert(a,b,i*2+1,l,md,id);\par
+    insert(a,b,i*2+2,md,r,id);\par
+  \}\par
+\};\par
+segtree seg;\par
+\par
+int main()\{\par
+  u.init();\par
+\par
+  cin>>n;\par
+  REP(i,n)\{\par
+    int t,x,y;scanf("%d%d%d",&t,&x,&y);\par
+    eve[i]=mp(t,mp(x,y));\par
+    zip[zn++]=x;\par
+    zip[zn++]=y;\par
+  \}\par
+  zip[zn++]=-INF;\par
+  zip[zn++]=INF;\par
+  sort(zip,zip+zn);\par
+  zn=unique(zip,zip+zn)-zip;\par
+  seg.init(zn);\par
+\par
+  int id=0;\par
+  REP(i,n)\{\par
+    int t=eve[i].fr,x=eve[i].sc.fr,y=eve[i].sc.sc;\par
+    if(t==1)\{\par
+      x=lower_bound(zip,zip+zn,x)-zip;\par
+      y=lower_bound(zip,zip+zn,y)-zip;\par
+      range[id]=mp(x,y);\par
+      seg.merge(0,0,seg.n,x,id);\par
+      seg.merge(0,0,seg.n,y,id);\par
+      x=range[id].fr,y=range[id].sc;\par
+      seg.insert(x+1,y,0,0,seg.n,id);\par
+\par
+      ++id;\par
+    \}else\{\par
+      --x;--y;\par
+      x=u.root(x);y=u.root(y);\par
+      bool ok=false;\par
+      if(x==y || (range[y].fr<range[x].fr && range[x].fr<range[y].sc) ||\par
+        (range[y].fr<range[x].sc && range[x].sc<range[y].sc)) ok=true;\par
+      puts(ok?"YES":"NO");\par
+    \}\par
+  \}\par
+  return 0;\par
+\}\par
+}
+ 

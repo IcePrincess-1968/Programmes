@@ -1,0 +1,684 @@
+{\rtf1\ansi\ansicpg936\deff0\nouicompat\deflang1033\deflangfe2052{\fonttbl{\f0\fnil\fcharset134 \'cb\'ce\'cc\'e5;}}
+{\*\generator Riched20 10.0.14393}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang2052 dreamoon4\par
+\par
+#include <bits/stdc++.h>\par
+#define SZ(X) ((int)(X).size())\par
+#define ALL(X) (X).begin(), (X).end()\par
+#define REP(I, N) for (int I = 0; I < (N); ++I)\par
+#define REPP(I, A, B) for (int I = (A); I < (B); ++I)\par
+#define RI(X) scanf("%d", &(X))\par
+#define RII(X, Y) scanf("%d%d", &(X), &(Y))\par
+#define RIII(X, Y, Z) scanf("%d%d%d", &(X), &(Y), &(Z))\par
+#define DRI(X) int (X); scanf("%d", &X)\par
+#define DRII(X, Y) int X, Y; scanf("%d%d", &X, &Y)\par
+#define DRIII(X, Y, Z) int X, Y, Z; scanf("%d%d%d", &X, &Y, &Z)\par
+#define RS(X) scanf("%s", (X))\par
+#define CASET int ___T, case_n = 1; scanf("%d ", &___T); while (___T-- > 0)\par
+#define MP make_pair\par
+#define PB push_back\par
+#define MS0(X) memset((X), 0, sizeof((X)))\par
+#define MS1(X) memset((X), -1, sizeof((X)))\par
+#define LEN(X) strlen(X)\par
+#define F first\par
+#define S second\par
+typedef long long LL;\par
+using namespace std;\par
+const int SIZE = 100001;\par
+const int INF = 1e9;\par
+int qq[SIZE][5],an[SIZE],ins_id[SIZE],ins_num;\par
+int xx[SIZE<<1],yy[SIZE<<1],xxn,yyn;\par
+void fix(int ha[],int& hn)\{\par
+    sort(ha,ha+hn);\par
+    hn=unique(ha,ha+hn)-ha;\par
+\}\par
+void ins(int BIT[],int x,int v,int bb)\{\par
+    while(x<=bb)\{\par
+        BIT[x]+=v;\par
+        x+=x&-x;\par
+    \}\par
+\}\par
+int qqq(int BIT[],int x)\{\par
+    int res=0;\par
+    while(x)\{\par
+        res+=BIT[x];\par
+        x-=x&-x;\par
+    \}\par
+    return res;\par
+\}\par
+int pn,now_pos;\par
+int BIT_O[40*(SIZE<<2)];\par
+int val[40*(SIZE<<2)];\par
+int mid[SIZE<<4];\par
+pair<int,int>pp[SIZE<<2];\par
+int st[SIZE<<4],ed[SIZE<<4];\par
+void build(int L,int R,int id,int ll,int rr)\{\par
+    int mm=(L+R)>>1;\par
+    mid[id]=ll-1;\par
+    st[id]=now_pos;\par
+    REPP(i,ll,rr+1)\{\par
+        if(pp[i].F<=mm)\{\par
+            mid[id]=i;\par
+        \}\par
+        val[now_pos++]=pp[i].S;\par
+    \}\par
+    sort(val+st[id],val+now_pos);   \par
+    ed[id]=now_pos=unique(val+st[id],val+now_pos)-val;\par
+    if(L==R)return;\par
+    if(mid[id]>=ll)build(L,mm,id*2,ll,mid[id]);\par
+    if(mid[id]<rr)build(mm+1,R,id*2+1,mid[id]+1,rr);\par
+\}\par
+int add_X,add_Y,add_V;\par
+void add(int L,int R,int id)\{\par
+    int it=lower_bound(val+st[id],val+ed[id],add_Y)-val;\par
+    it=it-st[id]+1;\par
+    ins(BIT_O+st[id]-1,it,add_V,ed[id]-st[id]);\par
+    int mm=(L+R)>>1;\par
+    if(L==R)return;\par
+    if(add_X<=mm)add(L,mm,id*2);\par
+    else add(mm+1,R,id*2+1);\par
+\}\par
+int query_X1,query_X2,query_Y1,query_Y2;\par
+int query(int L,int R,int id)\{\par
+    int res=0;\par
+    if(R<=query_X2&&L>=query_X1)\{\par
+        int it=upper_bound(val+st[id],val+ed[id],query_Y2)-val;\par
+        it=it-st[id];\par
+        res+=qqq(BIT_O+st[id]-1,it);\par
+        \par
+        if(query_Y1)\{\par
+            it=lower_bound(val+st[id],val+ed[id],query_Y1)-val;\par
+            it=it-st[id];\par
+            res-=qqq(BIT_O+st[id]-1,it);\par
+        \}\par
+        return res;\par
+    \}\par
+    int mm=(L+R)>>1;\par
+    if(mm>=query_X1)res+=query(L,mm,id*2);\par
+    if(mm+1<=query_X2)res+=query(mm+1,R,id*2+1);\par
+    return res;\par
+\}\par
+int BIT_1D[SIZE<<1];\par
+int main()\{\par
+    DRI(Q);\par
+    char c[4];\par
+    int now=0;\par
+    REP(i,Q)\{\par
+        RS(c);\par
+        if(c[0]=='I')\{\par
+            ins_id[ins_num++]=i;\par
+            now++;\par
+            qq[i][0]=0;\par
+            RII(qq[i][1],qq[i][2]);\par
+            RII(qq[i][3],qq[i][4]);\par
+            xx[xxn++]=qq[i][1];\par
+            xx[xxn++]=qq[i][3];\par
+            yy[yyn++]=qq[i][2];\par
+            yy[yyn++]=qq[i][4];\par
+        \}\par
+        else if(c[0]=='Q')\{\par
+            an[i]=now;\par
+            qq[i][0]=1;\par
+            RII(qq[i][1],qq[i][2]);\par
+            RII(qq[i][3],qq[i][4]);\par
+            xx[xxn++]=qq[i][1];\par
+            xx[xxn++]=qq[i][3];\par
+            yy[yyn++]=qq[i][2];\par
+            yy[yyn++]=qq[i][4];\par
+        \}\par
+        else\{\par
+            now--;\par
+            qq[i][0]=2;\par
+            RI(qq[i][1]);\par
+            int me=qq[i][1]-1;\par
+            REP(j,4)qq[i][j+1]=qq[ins_id[me]][j+1];\par
+        \}\par
+    \}\par
+    fix(xx,xxn);\par
+    fix(yy,yyn);\par
+    REP(i,Q)\{\par
+        qq[i][1]=lower_bound(xx,xx+xxn,qq[i][1])-xx;\par
+        qq[i][3]=lower_bound(xx,xx+xxn,qq[i][3])-xx;\par
+        qq[i][2]=lower_bound(yy,yy+yyn,qq[i][2])-yy;\par
+        qq[i][4]=lower_bound(yy,yy+yyn,qq[i][4])-yy;\par
+        if(qq[i][0]!=2)\{\par
+            pp[pn++]=MP(qq[i][1],qq[i][2]);\par
+            pp[pn++]=MP(qq[i][1],qq[i][4]);\par
+            pp[pn++]=MP(qq[i][3],qq[i][2]);\par
+            pp[pn++]=MP(qq[i][3],qq[i][4]);\par
+        \}\par
+    \}\par
+    sort(pp,pp+pn);\par
+    build(0,xxn-1,1,0,pn-1);\par
+    //left\par
+    REP(i,Q)\{\par
+        if(qq[i][0]==0)\{\par
+            ins(BIT_1D,qq[i][3]+1,1,xxn);\par
+        \}\par
+        else if(qq[i][0]==1)\{\par
+            an[i]-=qqq(BIT_1D,qq[i][1]);\par
+        \}\par
+        else\{\par
+            ins(BIT_1D,qq[i][3]+1,-1,xxn);\par
+        \}\par
+    \}\par
+    //right \par
+    MS0(BIT_1D);\par
+    REP(i,Q)\{\par
+        if(qq[i][0]==0)\{\par
+            ins(BIT_1D,xxn-qq[i][1],1,xxn);\par
+        \}\par
+        else if(qq[i][0]==1)\{\par
+            an[i]-=qqq(BIT_1D,xxn-qq[i][3]-1);\par
+        \}\par
+        else\{\par
+            ins(BIT_1D,xxn-qq[i][1],-1,xxn);\par
+        \}\par
+    \}\par
+    //down\par
+    MS0(BIT_1D);\par
+    REP(i,Q)\{\par
+        if(qq[i][0]==0)\{\par
+            ins(BIT_1D,qq[i][4]+1,1,yyn);\par
+        \}\par
+        else if(qq[i][0]==1)\{\par
+            an[i]-=qqq(BIT_1D,qq[i][2]);\par
+        \}\par
+        else\{\par
+            ins(BIT_1D,qq[i][4]+1,-1,yyn);\par
+        \}\par
+    \}\par
+//up\par
+    MS0(BIT_1D);\par
+    REP(i,Q)\{\par
+        if(qq[i][0]==0)\{\par
+            ins(BIT_1D,yyn-qq[i][2],1,yyn);\par
+        \}\par
+        else if(qq[i][0]==1)\{\par
+            an[i]-=qqq(BIT_1D,yyn-qq[i][4]-1);\par
+        \}\par
+        else\{\par
+            ins(BIT_1D,yyn-qq[i][2],-1,yyn);\par
+        \}\par
+    \}\par
+//left-down\par
+    memset(BIT_O,0,sizeof(int)*now_pos);\par
+    REP(i,Q)\{\par
+        if(qq[i][0]==0)\{\par
+            add_X=qq[i][3];\par
+            add_Y=qq[i][4];\par
+            add_V=1;\par
+            add(0,xxn-1,1);\par
+        \}\par
+        else if(qq[i][0]==1)\{\par
+            query_X1=0;\par
+            query_X2=qq[i][1]-1;\par
+            query_Y1=0;\par
+            query_Y2=qq[i][2]-1;\par
+            if(query_X1<=query_X2&&query_Y1<=query_Y2)an[i]+=query(0,xxn-1,1);\par
+        \}\par
+        else\{\par
+            add_X=qq[i][3];\par
+            add_Y=qq[i][4];\par
+            add_V=-1;\par
+            add(0,xxn-1,1);\par
+        \}\par
+    \}\par
+//right-down\par
+    memset(BIT_O,0,sizeof(int)*now_pos);\par
+    REP(i,Q)\{\par
+        if(qq[i][0]==0)\{\par
+            add_X=qq[i][1];\par
+            add_Y=qq[i][4];\par
+            add_V=1;\par
+            add(0,xxn-1,1);\par
+        \}\par
+        else if(qq[i][0]==1)\{\par
+            query_X1=qq[i][3]+1;\par
+            query_X2=xxn-1;\par
+            query_Y1=0;\par
+            query_Y2=qq[i][2]-1;\par
+            if(query_X1<=query_X2&&query_Y1<=query_Y2)an[i]+=query(0,xxn-1,1);\par
+        \}\par
+        else\{\par
+            add_X=qq[i][1];\par
+            add_Y=qq[i][4];\par
+            add_V=-1;\par
+            add(0,xxn-1,1);\par
+        \}\par
+    \}\par
+//left-up\par
+    memset(BIT_O,0,sizeof(int)*now_pos);\par
+    REP(i,Q)\{\par
+        if(qq[i][0]==0)\{\par
+            add_X=qq[i][3];\par
+            add_Y=qq[i][2];\par
+            add_V=1;\par
+            add(0,xxn-1,1);\par
+        \}\par
+        else if(qq[i][0]==1)\{\par
+            query_X1=0;\par
+            query_X2=qq[i][1]-1;\par
+            query_Y1=qq[i][4]+1;\par
+            query_Y2=yyn-1;\par
+            if(query_X1<=query_X2&&query_Y1<=query_Y2)an[i]+=query(0,xxn-1,1);\par
+        \}\par
+        else\{\par
+            add_X=qq[i][3];\par
+            add_Y=qq[i][2];\par
+            add_V=-1;\par
+            add(0,xxn-1,1);\par
+        \}\par
+    \}\par
+//right-up\par
+    memset(BIT_O,0,sizeof(int)*now_pos);\par
+    REP(i,Q)\{\par
+        if(qq[i][0]==0)\{\par
+            add_X=qq[i][1];\par
+            add_Y=qq[i][2];\par
+            add_V=1;\par
+            add(0,xxn-1,1);\par
+        \}\par
+        else if(qq[i][0]==1)\{\par
+            query_X1=qq[i][3]+1;\par
+            query_X2=xxn-1;\par
+            query_Y1=qq[i][4]+1;\par
+            query_Y2=yyn-1;\par
+            if(query_X1<=query_X2&&query_Y1<=query_Y2)an[i]+=query(0,xxn-1,1);\par
+        \}\par
+        else\{\par
+            add_X=qq[i][1];\par
+            add_Y=qq[i][2];\par
+            add_V=-1;\par
+            add(0,xxn-1,1);\par
+        \}\par
+    \}\par
+    REP(i,Q)\{\par
+        if(qq[i][0]==1)printf("%d\\n",an[i]);\par
+    \}\par
+    return 0;\par
+\}\par
+\par
+\par
+kunyavskiy\par
+\par
+//#include <iostream>\par
+#include <fstream>\par
+#include <vector>\par
+#include <set>\par
+#include <map>\par
+#include <cstring>\par
+#include <string>\par
+#include <cmath>\par
+#include <cassert>\par
+#include <ctime>\par
+#include <algorithm>\par
+#include <sstream>\par
+#include <list>\par
+#include <queue>\par
+#include <deque>\par
+#include <stack>\par
+#include <cstdlib>\par
+#include <cstdio>\par
+#include <iterator>\par
+#include <functional>\par
+#include <bitset>\par
+#define mp make_pair\par
+#define pb push_back\par
+ \par
+#ifdef LOCAL\par
+#define eprintf(...) fprintf(stderr,__VA_ARGS__)\par
+#else\par
+#define eprintf(...)\par
+#endif\par
+ \par
+#define TIMESTAMP(x) eprintf("["#x"] Time : %.3lf s.\\n", clock()*1.0/CLOCKS_PER_SEC)\par
+#define TIMESTAMPf(x,...) eprintf("[" x "] Time : %.3lf s.\\n", __VA_ARGS__, clock()*1.0/CLOCKS_PER_SEC)\par
+ \par
+#if ( ( _WIN32 || __WIN32__ ) && __cplusplus < 201103L)\par
+    #define LLD "%I64d"\par
+#else\par
+    #define LLD "%lld"\par
+#endif\par
+ \par
+using namespace std;\par
+ \par
+#define TASKNAME "QRECT"\par
+ \par
+#ifdef LOCAL\par
+static struct __timestamper \{\par
+    string what;\par
+    __timestamper(const char* what) : what(what)\{\};\par
+    __timestamper(const string& what) : what(what)\{\};\par
+\tab ~__timestamper()\{\par
+        TIMESTAMPf("%s", what.data());\par
+\tab\}\par
+\} __TIMESTAMPER("end");\par
+#else \par
+struct __timestamper \{\};\par
+#endif\par
+ \par
+typedef long long ll;\par
+typedef long double ld;\par
+typedef unsigned long long ull;\par
+ \par
+const int MAXN = 310000;\par
+ \par
+enum EvTy \{ OPENR, OPENQ, CLOSEQ, CLOSER \};\par
+ \par
+struct Event \{\par
+\tab EvTy ty;\par
+\tab int id;\par
+\tab int x;\par
+\tab bool operator<(const Event& r) const \{\par
+\tab\tab if (x != r.x) return x < r.x;\par
+\tab\tab return ty < r.ty;\par
+\tab\}\par
+\};\par
+ \par
+ \par
+void solve(Event* evs1, int size1, Event* evs2, int size2, ull* mask) \{\par
+\tab Event* evs2end = evs2 + size2;\par
+\tab Event* evs1end = evs1 + size1;\par
+\tab ull curopen = 0, curclose = -1;\par
+\tab for (; evs1 != evs1end; evs1++) \{\par
+\tab\tab for (;evs2 != evs2end && evs2->x < evs1->x;evs2++)\par
+\tab\tab\tab if (evs2->ty == OPENR)\par
+\tab\tab\tab  \tab curopen |= (1ull << evs2->id); \par
+\tab\tab\tab else\par
+\tab\tab\tab\tab curclose &= ~(1ull << evs2->id);\par
+\tab\tab\tab\par
+\tab\tab if (evs1->ty == OPENQ) \{\par
+\tab\tab\tab mask[evs1->id] = curclose; \par
+\tab\tab\} else \{\par
+\tab\tab\tab for (;evs2 != evs2end && evs2->x == evs1->x;evs2++)\par
+\tab\tab\tab\tab if (evs2->ty == OPENR)\par
+\tab\tab\tab\tab  \tab curopen |= (1ull << evs2->id); \par
+\tab\tab\tab\tab else\par
+\tab\tab\tab\tab\tab curclose &= ~(1ull << evs2->id);\par
+\tab\tab\tab mask[evs1->id] &= curopen; \par
+\tab\tab\}\par
+\tab\}\par
+\}\par
+ \par
+struct Rect \{\par
+\tab int x1, y1, x2, y2;\par
+\tab Rect()\{\};\par
+\tab Rect (int x1, int y1, int x2, int y2) : x1(x1), y1(y1), x2(x2), y2(y2) \{\}\par
+\};\par
+ \par
+Rect qs[MAXN];\par
+int qt[MAXN];\par
+Rect rs[MAXN];\par
+int it[MAXN], dt[MAXN];\par
+int rid[MAXN];\par
+int qn, rn;\par
+ \par
+ull ansx[MAXN];\par
+ull ansy[MAXN];\par
+ \par
+int res[MAXN];\par
+ \par
+ \par
+ \par
+int main()\{\par
+  #ifdef LOCAL\par
+    assert(freopen(TASKNAME".in","r",stdin));\par
+    assert(freopen(TASKNAME".out","w",stdout));\par
+  #endif\par
+    int n;\par
+    scanf("%d",&n);\par
+    for (int i = 0; i < n; i++) \{\par
+    \tab char c;\par
+    \tab int x1, y1, x2, y2;\par
+    \tab scanf(" %c", &c);\par
+    \tab if (c == 'Q') \{\par
+    \tab\tab scanf("%d%d%d%d",&x1,&y1,&x2,&y2);\par
+    \tab\tab if (x1 > x2) swap(x1, x2);\par
+    \tab\tab if (y1 > y2) swap(y1, y2);\par
+    \tab\tab qs[qn] = Rect(x1, y1, x2, y2);\par
+    \tab\tab qt[qn] = i;\par
+    \tab\tab qn++;\par
+    \tab\} else if (c == 'I') \{\par
+    \tab\tab scanf("%d%d%d%d",&x1,&y1,&x2,&y2);\par
+    \tab\tab if (x1 > x2) swap(x1, x2);\par
+    \tab\tab if (y1 > y2) swap(y1, y2);\par
+    \tab\tab rs[rn] = Rect(x1, y1, x2, y2);\par
+    \tab\tab it[rn] = i;\par
+    \tab\tab dt[rn] = n;\par
+    \tab\tab rid[i] = rn;\par
+    \tab\tab rn++;\par
+    \tab\} else if (c == 'D') \{\par
+    \tab\tab scanf("%d",&x1);\par
+    \tab\tab assert(dt[x1-1] == n);\par
+    \tab\tab dt[x1-1] = i;\par
+    \tab\}\par
+    \}\par
+ \par
+    vector<Event> xevs(2*qn), yevs(2*qn);\par
+    for (int i = 0; i < qn; i++)\{\par
+    \tab xevs[2*i].x = qs[i].x1;\par
+    \tab xevs[2*i].id = i;\par
+    \tab xevs[2*i].ty = OPENQ;\par
+ \par
+    \tab xevs[2*i+1].x = qs[i].x2;\par
+    \tab xevs[2*i+1].id = i;\par
+    \tab xevs[2*i+1].ty = CLOSEQ;\par
+ \par
+    \tab yevs[2*i].x = qs[i].y1;\par
+    \tab yevs[2*i].id = i;\par
+    \tab yevs[2*i].ty = OPENQ;\par
+ \par
+    \tab yevs[2*i+1].x = qs[i].y2;\par
+    \tab yevs[2*i+1].id = i;\par
+    \tab yevs[2*i+1].ty = CLOSEQ;\par
+    \}\par
+ \par
+    sort(xevs.begin(), xevs.end());\par
+    sort(yevs.begin(), yevs.end());\par
+ \par
+ \par
+    for (int i = 0; i < rn; i += 64) \{\par
+    \tab int last = min(i + 64, rn);\par
+    \tab static Event nx[200];\par
+    \tab static Event ny[200];\par
+    \tab vector<pair<int, int> > ts;\par
+    \tab for (int j = i; j < last; j++)\{\par
+        \tab nx[2*(j-i)].x = rs[j].x1;\par
+        \tab nx[2*(j-i)].id = j-i;\par
+        \tab nx[2*(j-i)].ty = OPENR;\par
+ \par
+        \tab nx[2*(j-i)+1].x = rs[j].x2;\par
+        \tab nx[2*(j-i)+1].id = j-i;\par
+        \tab nx[2*(j-i)+1].ty = CLOSER;\par
+ \par
+        \tab ny[2*(j-i)].x = rs[j].y1;\par
+        \tab ny[2*(j-i)].id = j-i;\par
+        \tab ny[2*(j-i)].ty = OPENR;\par
+ \par
+        \tab ny[2*(j-i)+1].x = rs[j].y2;\par
+        \tab ny[2*(j-i)+1].id = j-i;\par
+        \tab ny[2*(j-i)+1].ty = CLOSER;\par
+ \par
+\tab       \tab ts.pb(mp(it[j], j-i+1));\par
+        \tab ts.pb(mp(dt[j], -(j-i+1)));\par
+    \tab\}    \tab\tab\par
+    \tab sort(nx, nx+2*(last-i));\par
+    \tab sort(ny, ny+2*(last-i));\par
+    \tab solve(&xevs[0], xevs.size(), &nx[0], 2*(last-i), ansx);\par
+    \tab solve(&yevs[0], yevs.size(), &ny[0], 2*(last-i), ansy);\par
+    \tab sort(ts.begin(), ts.end());\par
+    \tab ull opened, closed;\par
+    \tab opened = closed = 0;\par
+    \tab int ptr = 0;\par
+    \tab for (int i = 0; i < qn; i++) \{\par
+    \tab\tab while (ptr < (int)ts.size() && ts[ptr].first < qt[i]) \{\par
+    \tab\tab\tab if (ts[ptr].second > 0)\par
+    \tab\tab\tab\tab opened |= (1ull << (+ts[ptr].second - 1));\par
+    \tab\tab\tab else\par
+    \tab\tab\tab\tab closed |= (1ull << (-ts[ptr].second - 1));\par
+    \tab\tab\tab ptr++;\par
+    \tab\tab\}\par
+    \tab\tab ull mask = ansx[i] & ansy[i] & opened & ~closed;\par
+//    \tab\tab eprintf("i = %d ansx=%I64u ansy=%I64u opened=%I64u closed=%I64u\\n", i, ansx[i], ansy[i], opened, closed);\par
+    \tab\tab res[i] += __builtin_popcountll(mask);\par
+    \tab\}\par
+    \}\par
+ \par
+    for (int i = 0; i < qn; i++)\par
+    \tab printf("%d\\n", res[i]);\par
+    return 0;\par
+\} \par
+\par
+\par
+lyrically\par
+\par
+using namespace std;\par
+ \par
+typedef unsigned uint;\par
+typedef long long Int;\par
+typedef vector<int> vint;\par
+typedef pair<int,int> pint;\par
+#define mp make_pair\par
+ \par
+template<typename T> void pv(T a, T b) \{ for (T i = a; i != b; ++i) cout << *i << " "; cout << endl; \}\par
+template<typename T> void chmin(T &t, const T &f) \{ if (t > f) t = f; \}\par
+template<typename T> void chmax(T &t, const T &f) \{ if (t < f) t = f; \}\par
+int in() \{ int x; scanf("%d", &x); return x; \}\par
+ \par
+bool cmpY(const pint &a, const pint &b) \{\par
+\tab return ((a.second != b.second) ? (a.second < b.second) : (a.first < b.first));\par
+\}\par
+ \par
+const int INF = 1001001001;\par
+ \par
+int Q;\par
+char typ[100010];\par
+int XA[100010], YA[100010], XB[100010], YB[100010];\par
+int IDX[100010];\par
+int qsLen;\par
+int qs[100010];\par
+ \par
+int bitN;\par
+pint ps[4][100010];\par
+pint xs[4][100010];\par
+int *bits[4][100010];\par
+int *yss[4][100010];\par
+ \par
+void addThem(int q, int val) \{\par
+// cout<<"add "<<q<<" "<<val<<endl;\par
+\tab for (int s = 0; s < 4; ++s) \{\par
+\tab\tab const int x = (s & 2) ? -XA[q] : +XB[q];\par
+\tab\tab const int y = (s & 1) ? -YA[q] : +YB[q];\par
+\tab\tab const int xPos = lower_bound(xs[s] + 1, xs[s] + 1 + bitN, mp(x, y)) - xs[s];\par
+\tab\tab for (int i = xPos; i <= bitN; i += i & -i) \{\par
+\tab\tab\tab const int len = i & -i;\par
+\tab\tab\tab const int yPos = lower_bound(yss[s][i] + 1, yss[s][i] + 1 + len, y) - yss[s][i];\par
+// cout<<"  "<<s<<" ("<<x<<", "<<y<<") "<<i<<" "<<yPos<<endl;\par
+assert(1<=yPos&&yPos<=len&&yss[s][i][yPos]==y);\par
+\tab\tab\tab for (int j = yPos; j <= len; j += j & -j) \{\par
+\tab\tab\tab\tab bits[s][i][j] += val;\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\}\par
+\}\par
+ \par
+//\tab <= x, <= y\par
+int getSum(int s, int x, int y) \{\par
+// cout<<"getSum "<<s<<" "<<x<<" "<<y<<endl;\par
+\tab int ret = 0;\par
+\tab const int xPos = upper_bound(xs[s] + 1, xs[s] + 1 + bitN, mp(x, INF)) - xs[s] - 1;\par
+\tab for (int i = xPos; i > 0; i &= i - 1) \{\par
+\tab\tab const int len = i & -i;\par
+// cout<<"  ("<<i-len<<", "<<i<<"]"<<endl;\par
+\tab\tab const int yPos = upper_bound(yss[s][i] + 1, yss[s][i] + 1 + len, y) - yss[s][i] - 1;\par
+\tab\tab for (int j = yPos; j > 0; j &= j - 1) \{\par
+\tab\tab\tab ret += bits[s][i][j];\par
+\tab\tab\}\par
+\tab\}\par
+// cout<<"  ret = "<<ret<<endl;\par
+\tab return ret;\par
+\}\par
+ \par
+int main() \{\par
+\tab char buf[10];\par
+\tab\par
+\tab for (; ~scanf("%d", &Q); ) \{\par
+\tab\tab for (int q = 0; q < Q; ++q) \{\par
+\tab\tab\tab scanf("%s", buf);\par
+\tab\tab\tab typ[q] = buf[0];\par
+\tab\tab\tab switch (typ[q]) \{\par
+\tab\tab\tab\tab case 'I': case 'Q': \{\par
+\tab\tab\tab\tab\tab XA[q] = in();\par
+\tab\tab\tab\tab\tab YA[q] = in();\par
+\tab\tab\tab\tab\tab XB[q] = in();\par
+\tab\tab\tab\tab\tab YB[q] = in();\par
+\tab\tab\tab\tab\} break;\par
+\tab\tab\tab\tab case 'D': \{\par
+\tab\tab\tab\tab\tab IDX[q] = in() - 1;\par
+\tab\tab\tab\tab\} break;\par
+\tab\tab\tab\tab default: assert(false);\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\tab\par
+\tab\tab bitN = count(typ, typ + Q, 'I');\par
+\tab\tab for (int s = 0; s < 4; ++s) \{\par
+\tab\tab\tab int pos = 0;\par
+\tab\tab\tab for (int q = 0; q < Q; ++q) \{\par
+\tab\tab\tab\tab if (typ[q] == 'I') \{\par
+\tab\tab\tab\tab\tab const int x = (s & 2) ? -XA[q] : +XB[q];\par
+\tab\tab\tab\tab\tab const int y = (s & 1) ? -YA[q] : +YB[q];\par
+\tab\tab\tab\tab\tab ps[s][++pos] = mp(x, y);\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\}\par
+\tab\tab\tab assert(pos == bitN);\par
+\tab\tab\tab sort(ps[s] + 1, ps[s] + 1 + bitN);\par
+\tab\tab\tab copy(ps[s] + 1, ps[s] + 1 + bitN, xs[s] + 1);\par
+// cout<<"xs["<<s<<"] : ";for(int i=1;i<=bitN;++i)cout<<"("<<xs[s][i].first<<", "<<xs[s][i].second<<") ";cout<<endl;\par
+\tab\tab\tab for (int i = 1; i <= bitN; ++i) \{\par
+\tab\tab\tab\tab const int len = i & -i;\par
+\tab\tab\tab\tab bits[s][i] = new int[1 + len];\par
+\tab\tab\tab\tab fill(bits[s][i], bits[s][i] + 1 + len, 0);\par
+\tab\tab\tab\tab yss[s][i] = new int[1 + len];\par
+\tab\tab\tab\tab for (int k = i - len + 1; k <= i; ++k) \{\par
+\tab\tab\tab\tab\tab yss[s][i][k - (i - len)] = ps[s][k].second;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab sort(yss[s][i] + 1, yss[s][i] + 1 + len);\par
+// cout<<"yss["<<s<<"]["<<i<<"] : ";pv(yss[s][i]+1,yss[s][i]+1+len);\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\tab\par
+\tab\tab qsLen = 0;\par
+\tab\tab for (int q = 0; q < Q; ++q) \{\par
+\tab\tab\tab switch (typ[q]) \{\par
+\tab\tab\tab\tab case 'I': \{\par
+\tab\tab\tab\tab\tab qs[qsLen++] = q;\par
+\tab\tab\tab\tab\tab addThem(q, +1);\par
+\tab\tab\tab\tab\} break;\par
+\tab\tab\tab\tab case 'D': \{\par
+\tab\tab\tab\tab\tab addThem(qs[IDX[q]], -1);\par
+\tab\tab\tab\tab\tab // addThem(IDX[q], -1);\par
+\tab\tab\tab\tab\} break;\par
+\tab\tab\tab\tab case 'Q': \{\par
+\tab\tab\tab\tab\tab int ans = 0;\par
+\tab\tab\tab\tab\tab ans += getSum(0, INF, INF);\par
+\tab\tab\tab\tab\tab ans -= getSum(0, +XA[q] - 1, INF);\par
+\tab\tab\tab\tab\tab ans -= getSum(2, -XB[q] - 1, INF);\par
+\tab\tab\tab\tab\tab ans -= getSum(0, INF, +YA[q] - 1);\par
+\tab\tab\tab\tab\tab ans -= getSum(1, INF, -YB[q] - 1);\par
+\tab\tab\tab\tab\tab ans += getSum(0, +XA[q] - 1, +YA[q] - 1);\par
+\tab\tab\tab\tab\tab ans += getSum(1, +XA[q] - 1, -YB[q] - 1);\par
+\tab\tab\tab\tab\tab ans += getSum(2, -XB[q] - 1, +YA[q] - 1);\par
+\tab\tab\tab\tab\tab ans += getSum(3, -XB[q] - 1, -YB[q] - 1);\par
+\tab\tab\tab\tab\tab printf("%d\\n", ans);\par
+\tab\tab\tab\tab\} break;\par
+\tab\tab\tab\tab default: assert(false);\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\}\par
+\tab\par
+\tab return 0;\par
+\}\par
+ \par
+}
+ 
