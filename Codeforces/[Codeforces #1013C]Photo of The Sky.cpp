@@ -12,7 +12,6 @@ using namespace std;
 #define Pair pair<int,int>
 #define pLL pair<LL,LL>
 #define pii pair<double,double>
-#define LOWBIT(x) x & (-x)
 
 const int INF=2e9;
 const LL LINF=2e16;
@@ -30,45 +29,24 @@ inline int getint()
 	return f?res:-res;
 }
 
-int h,m;
-int dh,dm;
-char s[100];int len;
-int sg;
+const int MAXN=2e5;
+
+int n;
+int a[MAXN+48];
 
 int main ()
 {
-	int ca;ca=getint();
-	while (ca--)
+	int i;n=getint();
+	for (i=1;i<=n*2;i++) a[i]=getint();
+	sort(a+1,a+n*2+1);
+	LL minn=LINF;
+	LL A=a[n]-a[1],B=a[n*2]-a[n+1];
+	minn=A*B;
+	for (i=2;i<=n;i++)
 	{
-		h=getint();m=getint();
-		memset(s,'\0',sizeof(s));
-		scanf("%s",s+1);len=strlen(s+1);
-		sg=s[4]=='+'?1:-1;
-		int i;
-		for (i=5;i<=len && s[i]!='.';i++) {}
-		dh=dm=0;
-		if (i>len)
-		{
-			dh=0;
-			for (i=5;i<=len;i++) dh=dh*10+s[i]-'0';
-		}
-		else
-		{
-			dh=0;
-			for (int j=5;j<=i-1;j++) dh=dh*10+s[j]-'0';
-			dm=60/10*(s[len]-'0');
-		}
-		if (sg==-1) dh=-dh,dm=-dm;
-		dh-=8;
-		m+=dm;h+=dh;
-		while (m>=60) h++,m-=60;
-		while (m<0) h--,m+=60;
-		while (h>=24) h-=24;
-		while (h<0) h+=24;
-		if (h<10) printf("0");
-		printf("%d:",h);
-		if (m<10) printf("0");
-		printf("%d\n",m);
+		A=a[n+i-1]-a[i];B=a[n*2]-a[1];
+		minn=min(minn,A*B);
 	}
+	printf("%I64d\n",minn);
 	return 0;
 }

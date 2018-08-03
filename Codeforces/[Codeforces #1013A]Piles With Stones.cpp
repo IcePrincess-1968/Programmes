@@ -12,7 +12,6 @@ using namespace std;
 #define Pair pair<int,int>
 #define pLL pair<LL,LL>
 #define pii pair<double,double>
-#define LOWBIT(x) x & (-x)
 
 const int INF=2e9;
 const LL LINF=2e16;
@@ -30,25 +29,13 @@ inline int getint()
 	return f?res:-res;
 }
 
-const int MAXN=1e5;
-
 int n;
-
-struct node
-{
-	int x,y,ind;
-	inline bool operator < (const node &other) const {return x<other.x;}
-}a[MAXN+48];
 
 int main ()
 {
-	int ca;ca=getint();int i;
-	while (ca--)
-	{
-		n=getint();
-		for (i=1;i<=3*n;i++) a[i].x=getint(),a[i].y=getint(),a[i].ind=i;
-		sort(a+1,a+n*3+1);
-		for (i=1;i<=n;i++) printf("%d %d %d\n",a[(i-1)*3+1].ind,a[(i-1)*3+2].ind,a[i*3].ind);
-	}
+	n=getint();int i,x,s1=0,s2=0;
+	for (i=1;i<=n;i++) x=getint(),s1+=x;
+	for (i=1;i<=n;i++) x=getint(),s2+=x;
+	if (s1>=s2) puts("Yes"); else puts("No");
 	return 0;
 }

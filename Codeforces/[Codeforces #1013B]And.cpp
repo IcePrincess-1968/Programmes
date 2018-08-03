@@ -12,7 +12,6 @@ using namespace std;
 #define Pair pair<int,int>
 #define pLL pair<LL,LL>
 #define pii pair<double,double>
-#define LOWBIT(x) x & (-x)
 
 const int INF=2e9;
 const LL LINF=2e16;
@@ -30,23 +29,30 @@ inline int getint()
 	return f?res:-res;
 }
 
-int n;
+const int MAXN=1e5;
+
+int n,X;
+int a[MAXN+48];
+int cnt[MAXN+48];
+bool visited[MAXN+48];
 
 int main ()
 {
-	int ca;ca=getint();
-	while (ca--)
+	int i;n=getint();X=getint();
+	for (i=1;i<=n;i++) a[i]=getint(),cnt[a[i]]++;
+	for (i=1;i<=MAXN;i++)
+		if (cnt[i]>1) {puts("0");return 0;}
+	for (i=1;i<=n;i++)
 	{
-		n=getint();
-		if (n%3==0)
-		{
-			LL x=n/3;
-			printf("%lld\n",x*x*x);
-			continue;
-		}
-		if (n%4) {puts("-1");continue;}
-		LL x=n/2,y=n/4;
-		printf("%lld\n",x*y*y);
+		int val=(a[i]&X);
+		if (cnt[val] && val!=a[i]) {puts("1");return 0;}
 	}
+	for (i=1;i<=n;i++)
+	{
+		int val=(a[i]&X);
+		if (visited[val]) {puts("2");return 0;}
+		visited[val]=true;
+	}
+	puts("-1");
 	return 0;
 }
