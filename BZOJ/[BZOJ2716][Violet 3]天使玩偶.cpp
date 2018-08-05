@@ -171,8 +171,8 @@ inline void cdq4(int left,int right)
 
 int main ()
 {
-	freopen ("a.in","r",stdin);
-	freopen ("a.out","w",stdout);
+//	freopen ("a.in","r",stdin);
+//	freopen ("a.out","w",stdout);
 	int i;n=getint();m=getint();
 	for (i=1;i<=n;i++) q[i].op=1,q[i].x=getint()+1,q[i].y=getint()+1;
 	for (i=1;i<=m;i++)
