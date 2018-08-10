@@ -33,12 +33,10 @@ const int MAXN=1e6;
 
 int n;
 char s[MAXN+48];
+int sum[MAXN+48];
 int cnt;
-int L[MAXN+48],R[MAXN+48];
-
-inline void init_interval(int len)
-{
-}
+int pos[MAXN+48],tot; 
+int L[MAXN+48],r[MAXN+48],dir[MAXN+48],maxright[MAXN+48];
 
 int main ()
 {
@@ -47,7 +45,7 @@ int main ()
 	for (i=1;i<=n;i++) if (s[i]=='P') cnt++;
 	if (cnt==1)
 	{
-		int cc[2],cur=1,p1,p2,pp;
+		int cc[2],cur=0,p1,p2,pp;memset(cc,0,sizeof(cc));
 		for (i=1;i<=n;i++)
 		{
 			if (s[i]=='.') continue;
@@ -56,13 +54,48 @@ int main ()
 		}
 		for (p1=1;s[p1]!='*';p1++) {}
 		for (p2=n;s[p2]!='*';p2--) {}
-		if (cc[0]<cc[1]) printf("%d %d\n",cc[0],pp-p1); else printf("%d %d\n",cc[1],p2-pp);
+		if (cc[0]>cc[1]) printf("%d %d\n",cc[0],pp-p1); else printf("%d %d\n",cc[1],p2-pp);
 		return 0;
 	}
-	int l=1,r=n-1,mid,ans;
+	tot=0;for (i=1;i<=n;i++) if (s[i]=='P') pos[++tot]=i;
+	sum[0]=0;for (i=1;i<=n;i++) sum[i]=sum[i-1]+(s[i]=='*');
+	int l=1,r=n-1,mid,ans=0;
 	while (l<=r)
 	{
-		mid=(l+r)>>1;
-		init_interval(mid);
+		mid=(l+r)>>1;maxright[0]=0;
+		bool f=true;
+		for (i=1;i<=tot;i++)
+		{
+			if (maxright[i-1]>=pos[i])
+			{
+				dir[i]=1;
+				maxright[i]=pos[i]+mid;
+				continue;
+			}
+			int num=sum[pos[i]]-sum[maxright[i-1]];
+			if (!num)
+			{
+				dir[i]=1;
+				maxright[i]=pos[i]+mid;
+				continue;
+			}
+			dir[i]=0;maxright[i]=pos[i];
+			if (pos[i]-maxright[i-1]-1>mid && (sum[pos[i]-mid-1]-sum[maxright[i-1]])) {f=false;break;}
+			if (i>=2 && !dir[i-1] && (pos[i]-maxright[i-2]-1<=mid || !(sum[pos[i]-mid-1]-sum[maxright[i-2]])))
+			{
+				dir[i-1]=1;
+				maxright[i]=pos[i-1]+mid;
+			}
+			if (i>=3 && !dir[i-1] && dir[i-2] && (pos[i]-pos[i-2]-1<=mid || !(sum[pos[i]-mid-1]-sum[pos[i-2]])))
+			{
+				dir[i-2]=0;dir[i-1]=1;
+				maxright[i]=pos[i-1]+mid;
+			}
+		}
+		if (f && (maxright[tot]>=n || !(sum[n]-sum[maxright[tot]]))) ans=mid,r=mid-1; else l=mid+1;
 	}
+	int ans1=0;
+	for (i=1;i<=n;i++) if (s[i]=='*') ans1++;
+	printf("%d %d\n",ans1,ans);
+	return 0;
 }
