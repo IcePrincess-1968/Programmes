@@ -139,17 +139,14 @@ inline int lastdigit(int Mask)
 
 int main ()
 {
-//	freopen ("a.in","r",stdin);
-//	freopen ("a.out","w",stdout);
 	io.Get(x);io.Get(k);io.Get(n);io.Get(q);int i,j,r,c;
 	for (i=1;i<=k;i++) io.Get(C[i]);
 	for (register int Mask=1;Mask<=(1<<k)-1;Mask++)
 		if (__builtin_popcount(Mask)==x) vMask[++tot]=Mask;
 	for (i=1;i<=q;i++) io.Get(spe[i].x),io.Get(spe[i].y),Mp[spe[i].x]=spe[i].y;
 	sort(spe+1,spe+q+1);spe[++q]=mp(n+1,0);
-	int cp=k,sMask;
-	for (sMask=1;sMask<=tot && vMask[sMask]!=(1<<x)-1;sMask++) {}
-//	cerr<<sMask<<vMask[sMask]<<endl;
+	int cp=x,sMask;
+	for (sMask=1;sMask<=tot && vMask[sMask]!=((1<<x)-1)<<(k-x);sMask++) {}
 	sta.clear();sta.b[1][sMask]=0;
 	Trans.clear();
 	for (i=1;i<=tot;i++)
@@ -163,7 +160,7 @@ int main ()
 				Pair pos=identify(delta);
 				Trans.b[i][j]=C[pos.y-pos.x];
 			}
-		};
+		}
 	for (i=1;i<=q;i++)
 	{
 		if (cp<spe[i].x-1)
@@ -172,7 +169,7 @@ int main ()
 			cp=spe[i].x-1;
 		}
 		if (cp==n) break;
-		int tar=min(spe[i+1].x-1,spe[i].x+k-1);
+		int tar=min(spe[i+1].x-1,spe[i].x+k+1);
 		for (j=cp+1;j<=tar;j++)
 		{
 			trans.clear();
