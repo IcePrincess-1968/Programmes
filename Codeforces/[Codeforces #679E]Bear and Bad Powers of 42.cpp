@@ -21,49 +21,6 @@ const int MOD=998244353;
 const double eps=1e-10;
 const double pi=acos(-1);
 
-/*struct fastio
-{
-	static const int S=1e7;
-	char rbuf[S+48],wbuf[S+48];int rlen,wlen;
-	fastio () {rlen=wlen=0;}
-	inline char Getchar()
-	{
-		if (rlen==S) rlen=0,fread(rbuf,1,S,stdin);
-		return rbuf[rlen++];
-	}
-	template <class T> inline void Get(T &x)
-	{
-		T res=0;char ch;bool f;
-		while (!isdigit(ch=Getchar()) && ch!='-') {}
-		if (ch=='-') f=false,res=0; else f=true,res=ch-'0';
-		while (isdigit(ch=Getchar())) res=res*10+ch-'0';
-		x=res;
-	}
-	inline void flush() {fwrite(wbuf,1,wlen,stdout);rlen=0;}
-	inline void Writechar(char ch)
-	{
-		wbuf[wlen++]=ch;
-		if (wlen==S) flush();
-	}
-	template <class T> inline void Print(T res,char ch)
-	{
-		char s[48];int pt;
-		if (res==0)
-		{
-			pt=1;
-			s[1]='0';
-		}
-		else
-		{
-			bool f=true;if (res<0) f=false,res=-res;
-			pt=0;while (res) s[++pt]=res%10+'0',res/=10;
-			if (!f) s[++pt]='-';
-		}
-		while (pt>=1) Writechar(s[pt--]);
-		Writechar(ch);
-	}
-}io;*/
-
 const int MAXN=1e5;
 
 int n,q;
@@ -82,12 +39,6 @@ namespace Treap
 		LL val;int cnt,priority,left,right;
 		LL nval,minn,lazy;int sz;
 	}tree[MAXN*10];int tot,Root;
-	inline void Print(int root)
-	{
-		if (tree[root].left) Print(tree[root].left);
-		cerr<<root<<' '<<tree[root].sz<<' '<<tree[root].cnt<<' '<<tree[root].lazy<<' '<<tree[root].val<<' '<<tree[root].left<<' '<<tree[root].right<<endl;
-		if (tree[root].right) Print(tree[root].right);
-	}
 	inline void init() {tot=0;Root=0;tree[0].minn=LINF;tree[0].sz=0;}
 	inline void pushdown(int cur)
 	{
@@ -106,7 +57,9 @@ namespace Treap
 	}
 	inline void pushup(int cur)
 	{
-		tree[cur].minn=min(min(tree[tree[cur].left].minn,tree[tree[cur].right].minn),tree[cur].nval);
+		tree[cur].minn=tree[cur].nval;
+		if (tree[cur].left) tree[cur].minn=min(tree[cur].minn,tree[tree[cur].left].minn);
+		if (tree[cur].right) tree[cur].minn=min(tree[cur].minn,tree[tree[cur].right].minn);
 		tree[cur].sz=tree[tree[cur].left].sz+tree[tree[cur].right].sz+tree[cur].cnt;
 	}
 	inline int Create(LL val,int cnt,int priority,int left,int right)
@@ -163,8 +116,8 @@ namespace Treap
 	{
 		if (tree[root].nval<0) tree[root].nval=Q(tree[root].val)-tree[root].val;
 		pushdown(root);
-		if (tree[tree[root].left].minn<0) update(tree[root].left);
-		if (tree[tree[root].right].minn<0) update(tree[root].right);
+		if (tree[root].left && tree[tree[root].left].minn<0) update(tree[root].left);
+		if (tree[root].right && tree[tree[root].right].minn<0) update(tree[root].right);
 		pushup(root);
 	}
 	inline void doit(int p)
@@ -211,34 +164,27 @@ namespace Treap
 
 int main ()
 {
-	//freopen ("a.in","r",stdin);
-	//freopen ("a.out","w",stdout);
 	scanf("%d%d",&n,&q);
-	/*io.Get(n);io.Get(q);*/int l,r,x,op;
+	int l,r,x,op;
 	Treap::init();
-	for (register int i=1;i<=n;i++) /*io.Get(x)*/scanf("%lld",&x),Treap::insert(x);
+	for (register int i=1;i<=n;i++) scanf("%d",&x),Treap::insert(x);
 	while (q--)
 	{
-		//io.Get(op);
 		assert(Treap::tot<=MAXN*10);
 		scanf("%d",&op);
 		if (op==1)
 		{
-			//io.Get(x);
 			scanf("%d",&x);
-			//io.Print(Treap::query(x),'\n');
-			printf("%d\n",Treap::query(x));
+			printf("%lld\n",Treap::query(x));
 		}
 		if (op==2)
 		{
 			scanf("%d%d%d",&l,&r,&x);
-			//io.Get(l);io.Get(r);io.Get(x);
 			Treap::Set(l,r,x);
 		}
 		if (op==3)
 		{
 			scanf("%d%d%d",&l,&r,&x);
-			//io.Get(l);io.Get(r);io.Get(x);
 			do
 			{
 				Treap::modify(l,r,x);
@@ -248,5 +194,4 @@ int main ()
 		}
 	}
 	return 0;
-	//io.flush();return 0;
 }
