@@ -64,9 +64,63 @@ struct fastio
 	}
 }io;
 
+LL dp[11][20][11],g[11][20][11];
+
+inline LL solve(int Fmax,int num,int last)
+{
+	if (dp[Fmax][num][last]!=-1) return dp[Fmax][num][last];
+	if (num==0)
+	{
+		if (Fmax==0) {dp[Fmax][num][last]=1;g[Fmax][num][last]=0;return 1;}
+		if (Fmax>last) {dp[Fmax][num][last]=1;g[Fmax][num][last]=last-Fmax+10;return 1;}
+		else {dp[Fmax][num][last]=2;g[Fmax][num][last]=10-Fmax;return 2;}
+	}
+	dp[Fmax][num][last]=0;
+	int curFmax,curlast=last;
+	for (register int i=9;i>=0;i--)
+	{
+		dp[Fmax][num][last]+=solve(max(Fmax,i),num-1,curlast);
+		curlast=g[max(Fmax,i)][num-1][curlast];
+	}
+	g[Fmax][num][last]=curlast;
+	return dp[Fmax][num][last];
+}
+
+inline void init_dp()
+{
+	memset(dp,-1,sizeof(dp));
+	for (register int i=0;i<=9;i++)
+		for (register int j=0;j<=18;j++)
+			for (register int k=0;k<=9;k++)
+				dp[i][j][k]=solve(i,j,k);
+}
+
+int bit[48];int len;
+int Fmax,num,last;
+int smax[48];
+
 int main ()
 {
-	freopen ("a.in","r",stdin);
-	freopen ("a.out","w",stdout);
+	init_dp();LL n;io.Get(n);
+	if (!n) {printf("0\n");return 0;}
+	for (register LL nn=n;nn;nn/=10) bit[++len]=nn%10;
+	last=bit[1];
+	for (register int i=2;i<=len && bit[i]==9;i++,num++);
+	smax[len+1]=0;
+	for (register int i=len;i>=1;i--) smax[i]=max(smax[i+1],bit[i]);
+	Fmax=smax[num+2];LL ans=0;int cnt=0;
+	if (Fmax==0) {io.Print(dp[0][num][last],'\n');io.flush();return 0;}
+	for (register int i=num+2;i<=len;)
+	{
+		for (register int j=bit[i];j>=0;j--)
+		{
+			ans+=dp[max(smax[i+1],j)][num+cnt][last];
+			last=g[max(smax[i+1],j)][num+cnt][last];
+		}
+		bit[i]=0;
+		while (i<=len && !bit[i]) cnt++,i++;
+		if (i>len) break; else bit[i]--;
+	}
+	io.Print(ans,'\n');
 	io.flush();return 0;
 }
