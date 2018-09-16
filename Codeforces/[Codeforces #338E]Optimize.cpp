@@ -111,7 +111,9 @@ namespace SegmentTree
 	}
 	inline void pushup(int cur)
 	{
-		minn[cur]=min(minn[lson[cur]],minn[rson[cur]]);
+		minn[cur]=INF;
+		if (lson[cur]) minn[cur]=min(minn[cur],minn[lson[cur]]);
+		if (rson[cur]) minn[cur]=min(minn[cur],minn[rson[cur]]);
 		cnt[cur]=cnt[lson[cur]]+cnt[rson[cur]];
 	}
 	inline void init() {Create();minn[0]=INF;}
@@ -150,7 +152,6 @@ namespace SegmentTree
 		{
 			lazy[cur]+=delta;
 			minn[cur]-=delta;
-//			assert(m!=90000 || minn[cur]>=0);
 			return;
 		}
 		pushdown(cur);
@@ -163,8 +164,6 @@ namespace SegmentTree
 
 int main ()
 {
-//	freopen ("a.in","r",stdin);
-//	freopen ("a.out","w",stdout);
 	io.Get(n);io.Get(m);io.Get(h);
 	for (register int i=1;i<=m;i++) io.Get(b[i]);
 	for (register int i=1;i<=n;i++) io.Get(a[i].val),a[i].ind=i;
