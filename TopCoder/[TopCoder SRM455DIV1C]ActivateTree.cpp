@@ -12,7 +12,7 @@ using namespace std;
 #define Pair pair<int,int>
 #define pLL pair<LL,LL>
 #define pii pair<double,double>
-#define LOCAL true
+// #define LOCAL true
 
 const int INF=2e9;
 const LL LINF=2e16;
@@ -77,13 +77,20 @@ template <typename T> inline void check_max(T &x,T cmp) {x=max(x,cmp);}
 
 vector<int> v[48];
 vector<int> valid[48][10];bool visited[48][10][48];
-int ind[48][48],itot;
-int cost[48],type[48];
+int ind[48][48],itot;Pair nd[48];
+int cost[48];int fa[48][48],sz[48];
 int dp[48][100048],need[48];
+int d[48];
+
+inline bool cmp_depth(int x,int y) {return d[x]<d[y];}
 
 class ActivateTree
 {
 	int n,m;
+	inline void dfs(int cur)
+	{
+		for (register int i=0;i<int(v[cur].size());i++) d[v[cur][i]]=d[cur]+1,dfs(v[cur][i]);
+	}
 	inline void doit_target(string s)
 	{	
 		int len=int(s.size()),pt;
@@ -103,11 +110,12 @@ class ActivateTree
 		itot=0;
 		for (register int i=1;i<=n;i++)
 			for (register int j=0;j<int(v[i].size());j++)
-				ind[i][v[i][j]]=++itot;
+				ind[i][v[i][j]]=++itot,nd[itot]=mp(i,v[i][j]);
+		depth[1]=1;dfs(1);
 	}
-	int depth[10],fa[10],cc[10];
-	inline int solve(int x) {if (depth[x]!=-1) return depth[x]; else return depth[x]=solve(fa[x])+1;}
-	inline int judge_type()
+	int depth[10],cc[10];
+	// inline int solve(int id,int x) {if (depth[x]!=-1) return depth[x]; else return depth[x]=solve(fa[x])+1;}
+	/*inline int judge_type()
 	{
 		if (cc[2]==1 && cc[3]==0 && cc[4]==0) return 1;
 		if (cc[2]==1 && cc[3]==1 && cc[4]==0) return 2;
@@ -117,7 +125,7 @@ class ActivateTree
 		if (cc[2]==1 && cc[3]==2 && cc[4]==0) return 6;
 		if (cc[2]==3) return 7;
 		return -1;
-	}
+	}*/
 	inline void doit_tree(string s,int id)
 	{
 		memset(depth,-1,sizeof(depth));
@@ -131,15 +139,16 @@ class ActivateTree
 			pt++;cnt++;
 			while (pt<=len-1 && isdigit(s[pt])) num=num*10+s[pt]-'0',pt++;
 			if (!f) num=-num;
-			num++;fa[cnt]=num;
+			num++;fa[id][cnt]=num;
 		}
 		while (pt<=len-1);
-		depth[0]=0;for (register int i=1;i<=cnt;i++) depth[i]=solve(i),cc[depth[i]]++;
-		for (register int i=1;i<=cnt;i++) cerr<<depth[i]<<' ';
-		cerr<<endl;
-		type[id]=judge_type();
+		sz[id]=cnt;
+		// depth[0]=0;for (register int i=1;i<=cnt;i++) depth[i]=solve(i),cc[depth[i]]++;
+		// for (register int i=1;i<=cnt;i++) cerr<<depth[i]<<' ';
+		// cerr<<endl;
+		// type[id]=judge_type();
 	}
-	inline void doit_valid(int x)
+	/*inline void doit_valid(int x)
 	{
 		//type 1
 		for (register int i=0;i<int(v[x].size());i++) valid[x][1].pb(1<<(ind[x][v[x][i]]-1));
@@ -209,6 +218,58 @@ class ActivateTree
 					register int y=v[x][i],z=v[x][j],zz=v[x][k];
 					valid[x][7].pb((1<<(ind[x][y]-1))|(1<<(ind[x][z]-1))|(1<<(ind[x][zz]-1)));
 				}
+	}*/
+	int pre[48];
+	inline void init() {for (register int i=1;i<=n;i++) pre[i]=i;}
+	inline int find_anc(int x) {if (pre[x]!=x) pre[x]=find_anc(pre[x]);return pre[x];}
+	inline void update(int x,int y) {x=find_anc(x);y=find_anc(y);pre[x]=y;}
+	vector<int> curnode;
+	inline bool connected()
+	{
+		for (register int i=1;i<int(curnode.size());i++)
+			if (find_anc(curnode[0])!=find_anc(curnode[i])) return false;
+		return true;
+	}
+	inline bool isomorphic(int id,int Mask)
+	{
+		if (sz[id]!=int(curnode.size())) return false;
+		int p[10],pp[10];
+		for (register int i=1;i<=sz[id];i++) p[i]=i;
+		do
+		{
+			for (register int i=1;i<=sz[id];i++) pp[p[i]]=curnode[i-1];
+			bool f=true;
+			for (register int i=1;i<=sz[id];i++)
+				if (p[i]!=1)
+				{
+					int ff=fa[id][p[i]],ss=p[i];
+					if (!(Mask&(1<<(ind[pp[ff]][pp[ss]]-1)))) {f=false;break;}
+				}
+			if (f) return true;
+		}
+		while (next_permutation(p+1,p+sz[id]+1));
+		return false;
+	}
+	inline void doit_valid()
+	{
+		for (register int Mask=0;Mask<=(1<<(n-1))-1;Mask++)
+		{
+			init();curnode.clear();
+			for (register int i=1;i<=n-1;i++)
+				if (Mask&(1<<(i-1)))
+				{
+					update(nd[i].x,nd[i].y);
+					curnode.pb(nd[i].x);curnode.pb(nd[i].y);
+				}
+			sort(curnode.begin(),curnode.end());
+			curnode.resize(unique(curnode.begin(),curnode.end())-curnode.begin());
+			sort(curnode.begin(),curnode.end(),cmp_depth);
+			if (int(curnode.size())>5 || int(curnode.size())<2) continue;
+			if (!connected()) continue;
+			for (register int i=1;i<=m;i++)
+				if (isomorphic(i,Mask))
+					valid[curnode[0]][i].pb(Mask);
+		}
 	}
 	int q[48],head,tail,seq[48];
 	inline void bfs()
@@ -224,17 +285,13 @@ class ActivateTree
 	{
 		if (cur==m+1) {check_min(dp[i][curMask],val);return;}
 		dfs(cur+1,i,curMask,val);
-		for (register int j=0;j<int(valid[seq[i]][type[cur]].size());j++)
-			if (!visited[seq[i]][type[cur]][j])
-			{
-				visited[seq[i]][type[cur]][j]=true;
-				dfs(cur+1,i,curMask^valid[seq[i]][type[cur]][j],val+cost[cur]);
-				visited[seq[i]][type[cur]][j]=false;
-			}
+		for (register int j=0;j<int(valid[seq[i]][cur].size());j++)
+			dfs(cur+1,i,curMask^valid[seq[i]][cur][j],val+cost[cur]);
 	}
 	inline void Clear()
 	{
-		for (register int i=1;i<=48;i++) v[i].clear();itot=0;
+		for (register int i=1;i<=48;i++) v[i].clear();
+		itot=0;
 		for (register int i=1;i<=48;i++)
 			for (register int j=1;j<=7;j++)
 				valid[i][j].clear();
@@ -247,7 +304,8 @@ class ActivateTree
 			m=int(Cost.size());
 			for (register int i=1;i<=m;i++) cost[i]=Cost[i-1];
 			for (register int i=1;i<=m;i++) doit_tree(trees[i-1],i);
-			cerr<<type[1]<<"*"<<endl;
+			doit_valid();
+			/*cerr<<type[1]<<"*"<<endl;
 			cerr<<"----"<<endl;
 			for (register int i=1;i<=n;i++) doit_valid(i);
 			for (register int i=1;i<=7;i++)
@@ -257,7 +315,7 @@ class ActivateTree
 			for (register int i=1;i<=7;i++)
 				for (register int j=0;j<int(valid[2][i].size());j++)
 					cerr<<i<<' '<<valid[2][i][j]<<endl;
-			cerr<<"----"<<endl;
+			cerr<<"----"<<endl;*/
 			bfs();
 			need[1]=0;
 			for (register int i=2;i<=n;i++)
@@ -269,22 +327,23 @@ class ActivateTree
 					need[i]|=(1<<(ind[seq[i-1]][y]-1));
 				}
 			}
-			for (register int i=1;i<=4;i++) cerr<<need[i]<<"!!"<<endl;
+			// for (register int i=1;i<=4;i++) cerr<<need[i]<<"!!"<<endl;
 			int full=(1<<(n-1))-1;
-			cerr<<n<<"$"<<endl;
+			// cerr<<n<<"$"<<endl;
 			for (register int i=0;i<=n;i++)
 				for (register int Mask=0;Mask<=full;Mask++)
 					dp[i][Mask]=INF;
+			// cerr<<"!!@#$$%%^^$%^&"<<endl;
 			// for (register int i=1;i<=n;i++) cerr<<seq[i]<<' ';
 			// cerr<<endl;
 			dp[0][0]=0;
 			for (register int i=1;i<=n;i++)
 				for (register int Mask=0;Mask<=full;Mask++)
 					if ((Mask&need[i])==need[i] && dp[i-1][Mask]<INF)
-					{
+					// {
 						dfs(1,i,Mask,dp[i-1][Mask]);
-						if (i==3 && Mask==3) cerr<<dp[i-1][Mask]<<"*()"<<endl;
-					}
+						// if (i==3 && Mask==3) cerr<<dp[i-1][Mask]<<"*()"<<endl;
+					// }
 			if (dp[n][full]>=INF) return -1; else return dp[n][full];
 		}
 };
@@ -298,6 +357,7 @@ int main ()
 	ActivateTree A;
 	while (cin>>nn)
 	{
+		// cerr<<nn<<"#"<<endl;
 		ss.clear();cc.clear();
 		getchar();
 		for (register int i=1;i<=nn;i++) getline(cin,s),ss.pb(s);
