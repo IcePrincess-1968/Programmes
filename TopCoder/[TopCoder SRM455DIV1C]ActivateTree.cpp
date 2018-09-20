@@ -114,18 +114,6 @@ class ActivateTree
 		depth[1]=1;dfs(1);
 	}
 	int depth[10],cc[10];
-	// inline int solve(int id,int x) {if (depth[x]!=-1) return depth[x]; else return depth[x]=solve(fa[x])+1;}
-	/*inline int judge_type()
-	{
-		if (cc[2]==1 && cc[3]==0 && cc[4]==0) return 1;
-		if (cc[2]==1 && cc[3]==1 && cc[4]==0) return 2;
-		if (cc[2]==2 && cc[3]==0 && cc[4]==0) return 3;
-		if (cc[2]==1 && cc[3]==1 && cc[4]==1) return 4;
-		if (cc[2]==2 && cc[3]==1 && cc[4]==0) return 5;
-		if (cc[2]==1 && cc[3]==2 && cc[4]==0) return 6;
-		if (cc[2]==3) return 7;
-		return -1;
-	}*/
 	inline void doit_tree(string s,int id)
 	{
 		memset(depth,-1,sizeof(depth));
@@ -143,82 +131,7 @@ class ActivateTree
 		}
 		while (pt<=len-1);
 		sz[id]=cnt;
-		// depth[0]=0;for (register int i=1;i<=cnt;i++) depth[i]=solve(i),cc[depth[i]]++;
-		// for (register int i=1;i<=cnt;i++) cerr<<depth[i]<<' ';
-		// cerr<<endl;
-		// type[id]=judge_type();
 	}
-	/*inline void doit_valid(int x)
-	{
-		//type 1
-		for (register int i=0;i<int(v[x].size());i++) valid[x][1].pb(1<<(ind[x][v[x][i]]-1));
-		//type 2
-		for (register int i=0;i<int(v[x].size());i++)
-		{
-			register int y=v[x][i];
-			for (register int j=0;j<int(v[y].size());j++)
-			{
-				register int z=v[y][j];
-				valid[x][2].pb((1<<(ind[x][y]-1))|(1<<(ind[y][z]-1)));
-			}
-		}
-		//type 3
-		for (register int i=0;i<int(v[x].size())-1;i++)
-			for (register int j=i+1;j<int(v[x].size());j++)
-			{
-				register int y=v[x][i],z=v[x][j];
-				valid[x][3].pb((1<<(ind[x][y]-1))|(1<<(ind[x][z]-1)));
-			}
-		//type 4
-		for (register int i=0;i<int(v[x].size());i++)
-		{
-			register int y=v[x][i];
-			for (register int j=0;j<int(v[y].size());j++)
-			{
-				register int z=v[y][j];
-				for (register int k=0;k<int(v[z].size());k++)
-				{
-					register int zz=v[z][k];
-					valid[x][4].pb((1<<(ind[x][y]-1))|(1<<(ind[y][z]-1))|(1<<(ind[z][zz]-1)));
-				}
-			}
-		}
-		//type 5
-		for (register int i=0;i<int(v[x].size())-1;i++)
-			for (register int j=i+1;j<int(v[x].size());j++)
-			{
-				register int y=v[x][i],z=v[x][j];
-				for (register int k=0;k<int(v[y].size());k++)
-				{
-					register int zz=v[y][k];
-					valid[x][5].pb((1<<(ind[x][y]-1))|(1<<(ind[x][z]-1))|(1<<(ind[y][zz]-1)));
-				}
-				for (register int k=0;k<int(v[z].size());k++)
-				{
-					register int zz=v[z][k];
-					valid[x][5].pb((1<<(ind[x][y]-1))|(1<<(ind[x][z]-1))|(1<<(ind[z][zz]-1)));
-				}
-			}
-		//type 6
-		for (register int i=0;i<int(v[x].size());i++)
-		{
-			register int y=v[x][i];
-			for (register int j=0;j<int(v[y].size())-1;j++)
-				for (register int k=j+1;k<int(v[y].size());k++)
-				{
-					register int z=v[y][j],zz=v[y][k];
-					valid[x][6].pb((1<<(ind[x][y]-1))|(1<<(ind[y][z]-1))|(1<<(ind[y][zz]-1)));
-				}
-		}
-		//type 7
-		for (register int i=0;i<int(v[x].size())-2;i++)
-			for (register int j=i+1;j<int(v[x].size())-1;j++)
-				for (register int k=j+1;k<int(v[x].size());k++)
-				{
-					register int y=v[x][i],z=v[x][j],zz=v[x][k];
-					valid[x][7].pb((1<<(ind[x][y]-1))|(1<<(ind[x][z]-1))|(1<<(ind[x][zz]-1)));
-				}
-	}*/
 	int pre[48];
 	inline void init() {for (register int i=1;i<=n;i++) pre[i]=i;}
 	inline int find_anc(int x) {if (pre[x]!=x) pre[x]=find_anc(pre[x]);return pre[x];}
@@ -305,17 +218,6 @@ class ActivateTree
 			for (register int i=1;i<=m;i++) cost[i]=Cost[i-1];
 			for (register int i=1;i<=m;i++) doit_tree(trees[i-1],i);
 			doit_valid();
-			/*cerr<<type[1]<<"*"<<endl;
-			cerr<<"----"<<endl;
-			for (register int i=1;i<=n;i++) doit_valid(i);
-			for (register int i=1;i<=7;i++)
-				for (register int j=0;j<int(valid[1][i].size());j++)
-					cerr<<i<<' '<<valid[1][i][j]<<endl;
-			cerr<<"----"<<endl;
-			for (register int i=1;i<=7;i++)
-				for (register int j=0;j<int(valid[2][i].size());j++)
-					cerr<<i<<' '<<valid[2][i][j]<<endl;
-			cerr<<"----"<<endl;*/
 			bfs();
 			need[1]=0;
 			for (register int i=2;i<=n;i++)
@@ -327,23 +229,15 @@ class ActivateTree
 					need[i]|=(1<<(ind[seq[i-1]][y]-1));
 				}
 			}
-			// for (register int i=1;i<=4;i++) cerr<<need[i]<<"!!"<<endl;
 			int full=(1<<(n-1))-1;
-			// cerr<<n<<"$"<<endl;
 			for (register int i=0;i<=n;i++)
 				for (register int Mask=0;Mask<=full;Mask++)
 					dp[i][Mask]=INF;
-			// cerr<<"!!@#$$%%^^$%^&"<<endl;
-			// for (register int i=1;i<=n;i++) cerr<<seq[i]<<' ';
-			// cerr<<endl;
 			dp[0][0]=0;
 			for (register int i=1;i<=n;i++)
 				for (register int Mask=0;Mask<=full;Mask++)
 					if ((Mask&need[i])==need[i] && dp[i-1][Mask]<INF)
-					// {
 						dfs(1,i,Mask,dp[i-1][Mask]);
-						// if (i==3 && Mask==3) cerr<<dp[i-1][Mask]<<"*()"<<endl;
-					// }
 			if (dp[n][full]>=INF) return -1; else return dp[n][full];
 		}
 };
