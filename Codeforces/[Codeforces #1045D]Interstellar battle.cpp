@@ -18,7 +18,7 @@ using namespace std;
 const int INF=2e9;
 const LL LINF=2e16;
 const int magic=348;
-const int MOD=1e9+7;
+const int MOD=998244353;
 const double eps=1e-10;
 const double pi=acos(-1);
 
@@ -73,16 +73,23 @@ struct fastio
 	}
 }io;
 
-template<typename T> inline void check_max(T &x,T cmp) {x=max(x,cmp);}
-template<typename T> inline void check_min(T &x,T cmp) {x=min(x,cmp);}
-template<typename T> inline T myabs(T x) {return x>=0?x:-x;}
+template <typename T> inline void check_max(T &x,T cmp) {x=max(x,cmp);}
+template <typename T> inline void check_min(T &x,T cmp) {x=min(x,cmp);}
+template <typename T> inline T myabs(T x) {return x>=0?x:-x;}
 
 const int MAXN=1e5;
 
-int n;
-string s[MAXN+48];int Mask[MAXN+48];
-int cnt[48];
-map<int,int> Mp;
+int n,q;
+double p[MAXN+48],dp[MAXN+48],psum[MAXN+48];int fa[MAXN+48];
+vector<int> v[MAXN+48];
+
+inline void dfs(int cur,int father)
+{
+	dp[cur]=psum[cur]=0;fa[cur]=father;
+	for (auto y : v[cur])
+		if (y!=father) dfs(y,cur),dp[cur]+=dp[y],psum[cur]+=double(1.0-p[y]);
+	dp[cur]-=double(1.0-p[cur])*(psum[cur]-1);
+}
 
 int main ()
 {
@@ -92,29 +99,29 @@ int main ()
 	freopen ("a.out","w",stdout);
 	cerr<<"Running..."<<endl;
 #endif
-	ios::sync_with_stdio(false);
-	cin>>n;Mp.clear();
-	for (register int i=1;i<=n;i++)
+	scanf("%d",&n);int x,y;double nv;
+	for (register int i=1;i<=n;i++) scanf("%lf",&p[i]);
+	for (register int i=1;i<=n-1;i++)
 	{
-		cin>>s[i];
-		for (register int j=1;j<=26;j++) cnt[j]=0;
-		for (register int j=0;j<int(s[i].size());j++) cnt[s[i][j]-'a'+1]++;
-		Mask[i]=0;for (register int j=1;j<=26;j++) if (cnt[j]%2==1) Mask[i]|=(1<<(j-1));
-		Mp[Mask[i]]++;
+		scanf("%d%d",&x,&y);x++;y++;
+		v[x].pb(y);v[y].pb(x);
 	}
-	int full=(1<<26)-1;LL ans1=0,ans2=0;
-	for (map<int,int>::iterator iter=Mp.begin();iter!=Mp.end();iter++)
+	dfs(1,-1);
+	scanf("%d",&q);double ans=dp[1];
+	while (q--)
 	{
-		int vvv=(iter->y);
-		ans1+=1ll*vvv*(vvv-1)/2;
-		for (register int j=1;j<=26;j++)
+		scanf("%d%lf",&x,&nv);x++;
+		ans+=double(1.0-p[x])*(psum[x]-1);ans-=double(1.0-nv)*(psum[x]-1);
+		if (x!=1)
 		{
-			int vv=(iter->x);
-			int toMask=(vv^(1<<(j-1)));
-			if (Mp.find(toMask)!=Mp.end()) ans2+=1ll*vvv*(Mp[toMask]);
+			int f=fa[x];
+			ans+=double(1.0-p[f])*(psum[f]-1);
+			psum[f]-=double(1.0-p[x]);psum[f]+=double(1.0-nv);
+			ans-=double(1.0-p[f])*(psum[f]-1);
 		}
+		p[x]=nv;
+		printf("%lf\n",ans);
 	}
-	cout<<ans1+ans2/2<<endl;
 #ifdef LOCAL
 	cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;
 #endif

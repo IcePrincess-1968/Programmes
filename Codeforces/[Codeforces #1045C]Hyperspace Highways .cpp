@@ -87,7 +87,6 @@ struct Edge
 
 vector<int> v[MAXN+48];
 vector<Pair> vv[MAXN+48];
-// vector<int> cir[MAXN+48];
 int n,m,q;
 
 int dfn[MAXN+48],low[MAXN+48],Index,ind;
@@ -122,11 +121,6 @@ inline void tarjan(int cur,int father)
 					id=s.top();s.pop();	
 					x=edge[id].x;u=edge[id].y;
 					cir.pb(x);cir.pb(u);
-					// if (x==pre) swap(x,u);
-					// cir[ind].pb(mp(x,0));
-					// cerr<<x<<' '<<u<<"!"<<' '<<pre<<endl;
-					// vv[ind].pb(mp(x,0));vv[x].pb(mp(ind,0));
-					// pre=x;
 				}
 				while (!check(id,mp(cur,y)));
 				sort(cir.begin(),cir.end());
@@ -136,7 +130,6 @@ inline void tarjan(int cur,int father)
 		}
 		else if (y!=father && dfn[y]<dfn[cur])
 		{
-			// sta[++stot]=v[cur][i];
 			s.push(v[cur][i]);
 			low[cur]=min(low[cur],dfn[y]);
 		}
@@ -186,22 +179,7 @@ int main ()
 		v[edge[i].x].pb(i);v[edge[i].y].pb(i);
 	}
 	ind=n;tarjan(1,-1);
-	// print();
-	/*
-	cerr<<ind<<endl;
-	for (register int i=1;i<=ind;i++) cerr<<val[i]<<' ';
-	cerr<<endl;
-	for (register int i=1;i<=ind;i++)
-	{
-		cerr<<i<<":";
-		for (register int j=0;j<int(vv[i].size());j++)
-			cerr<<vv[i][j].x<<' '<<vv[i][j].y<<' ';
-		cerr<<endl;
-	}
-	*/
 	sum[1]=val[1];depth[1]=1;dfs(1,-1);
-	// cerr<<sum[2]<<' '<<sum[4]<<"#"<<endl;
-	// cerr<<get_lca(2,4)<<endl;
 	while (q--)
 	{
 		io.Get(x);io.Get(y);
