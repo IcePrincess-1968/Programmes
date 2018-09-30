@@ -1,0 +1,1176 @@
+{\rtf1\ansi\ansicpg936\deff0\nouicompat\deflang1033\deflangfe2052{\fonttbl{\f0\fnil\fcharset134 \'cb\'ce\'cc\'e5;}}
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang2052\'bd\'e2\'b7\'a81\'a3\'ba\par
+\par
+using namespace std;\par
+typedef long long LL;\par
+const int M=1000000009;\par
+\par
+#define mp make_pair\par
+#define pr pair<int,int>\par
+\par
+class UnknownTree\par
+\{\par
+\tab public:\par
+\tab\par
+\tab int one(vector<int> d)//One special node\par
+\tab\{\par
+\tab\tab //Let's make it root, each node can choose a parent among the root and the nodes closer to the root than it. \par
+\tab\tab int res=1;\par
+\tab\tab sort(d.begin(),d.end());\par
+\tab\tab for(int i=0,j=0;i<d.size();i++)\par
+\tab\tab\{\par
+\tab\tab\tab for(;j<=d.size()&&d[j]<d[i];j++);\par
+\tab\tab\tab res=(LL)res*(j+1)%M;//j+1 choices for i's parent.\par
+\tab\tab\}\par
+\tab\tab return res;\par
+\tab\}\par
+\tab\par
+\tab int two(vector<pr> v)\par
+\tab\{\par
+\tab\tab //Each node's information is pair (dist to B,dist to A)\par
+\tab\tab int n=v.size();\par
+\tab\tab sort(v.begin(),v.end());\par
+\tab\tab //There must only be one starting vertex for this branch.\par
+\tab\tab if(n>1&&v[0].first==v[1].first)return 0;\par
+\tab\tab int A=0;\par
+\tab\tab for(;v[A].second;A++);//Get A.\par
+\tab\tab vector<pr > branchA;\par
+\tab\tab vector<int> branchO;\par
+\tab\tab if(!A)\par
+\tab\tab\{\par
+\tab\tab\tab for(int i=1;i<n;i++)//check the difference of the distance\par
+\tab\tab\tab\tab if(v[i].first-v[i].second==v[0].first)branchO.push_back(v[i].second);\par
+\tab\tab\tab\tab else return 0;\par
+\tab\tab\tab return one(branchO);\par
+\tab\tab\}\par
+\tab\tab //Select the branch for each i\par
+\tab\tab for(int i=1;i<n;i++)\par
+\tab\tab\{\par
+\tab\tab\tab int dtA=v[i].second-v[0].second;\par
+\tab\tab\tab int dtB=v[i].first-v[0].first;\par
+\tab\tab\tab if(dtA==dtB)branchO.push_back(dtA);//In the other branch.\par
+\tab\tab\tab else branchA.push_back(v[i]);//In A's branch.\par
+\tab\tab\tab if(dtA+dtB<0)return 0;\par
+\tab\tab\}\par
+\tab\tab return (LL)one(branchO)*two(branchA)%M;//Solve the subproblem.\par
+\tab\}\par
+\tab\par
+\tab int three_chain(vector<int> &dA,vector<int> &dB,vector<int> &dC)//C is between A,B: A-C-B\par
+\tab\{\par
+\tab\tab int n=dA.size();\par
+\tab\tab set<pr> ACBC;\par
+\tab\tab int ac,bc;\par
+\tab\tab //Look for candidates for AC and BC\par
+\tab\tab for(int i=0;i<n;i++)\par
+\tab\tab\{\par
+\tab\tab\tab //Assume it is in neither A's or B's branch:\par
+\tab\tab\tab //dC[i] = x\par
+\tab\tab\tab //dA[i] = AC + x , AC = dA[i] - dc[i]\par
+\tab\tab\tab //dB[i] = BC + x , BC = dB[i] - dc[i]\par
+\tab\tab\tab ac=dA[i]-dC[i];\par
+\tab\tab\tab bc=dB[i]-dC[i];\par
+\tab\tab\tab if(ac>0&&bc>0)ACBC.insert(mp(ac,bc));\par
+\tab\tab\tab //Now assume it is in A's branch, between A and C\par
+\tab\tab\tab //AC = dA[i] + dC[i]\par
+\tab\tab\tab //BC = dB[i] - dC[i]\par
+\tab\tab\tab ac=dA[i]+dC[i];\par
+\tab\tab\tab bc=dB[i]-dC[i];\par
+\tab\tab\tab if(bc>0)ACBC.insert(mp(ac,bc));\par
+\tab\tab\tab //Assume it is in A's branch, after A.\par
+\tab\tab\tab //dC[i] = dA[i] + AC\par
+\tab\tab\tab ac=dC[i]-dA[i];\par
+\tab\tab\tab if(ac>0&&bc>0)ACBC.insert(mp(ac,bc));\par
+\tab\tab\tab //Same two cases with B's branch:\par
+\tab\tab\tab ac=dA[i]-dC[i];\par
+\tab\tab\tab bc=dB[i]+dC[i];\par
+\tab\tab\tab if(ac>0)ACBC.insert(mp(ac,bc));\par
+\tab\tab\tab bc=dC[i]-dB[i];\par
+\tab\tab\tab if(ac>0&&bc>0)ACBC.insert(mp(ac,bc));\par
+\tab\tab\}\par
+\tab\tab int res=0,tmp;\par
+\tab\tab for(set<pr>::iterator it=ACBC.begin();it!=ACBC.end();it++)\par
+\tab\tab\{\par
+\tab\tab\tab ac=it->first,bc=it->second;\par
+\tab\tab\tab vector<pr> branchA,branchB;\par
+\tab\tab\tab vector<int> branchO;\par
+\tab\tab\tab branchA.push_back(mp(0,ac));\par
+\tab\tab\tab branchA.push_back(mp(ac,0));\par
+\tab\tab\tab branchB.push_back(mp(0,bc));\par
+\tab\tab\tab branchB.push_back(mp(bc,0));\par
+\tab\tab\tab bool flag=1;\par
+\tab\tab\tab int dtA,dtB,dtC;\par
+\tab\tab\tab //We simply divide the nodes set into three part branch A, branch B and branch O(C).\par
+\tab\tab\tab //Solve them as subproblems and multiple the number of ways.\par
+\tab\tab\tab for(int i=0;i<n&&flag;i++)\par
+\tab\tab\tab\{\par
+\tab\tab\tab\tab dtC=dC[i];\par
+\tab\tab\tab\tab dtA=dA[i]-ac;\par
+\tab\tab\tab\tab dtB=dB[i]-bc;\par
+\tab\tab\tab\tab if(dtA==dtC&&dtB==dtC)//other\par
+\tab\tab\tab\tab\tab branchO.push_back(dC[i]);\par
+\tab\tab\tab\tab else if(dtB==dtC)//A's\par
+\tab\tab\tab\tab\tab branchA.push_back(mp(dC[i],dA[i]));\par
+\tab\tab\tab\tab else if(dtA==dtC)//B's\par
+\tab\tab\tab\tab\tab branchB.push_back(mp(dC[i],dB[i]));\par
+\tab\tab\tab\tab else flag=0;//something wrong.\par
+\tab\tab\tab\}\par
+\tab\tab\tab if(flag)\par
+\tab\tab\tab\{\par
+\tab\tab\tab\tab tmp=one(branchO);\par
+\tab\tab\tab\tab tmp=(LL)tmp*two(branchA)%M;\par
+\tab\tab\tab\tab tmp=(LL)tmp*two(branchB)%M;\par
+\tab\tab\tab\tab res=(res+tmp)%M;\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\tab return res;\par
+\tab\}\par
+\tab\par
+\tab int three_center(vector<int> &dA,vector<int> &dB,vector<int> &dC,int p)//p is the center\par
+\tab\{\par
+\tab\tab /*******\par
+\tab\tab     A\par
+\tab\tab     |\par
+\tab\tab     p\par
+\tab\tab    / \\\par
+\tab\tab   B   C\par
+\tab\tab ********/\par
+\tab\tab int n=dA.size();\par
+\tab\tab vector<pr> branchA,branchB,branchC;\par
+\tab\tab vector<int> branchO;\par
+\tab\tab branchA.push_back(mp(0,dA[p]));\par
+\tab\tab branchA.push_back(mp(dA[p],0));\par
+\tab\tab branchB.push_back(mp(0,dB[p]));\par
+\tab\tab branchB.push_back(mp(dB[p],0));\par
+\tab\tab branchC.push_back(mp(0,dC[p]));\par
+\tab\tab branchC.push_back(mp(dC[p],0));\par
+\tab\tab for(int i=0;i<n;i++)\par
+\tab\tab\tab if(i!=p)\par
+\tab\tab\tab\{\par
+\tab\tab\tab\tab int dtA=dA[i]-dA[p];\par
+\tab\tab\tab\tab int dtB=dB[i]-dB[p];\par
+\tab\tab\tab\tab int dtC=dC[i]-dC[p];\par
+\tab\tab\tab\tab if(dtA>0&&dtA==dtB&&dtA==dtC)//It is in a branch different to A's, B's or C's\par
+\tab\tab\tab\tab\tab branchO.push_back(dtA);\par
+\tab\tab\tab\tab else if(dtB>0&&dtB==dtC)//It is in A's branch.\par
+\tab\tab\tab\tab\tab branchA.push_back(mp(dtB,dA[i]));\par
+\tab\tab\tab\tab else if(dtC>0&&dtC==dtA)//It is in B's branch.\par
+\tab\tab\tab\tab\tab branchB.push_back(mp(dtC,dB[i]));\par
+\tab\tab\tab\tab else if(dtA>0&&dtA==dtB)//It is in C's branch.\par
+\tab\tab\tab\tab\tab branchC.push_back(mp(dtA,dC[i]));\par
+\tab\tab\tab\tab else return 0;//something wrong.\par
+\tab\tab\tab\}\par
+\tab\tab int res=one(branchO);\par
+\tab\tab res=(LL)res*two(branchA)%M;\par
+\tab\tab res=(LL)res*two(branchB)%M;\par
+\tab\tab res=(LL)res*two(branchC)%M;\par
+\tab\tab return res;\par
+\tab\}\par
+\tab\par
+\tab int getCount(vector<int> distancesA,vector<int> distancesB,vector<int> distancesC)\par
+\tab\{\par
+\tab\tab int res=0,n=distancesA.size();\par
+\tab\tab for(int i=0;i<n;i++)//Pick the center.\par
+\tab\tab\tab res=(res+three_center(distancesA,distancesB,distancesC,i))%M;\par
+\tab\tab //chain:\par
+\tab\tab res=(res+three_chain(distancesB,distancesC,distancesA))%M;\par
+\tab\tab res=(res+three_chain(distancesC,distancesA,distancesB))%M;\par
+\tab\tab res=(res+three_chain(distancesA,distancesB,distancesC))%M;\par
+\tab\tab return res;\par
+\tab\}\par
+\};\par
+\par
+\par
+\par
+\'bd\'e2\'b7\'a82\'a3\'ba\par
+\par
+#include<iostream>\par
+#include<stdio.h>\par
+#include<stdlib.h>\par
+#include<string.h>\par
+#include<math.h>\par
+#include<algorithm>\par
+#include<vector>\par
+#define L long long\par
+#define inf 1000000000\par
+#define min(a,b) ((a)<(b)?(a):(b))\par
+#define max(a,b) ((a)>(b)?(a):(b))\par
+#define PI pair<int,int>\par
+#define fi first\par
+#define sc second\par
+#define mp make_pair\par
+using namespace std;\par
+class UnknownTree\par
+\{\par
+\tab int n,m,ans,q=1000000009;\par
+\tab PI x[60];\par
+\tab inline int hash(int a,int b,int c)\par
+\tab\{\par
+\tab\tab return (((L)a*998244353+b)%q*998244353+c)%q;\par
+\tab\}\par
+\tab inline void count()\par
+\tab\{\par
+\tab\tab int i,j,k,p=1;\par
+\tab\tab sort(x+1,x+m+1);\par
+\tab\tab for(i=1;i<=m;i=j)\par
+\tab\tab   \{\par
+\tab\tab    if(x[i].sc)\par
+\tab\tab      return;\par
+\tab\tab    for(j=i+1,k=0;j<=m && x[j].fi==x[i].fi;j++)\par
+\tab\tab      \{\par
+\tab\tab\tab   if(!x[j].sc)\par
+\tab\tab\tab     return;\par
+\tab\tab\tab   if(x[j].sc==x[j-1].sc)\par
+\tab\tab\tab     k++;\par
+\tab\tab\tab   else\par
+\tab\tab\tab     k=0;\par
+\tab\tab\tab   p=(L)p*(j-i-k)%q;\par
+\tab\tab\tab  \}\par
+\tab\tab   \}\par
+\tab\tab ans=(ans+p)%q;\par
+\tab\}\par
+\tab inline void count1(vector<int> a,vector<int> b,vector<int> c)\par
+\tab\{\par
+\tab\tab int i,j,k,ab,bc;\par
+\tab\tab m=0;\par
+\tab\tab for(i=0;i<n;i++)\par
+\tab\tab   \{\par
+\tab\tab    if(a[i]<b[i] && b[i]<c[i])\par
+\tab\tab      j=b[i]-a[i],k=c[i]-b[i],x[++m]=mp(1,a[i]);\par
+\tab\tab    else if(a[i]>b[i] && b[i]<c[i])\par
+\tab\tab      j=a[i]-b[i],k=c[i]-b[i],x[++m]=mp(2,b[i]);\par
+\tab\tab    else if(a[i]>b[i] && b[i]>c[i])\par
+\tab\tab      j=a[i]-b[i],k=b[i]-c[i],x[++m]=mp(3,c[i]);\par
+\tab\tab    else\par
+\tab\tab      return;\par
+\tab\tab    if(i==0)\par
+\tab\tab      ab=j,bc=k;\par
+\tab\tab    else if(ab!=j || bc!=k)\par
+\tab\tab      return;\par
+\tab\tab   \}\par
+\tab\tab x[++m]=mp(1,0);\par
+\tab\tab x[++m]=mp(2,0);\par
+\tab\tab x[++m]=mp(3,0);\par
+\tab\tab count();\par
+\tab\}\par
+\tab inline void count2(vector<int> a,vector<int> b,vector<int> c,int p)\par
+\tab\{\par
+\tab\tab int i,j,ac=inf,ab;\par
+\tab\tab m=0;\par
+\tab\tab for(i=0;i<n;i++)\par
+\tab\tab   ac=min(ac,a[i]+c[i]);\par
+\tab\tab for(i=0;i<n;i++)\par
+\tab\tab   \{\par
+\tab\tab    if(a[i]+c[i]+ac&1)\par
+\tab\tab      return;\par
+\tab\tab    j=(a[i]+c[i]-ac)/2;\par
+\tab\tab    if(a[i]<j || b[i]<j || c[i]<j)\par
+\tab\tab      return;\par
+\tab\tab    x[++m]=mp(a[i]-j,j);\par
+\tab\tab    if(i==0)\par
+\tab\tab      \{\par
+\tab\tab       if(!p)\par
+\tab\tab         ab=a[i]-b[i];\par
+\tab\tab       else\par
+\tab\tab         ab=a[i]-j+b[i]-j;\par
+\tab\tab       if(ab<0 || ab>ac || b[i]==j && p)\par
+\tab\tab         return;\par
+\tab\tab\tab  \}\par
+\tab\tab    else\par
+\tab\tab      if(ab!=a[i]-b[i] && ab!=a[i]-j+b[i]-j)\par
+\tab\tab        return;\par
+\tab\tab   \}\par
+\tab\tab x[++m]=mp(0,0);\par
+\tab\tab x[++m]=mp(ab,0);\par
+\tab\tab x[++m]=mp(ac,0);\par
+\tab\tab count();\par
+\tab\}\par
+\tab inline void count3(vector<int> a,vector<int> b,vector<int> c,int w)\par
+\tab\{\par
+\tab\tab int i,j;\par
+\tab\tab m=0;\par
+\tab\tab for(i=0;i<n;i++)\par
+\tab\tab   \{\par
+\tab\tab    if(a[i]+b[i]+a[w]+b[w]&1 || a[i]+c[i]+a[w]+c[w]&1 || b[i]+c[i]+b[w]+c[w]&1)\par
+\tab\tab      return;\par
+\tab\tab    j=min(a[i]+b[i]-a[w]-b[w],min(a[i]+c[i]-a[w]-c[w],b[i]+c[i]-b[w]-c[w]))/2;\par
+\tab\tab    if(j<0 || a[i]<j || b[i]<j || c[i]<j)\par
+\tab\tab      return;\par
+\tab\tab    if(!(a[i]-j<=a[w] && b[i]-j==a[w]+b[w]-(a[i]-j) && c[i]-j==a[w]+c[w]-(a[i]-j) || \par
+\tab\tab         b[i]-j<=b[w] && a[i]-j==a[w]+b[w]-(b[i]-j) && c[i]-j==b[w]+c[w]-(b[i]-j) || \par
+\tab\tab         c[i]-j<=c[w] && a[i]-j==a[w]+c[w]-(c[i]-j) && b[i]-j==b[w]+c[w]-(c[i]-j)))\par
+\tab\tab         return;\par
+\tab\tab    x[++m]=mp(hash(a[i]-j,b[i]-j,c[i]-j),j);\par
+\tab\tab   \}\par
+\tab\tab x[++m]=mp(hash(0,a[w]+b[w],a[w]+c[w]),0);\par
+\tab\tab x[++m]=mp(hash(a[w]+b[w],0,b[w]+c[w]),0);\par
+\tab\tab x[++m]=mp(hash(a[w]+c[w],b[w]+c[w],0),0);\par
+\tab\tab count();\par
+\tab\}\par
+public:\par
+\tab int getCount(vector<int> a,vector<int> b,vector<int> c)\par
+\tab\{\par
+\tab\tab int i,j;\par
+\tab\tab n=a.size();\par
+\tab\tab //A-B-C\'c7\'d2\'d6\'d0\'bc\'e4\'ce\'de\'b5\'e3 \par
+\tab\tab count1(a,b,c);\par
+\tab\tab count1(a,c,b);\par
+\tab\tab count1(b,a,c);\par
+\tab\tab //A-B-C\'c7\'d2\'d6\'d0\'bc\'e4\'d3\'d0\'b5\'e3 \par
+\tab\tab count2(a,b,c,0);\par
+\tab\tab count2(a,c,b,0);\par
+\tab\tab count2(b,a,c,0);\par
+\tab\tab count2(a,b,c,1);\par
+\tab\tab count2(a,c,b,1);\par
+\tab\tab count2(b,a,c,1);\par
+\tab\tab //A-x-B\par
+\tab\tab //  |\par
+\tab\tab //  C\par
+\tab\tab for(i=0;i<n;i++)\par
+\tab\tab   count3(a,b,c,i);\par
+\tab\tab return ans;\par
+    \}\par
+\};\par
+\par
+\par
+\'bd\'e2\'b7\'a83\'a3\'ba\par
+\par
+#include<bits/stdc++.h>\par
+#define sqr(x) (x)*(x)\par
+#define ll long long\par
+#define ull unsigned long long\par
+#define ui unsigned int\par
+#define vi vector<int>\par
+#define pb push_back\par
+#define ld long double\par
+#define mp make_pair\par
+#define pii pair<int,int>\par
+#define debuge puts("isok")\par
+#define debug(x) cout<<#x<<"="<<x<<endl\par
+#define SS second\par
+#define FF first\par
+using namespace std;\par
+\par
+const int N=55,mod=1e9+9,inf=mod;\par
+\par
+inline void ch(int &x,int y)\{x+=y;if(x>=mod) x-=mod;\}\par
+inline int s1(vi a)\{\par
+\tab int n=a.size(),ans=1,k=0;\par
+\tab sort(a.begin(),a.end());\par
+\tab for(int i=1;i<n;i++)\{\par
+\tab\tab while(k<n&&a[k]<a[i]) k++;\par
+\tab\tab ans=(ll)ans*k%mod;\par
+\tab\}\par
+\tab return ans;\par
+\}\par
+int vis[N];\par
+inline int s2(vector<pii> a)\{\par
+\tab int d=a[0].FF+a[0].SS,n=a.size(),ans=1;\par
+\tab memset(vis,0,sizeof(vis));\par
+\tab for(int i=0;i<n;i++)\{\par
+\tab\tab if(a[i].FF+a[i].SS>d) continue;\par
+\tab\tab if(a[i].FF+a[i].SS<d) return 0;\par
+\tab\tab vi tmp(0);\par
+\tab\tab for(int j=0;j<n;j++)\par
+\tab\tab\tab if(a[j].FF-a[i].FF>=0&&a[j].FF-a[i].FF==a[j].SS-a[i].SS) vis[j]++,tmp.pb(a[j].FF-a[i].FF);\par
+\tab\tab ans=(ll)ans*s1(tmp)%mod;\par
+\tab\}\par
+\tab for(int j=0;j<n;j++) if(vis[j]^1) return 0;\par
+\tab return ans;\par
+\}\par
+int Y(vi a,vi b,vi c,int p)\{\par
+\tab int n=a.size();\par
+\tab vi o(0);\par
+\tab vector<pii> A,B,C;\par
+\tab A.pb(mp(0,a[p]));A.pb(mp(a[p],0));\par
+\tab B.pb(mp(0,b[p]));B.pb(mp(b[p],0));\par
+\tab C.pb(mp(0,c[p]));C.pb(mp(c[p],0));\par
+\tab o.pb(0);\par
+\tab for(int i=0;i<n;i++)\{\par
+\tab\tab if(i==p) continue;\par
+\tab\tab int da=a[i]-a[p],db=b[i]-b[p],dc=c[i]-c[p];\par
+\tab\tab if(da==db&&db==dc) o.pb(da);\par
+\tab\tab else if(da>0&&da==db) C.pb(mp(da,c[i]));\par
+\tab\tab else if(da>0&&da==dc) B.pb(mp(da,b[i]));\par
+\tab\tab else if(db>0&&db==dc) A.pb(mp(db,a[i]));\par
+\tab\tab else return 0;\par
+\tab\}\par
+\tab return (ll)s1(o)*s2(A)%mod*s2(B)%mod*s2(C)%mod;\par
+\}\par
+set<pii> s;\par
+set<pii>::iterator it;\par
+void push(int ac,int bc)\{\par
+\tab if(ac>0&&bc>0) s.insert(mp(ac,bc));\par
+\}\par
+int seg(vi a,vi b,vi c)\{\par
+\tab int ans=0,n=a.size();s.clear();\par
+\tab for(int i=0;i<n;i++)\{\par
+\tab\tab push(a[i]-c[i],b[i]-c[i]);\par
+\tab\tab push(a[i]+c[i],b[i]-c[i]);\par
+\tab\tab push(c[i]-a[i],b[i]-c[i]);\par
+\tab\tab push(a[i]-c[i],b[i]+c[i]);\par
+\tab\tab push(a[i]-c[i],c[i]-b[i]);\par
+\tab\}\par
+\tab for(it=s.begin();it!=s.end();it++)\{\par
+\tab\tab vi C(0);\par
+\tab\tab vector<pii> A(0),B(0);\par
+\tab\tab int isok=1,ac=(*it).FF,bc=(*it).SS;\par
+\tab\tab A.pb(mp(ac,0));A.pb(mp(0,ac));\par
+\tab\tab B.pb(mp(bc,0));B.pb(mp(0,bc));\par
+\tab\tab C.pb(0);\par
+\tab\tab for(int i=0;i<n;i++)\{\par
+\tab\tab\tab int da=a[i]-c[i],db=b[i]-c[i];\par
+\tab\tab\tab if(da==ac&&db==bc) C.pb(c[i]);\par
+\tab\tab\tab else if(db==bc) A.pb(mp(a[i],c[i]));\par
+\tab\tab\tab else if(da==ac) B.pb(mp(b[i],c[i]));\par
+\tab\tab\tab else\{isok=0;break;\}\par
+\tab\tab\}\par
+\tab\tab if(isok) /*printf("%d %d %d %d %d\\n",ac,bc,s1(C),s2(A),s2(B)),*/ch(ans,(ll)s1(C)*s2(A)%mod*s2(B)%mod);\par
+\tab\}\par
+\tab return ans;\par
+\}\par
+\par
+class UnknownTree\{\par
+public:\par
+\tab int getCount(vector<int> distancesA, vector<int> distancesB, vector<int> distancesC)\{\par
+\tab\tab vi a,b,c;\par
+\tab\tab a=distancesA;b=distancesB;c=distancesC;\par
+\tab\tab int ans=0,n=a.size();\par
+\tab\tab ch(ans,seg(a,b,c));\par
+\tab\tab ch(ans,seg(b,c,a));\par
+\tab\tab ch(ans,seg(c,a,b));\par
+\tab\tab int minx=inf,id=-1;\par
+\tab\tab for(int i=0;i<n;i++) \par
+\tab\tab\tab if(a[i]+b[i]+c[i]<minx) minx=a[i]+b[i]+c[i],id=i;\par
+\tab\tab ch(ans,Y(a,b,c,id));\par
+\tab\tab return ans;\par
+\tab\}\par
+\};\par
+\par
+\par
+\'bd\'e2\'b7\'a84\'a3\'ba\par
+\par
+#include<bits/stdc++.h>\par
+using namespace std;\par
+#define ll long long\par
+#define P 1000000009\par
+#define mp make_pair\par
+#define pii pair<int,int>\par
+#define vi vector<int>\par
+#define mpv map<pii,vi>\par
+int n,m,i,j,w,x,y,z,ans;\par
+vi v;\par
+mpv s;\par
+mpv::iterator it;\par
+int work(int *a,int *b,int *c,int A,int B,int C)//\'c7\'f3\'b3\'f6\'d6\'d0\'bc\'e4\'b5\'e3\'b5\'bda\'a1\'a2b\'a1\'a2c\'be\'e0\'c0\'eb\'b7\'d6\'b1\'f0\'ce\'aaA\'a1\'a2B\'a1\'a2C\'b5\'c4\'ca\'f7\'b5\'c4\'b8\'f6\'ca\'fd \par
+\{\par
+    if(A<=0||B<=0||C<0)return 0;\par
+    s.clear();\par
+    ans=1;\par
+    for(i=0;i<n;i++)\par
+    \{\par
+        if(a[i]+B==b[i]+A)//\'d4\'dac\'cb\'f9\'d4\'da\'b5\'c4\'d6\'a7\'c1\'b4\'c9\'cf \par
+        \{\par
+            x=C+A+c[i]-a[i];\par
+            y=c[i];\par
+            z=C;\par
+            w=0;\par
+        \}\par
+        else if(b[i]+C==c[i]+B)//\'d4\'daa\'cb\'f9\'d4\'da\'b5\'c4\'d6\'a7\'c1\'b4\'c9\'cf \par
+        \{\par
+            x=A+B+a[i]-b[i];\par
+            y=a[i];\par
+            z=A;\par
+            w=1;\par
+        \}\par
+        else if(a[i]+C==c[i]+A)//\'d4\'dab\'cb\'f9\'d4\'da\'b5\'c4\'d6\'a7\'c1\'b4\'c9\'cf \par
+        \{\par
+            x=B+C+b[i]-c[i];\par
+            y=b[i];\par
+            z=B;\par
+            w=2;\par
+        \}\par
+        else return 0;\par
+        if(x<0||x>(z<<1)||(x&1))return 0;//\'c8\'a5\'b3\'fd\'b7\'c7\'b7\'a8\'c7\'e9\'bf\'f6 \par
+        y-=x>>=1;//\'c8\'a5\'b5\'f4\'b6\'e0\'d3\'e0\'b5\'c4\'b2\'bf\'b7\'d6 \par
+        s[mp(x,w)].push_back(y);\par
+    \}\par
+    for(it=s.begin();it!=s.end();it++)\par
+    \{\par
+        v=it->second;\par
+        sort(v.begin(),v.end());\par
+        m=v.size();\par
+        if(it->first.first&&(v[0]||m>1&&!v[1]))return 0;//\'d3\'d0\'c7\'d2\'bd\'f6\'d3\'d0\'d2\'bb\'b8\'f6\'b8\'f9\'bd\'da\'b5\'e3 \par
+        for(i=j=1;i<m;i++)\par
+        \{\par
+            if(v[i]!=v[i-1])j=i+!!v[0];//\'c7\'f3\'d3\'d0\'b6\'e0\'c9\'d9\'b8\'f6\'bd\'e1\'b5\'e3\'bf\'c9\'d2\'d4\'d7\'f7\'ce\'aa\'b8\'b8\'c7\'d7 \par
+            ans=(ll)ans*j%P;\par
+        \}\par
+    \}\par
+    return ans;\par
+\}\par
+int X(int *a,int *b,int *c)//abc\'d4\'da\'d2\'bb\'cc\'f5\'c1\'b4\'c9\'cf \par
+\{\par
+    for(i=j=0;i<n;i++)if(c[i]<c[j])j=i;\par
+    swap(a[0],a[j]);\par
+    swap(b[0],b[j]);\par
+    swap(c[0],c[j]);\par
+    return ((ll)work(a,b,c,a[0]-c[0],b[0]-c[0],0)+work(a,b,c,a[0]+c[0],b[0]-c[0],0)+work(a,b,c,a[0]-c[0],b[0]+c[0],0)+work(a,b,c,c[0]-a[0],b[0]-c[0],0)+work(a,b,c,a[0]-c[0],c[0]-b[0],0))%P;\par
+\}\par
+int Y(int *a,int *b,int *c)//abc\'b2\'bb\'d4\'da\'d2\'bb\'cc\'f5\'c1\'b4\'c9\'cf \par
+\{\par
+    for(i=j=0;i<n;i++)if(a[i]+b[i]+c[i]<a[j]+b[j]+c[j])j=i;\par
+    swap(a[0],a[j]);\par
+    swap(b[0],b[j]);\par
+    swap(c[0],c[j]);\par
+    return work(a,b,c,a[0],b[0],c[0]);\par
+\}\par
+class UnknownTree\par
+\{\par
+    public:\par
+        int getCount(vector <int> distancesA, vector <int> distancesB, vector <int> distancesC)\par
+        \{\par
+            n=distancesA.size();\par
+            int *a=&distancesA[0],*b=&distancesB[0],*c=&distancesC[0];\par
+            return ((ll)X(a,b,c)+X(a,c,b)+X(b,c,a)+Y(a,b,c))%P;//\'bc\'c6\'cb\'e3\'b4\'f0\'b0\'b8 \par
+        \}\par
+\};\par
+\par
+\'bd\'e2\'b7\'a85\'a3\'ba\par
+\par
+#line 5 "UnknownTree.cpp"\par
+#include <bits/stdc++.h>\par
+\par
+using namespace std;\par
+\par
+#define REP(i, a, b) for (int i = (a), _end_ = (b); i < _end_; ++i)\par
+#define debug(...) fprintf(stderr, __VA_ARGS__)\par
+#define mp make_pair\par
+#define x first\par
+#define y second\par
+#define pb push_back\par
+#define SZ(x) (int((x).size()))\par
+#define ALL(x) (x).begin(), (x).end()\par
+\par
+template<typename T> inline bool chkmin(T &a, const T &b) \{ return a > b ? a = b, 1 : 0; \}\par
+template<typename T> inline bool chkmax(T &a, const T &b) \{ return a < b ? a = b, 1 : 0; \}\par
+\par
+typedef long long LL;\par
+\par
+const int oo = 0x3f3f3f3f;\par
+\par
+const int Mod = 1e9 + 9;\par
+\par
+const int maxn = 50;\par
+\par
+int n;\par
+\par
+vector<int> a, b, c;\par
+\par
+inline int work3(vector<int> &dis)\par
+\{\par
+\tab sort(ALL(dis));\par
+\tab int n = SZ(dis);\par
+\tab if (dis[0]) return 0;\par
+\tab int j = 0;\par
+\tab int ret = 1;\par
+\tab REP(i, 1, n)\par
+\tab\{\par
+\tab\tab while (dis[j] < dis[i]) ++j;\par
+\tab\tab ret = (LL)ret * j % Mod;\par
+\tab\tab if (!ret) return 0;\par
+\tab\}\par
+\tab return ret;\par
+\}\par
+\par
+inline int work2(vector<int> &a, vector<int> &b, vector<int> &c, const int &db, const int &dc)\par
+\{\par
+\tab if (!db || !dc) return 0;\par
+\tab map<int, vector<int> > tob, toc;\par
+\tab vector<int> suba;\par
+\tab tob[db].pb(0);\par
+\tab tob[-db].pb(0);\par
+\tab toc[-dc].pb(0);\par
+\tab REP(i, 0, n)\par
+\tab\{\par
+\tab\tab int u = b[i] - a[i], v = c[i] - a[i];\par
+\tab\tab if (v == dc) \{ if ((a[i] ^ b[i] ^ db) & 1) return 0; tob[u].pb((a[i] + b[i] - db) >> 1); \}\par
+\tab\tab else if (u == db) \{ if ((a[i] ^ c[i] ^ dc) & 1) return 0; toc[v].pb((a[i] + c[i] - dc) >> 1); \}\par
+\tab\tab else return 0;\par
+\tab\}\par
+\tab int ret = 1;\par
+\tab for (auto x : tob) \{ if (x.x < -db || x.x > db || ((x.x ^ db) & 1)) return 0; ret = (LL)ret * work3(x.y) % Mod; if (!ret) return 0; \}\par
+\tab for (auto x : toc) \{ if (x.x < -dc || x.x > dc || ((x.x ^ dc) & 1)) return 0; ret = (LL)ret * work3(x.y) % Mod; if (!ret) return 0; \}\par
+\tab return ret;\par
+\}\par
+\par
+inline int work0(vector<int> &a, vector<int> &b, vector<int> &c)\par
+\{\par
+\tab int p = min_element(ALL(a)) - a.begin();\par
+\tab int u[2] = \{a[p] + b[p], abs(a[p] - b[p])\};\par
+\tab int v[2] = \{a[p] + c[p], abs(a[p] - c[p])\};\par
+\tab int ret = 0;\par
+\tab REP(i, 0, 2) REP(j, 0, 2) (ret += work2(a, b, c, u[i], v[j])) %= Mod;\par
+\tab return ret;\par
+\}\par
+\par
+inline int work1(int x)\par
+\{\par
+\tab int da = a[x], db = b[x], dc = c[x];\par
+\tab map<int, vector<int> > toa, tob, toc;\par
+\tab toa[-da - db].pb(0);\par
+\tab tob[-db - dc].pb(0);\par
+\tab toc[-dc - da].pb(0);\par
+\tab REP(i, 0, n)\par
+\tab\{\par
+\tab\tab int u = a[i] - b[i], v = b[i] - c[i], w = c[i] - a[i];\par
+\tab\tab if (u == da - db) \{ if ((a[i] ^ c[i] ^ da ^ dc) & 1) return 0; toc[w].pb((a[i] + c[i] - da - dc) >> 1); \}\par
+\tab\tab else if (v == db - dc) \{ if ((a[i] ^ b[i] ^ da ^ db) & 1) return 0; toa[u].pb((a[i] + b[i] - da - db) >> 1); \}\par
+\tab\tab else if (w == dc - da) \{ if ((b[i] ^ c[i] ^ db ^ dc) & 1) return 0; tob[v].pb((b[i] + c[i] - db - dc) >> 1); \}\par
+\tab\tab else return 0;\par
+\tab\}\par
+\tab int ret = 1;\par
+\tab for (auto x : toa) \{ if (x.x < -da - db || x.x > da - db || ((x.x ^ da ^ db) & 1)) return 0; ret = (LL)ret * work3(x.y) % Mod; if (!ret) return 0; \}\par
+\tab for (auto x : tob) \{ if (x.x < -db - dc || x.x > db - dc || ((x.x ^ db ^ dc) & 1)) return 0; ret = (LL)ret * work3(x.y) % Mod; if (!ret) return 0; \}\par
+\tab for (auto x : toc) \{ if (x.x < -dc - da || x.x > dc - da || ((x.x ^ dc ^ da) & 1)) return 0; ret = (LL)ret * work3(x.y) % Mod; if (!ret) return 0; \}\par
+\tab return ret;\par
+\}\par
+\par
+class UnknownTree\par
+\{\par
+\tab public:\par
+\tab\tab int getCount(vector <int> distancesA, vector <int> distancesB, vector <int> distancesC)\par
+\tab\tab\{\par
+\tab\tab\tab a = distancesA;\par
+\tab\tab\tab n = SZ(a);\par
+\tab\tab\tab b = distancesB;\par
+\tab\tab\tab c = distancesC;\par
+\tab\tab\tab int ans = ((LL)work0(a, b, c) + work0(b, a, c) + work0(c, a, b)) % Mod;\par
+\tab\tab\tab REP(i, 0, n) (ans += work1(i)) %= Mod;\par
+\tab\tab\tab (ans += Mod) %= Mod;\par
+\tab\tab\tab return ans;\par
+\tab\tab\}\par
+\par
+\par
+\};\par
+\par
+\par
+\'bd\'e2\'b7\'a87:\par
+\par
+#include <cstdio>\par
+#include <cmath>\par
+#include <cstring>\par
+#include <ctime>\par
+#include <iostream>\par
+#include <algorithm>\par
+#include <set>\par
+#include <vector>\par
+#include <sstream>\par
+#include <typeinfo>\par
+#include <fstream>\par
+#include <cctype>\par
+#include <queue>\par
+#include <map>\par
+using namespace std;\par
+const int MOD = 1000000009;\par
+class UnknownTree\par
+\{\par
+\tab private:\par
+\tab int n;\par
+\tab int d[60][3];//d[i][j] = distance between i and ('A'+j)\par
+\tab int calc(vector <int> dist)//calculate a single branch\par
+\tab\{\par
+\tab\tab sort(dist.begin(), dist.end());\par
+\tab\tab if(dist.empty() || dist[0] != 0 || (dist.size() >= 2 && dist[1] == 0))//no root or >= 2 roots\par
+\tab\tab\tab return 0;\par
+\tab\tab int ret = 1, j = 1;\par
+\tab\tab for(int i = 1; i < dist.size(); i++)\par
+\tab\tab\{\par
+\tab\tab\tab while(dist[j] < dist[i])\par
+\tab\tab\tab\tab j++;\par
+\tab\tab\tab ret = (long long)ret * j % MOD;\par
+\tab\tab\}\par
+\tab\tab return ret;\par
+\tab\}\par
+\tab int solve_center(int x)//center point x\par
+\tab\{\par
+\tab\tab map <int, vector <int> > mp[3];//mp[i][j]: branch ('A'+i), distance j from x\par
+\tab\tab vector <int> vec;//out of 3 branches\par
+\tab\tab for(int k = 0; k < 3; k++)\par
+\tab\tab\tab mp[k][d[x][k]].push_back(0);//point 'A', 'B', 'C'\par
+\tab\tab for(int j = 0; j < n; j++)\par
+\tab\tab\{\par
+\tab\tab\tab int s[3];\par
+\tab\tab\tab for(int k = 0; k < 3; k++)\par
+\tab\tab\tab\tab s[k] = d[j][k] - d[x][k];\par
+\tab\tab\tab if(s[0] == s[1] && s[0] == s[2])//out of 3 branches\par
+\tab\tab\tab\{\par
+\tab\tab\tab\tab if(s[0] < 0)\par
+\tab\tab\tab\tab\tab return 0;\par
+\tab\tab\tab\tab vec.push_back(s[0]);\par
+\tab\tab\tab\tab continue;\par
+\tab\tab\tab\}\par
+\tab\tab\tab bool ok = false;\par
+\tab\tab\tab for(int k = 0; k < 3; k++)//try branch ('A'+k)\par
+\tab\tab\tab\tab if(s[(k + 1) % 3] == s[(k + 2) % 3])\par
+\tab\tab\tab\tab\{\par
+\tab\tab\tab\tab\tab if(s[(k + 1) % 3] <= 0 || s[(k + 1) % 3] - s[k] < 0 || ((s[(k + 1) % 3] - s[k]) & 1))\par
+\tab\tab\tab\tab\tab\tab return 0;\par
+\tab\tab\tab\tab\tab mp[k][(s[(k + 1) % 3] - s[k]) >> 1].push_back(s[(k + 1) % 3] - ((s[(k + 1) % 3] - s[k]) >> 1));\par
+\tab\tab\tab\tab\tab ok = true;\par
+\tab\tab\tab\tab\tab break;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab if(!ok)\par
+\tab\tab\tab\tab return 0;\par
+\tab\tab\}\par
+\tab\tab int ret = calc(vec);\par
+\tab\tab for(int k = 0; k < 3; k++)\par
+\tab\tab\tab for(map <int, vector <int> > :: iterator it = mp[k].begin(); it != mp[k].end(); it++)\par
+\tab\tab\tab\tab ret = (long long)ret * calc(it->second) % MOD;\par
+\tab\tab return ret;\par
+\tab\}\par
+\tab int solve_chain(int x)//center point ('A'+x)\par
+\tab\{\par
+\tab\tab set <pair <int, int> > len;//length of (x+1)-x and x-(x+2)\par
+\tab\tab for(int i = 0; i < n; i++)\par
+\tab\tab\{\par
+\tab\tab\tab int s[3];\par
+\tab\tab\tab for(int k = 0; k < 3; k++)\par
+\tab\tab\tab\tab s[k] = d[i][(x + k) % 3];\par
+\tab\tab\tab if(s[1] > s[0] && s[2] > s[0])//x-i\par
+\tab\tab\tab\tab len.insert(make_pair(s[1] - s[0], s[2] - s[0]));\par
+\tab\tab\tab if(s[2] > s[0])//(x+1)-i-x\par
+\tab\tab\tab\tab len.insert(make_pair(s[1] + s[0], s[2] - s[0]));\par
+\tab\tab\tab if(s[1] > s[0])//x-i-(x+2)\par
+\tab\tab\tab\tab len.insert(make_pair(s[1] - s[0], s[2] + s[0]));\par
+\tab\tab\tab if(s[2] > s[0] && s[0] > s[1])//i-(x+1)\par
+\tab\tab\tab\tab len.insert(make_pair(s[0] - s[1], s[2] - s[0]));\par
+\tab\tab\tab if(s[1] > s[0] && s[0] > s[2])//i-(x+2)\par
+\tab\tab\tab\tab len.insert(make_pair(s[1] - s[0], s[0] - s[2]));\par
+\tab\tab\}\par
+\tab\tab int ans = 0;\par
+\tab\tab for(set <pair <int, int> > :: iterator i = len.begin(); i != len.end(); i++)\par
+\tab\tab\{\par
+\tab\tab\tab const int len1 = i->first, len2 = i->second;\par
+\tab\tab\tab map <int, vector <int> > mp[2];//mp[i][j]: branch ('A'+i+1), distance j from ('A'+x)\par
+\tab\tab\tab vector <int> vec(1, 0);//out of 2 branches; point 'A'\par
+\tab\tab\tab mp[0][len1].push_back(0);//'B'\par
+\tab\tab\tab mp[1][len2].push_back(0);//'C'\par
+\tab\tab\tab bool ok = true;\par
+\tab\tab\tab for(int j = 0; j < n; j++)\par
+\tab\tab\tab\{\par
+\tab\tab\tab\tab int s[3];\par
+\tab\tab\tab\tab for(int k = 0; k < 3; k++)\par
+\tab\tab\tab\tab\tab s[k] = d[j][(x + k) % 3];\par
+\tab\tab\tab\tab if(s[1] - len1 == s[0] && s[2] - len2 == s[0])\par
+\tab\tab\tab\tab\tab vec.push_back(s[0]);//out of 2 branches\par
+\tab\tab\tab\tab else if(s[1] - len1 == s[0])//try branch 'C'\par
+\tab\tab\tab\tab\{\par
+\tab\tab\tab\tab\tab if(s[0] + len2 - s[2] < 0 || ((s[0] + len2 - s[2]) & 1))\par
+\tab\tab\tab\tab\tab\{\par
+\tab\tab\tab\tab\tab\tab ok = false;\par
+\tab\tab\tab\tab\tab\tab break;\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab mp[1][(s[0] + len2 - s[2]) >> 1].push_back(s[0] - ((s[0] + len2 - s[2]) >> 1));\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab else if(s[2] - len2 == s[0])//try branch 'B'\par
+\tab\tab\tab\tab\{\par
+\tab\tab\tab\tab\tab if(s[0] + len1 - s[1] < 0 || ((s[0] + len1 - s[1]) & 1))\par
+\tab\tab\tab\tab\tab\{\par
+\tab\tab\tab\tab\tab\tab ok = false;\par
+\tab\tab\tab\tab\tab\tab break;\par
+\tab\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab\tab mp[0][(s[0] + len1 - s[1]) >> 1].push_back(s[0] - ((s[0] + len1 - s[1]) >> 1));\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab else\par
+\tab\tab\tab\tab\{\par
+\tab\tab\tab\tab\tab ok = false;\par
+\tab\tab\tab\tab\tab break;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\}\par
+\tab\tab\tab if(!ok)\par
+\tab\tab\tab\tab continue;\par
+\tab\tab\tab int ret = calc(vec);\par
+\tab\tab\tab for(int k = 0; k < 2; k++)\par
+\tab\tab\tab\tab for(map <int, vector <int> > :: iterator it = mp[k].begin(); it != mp[k].end(); it++)\par
+\tab\tab\tab\tab\tab ret = (long long)ret * calc(it->second) % MOD;\par
+\tab\tab\tab ans = (ans + ret) % MOD;\par
+\tab\tab\}\par
+\tab\tab return ans;\par
+\tab\}\par
+\tab public:\par
+\tab int getCount(vector<int> distancesA, vector<int> distancesB, vector<int> distancesC)\par
+\tab\{\par
+\tab\tab n = distancesA.size();\par
+\tab\tab for(int i = 0; i < n; i++)\par
+\tab\tab\{\par
+\tab\tab\tab d[i][0] = distancesA[i];\par
+\tab\tab\tab d[i][1] = distancesB[i];\par
+\tab\tab\tab d[i][2] = distancesC[i];\par
+\tab\tab\}\par
+\tab\tab int ans = 0;\par
+\tab\tab for(int i = 0; i < n; i++)\par
+\tab\tab\tab ans = (ans + solve_center(i)) % MOD;\par
+\tab\tab for(int k = 0; k < 3; k++)\par
+\tab\tab\tab ans = (ans + solve_chain(k)) % MOD;\par
+\tab\tab return ans;\par
+\tab\}\par
+\};\par
+\par
+\par
+\'bd\'e2\'b7\'a88\'a3\'ba\par
+\par
+\par
+#include <vector>\par
+#include <list>\par
+#include <map>\par
+#include <set>\par
+#include <deque>\par
+#include <stack>\par
+#include <bitset>\par
+#include <algorithm>\par
+#include <functional>\par
+#include <numeric>\par
+#include <utility>\par
+#include <sstream>\par
+#include <iostream>\par
+#include <iomanip>\par
+#include <cstdio>\par
+#include <cmath>\par
+#include <cstdlib>\par
+#include <ctime>\par
+#include <cstring>\par
+\par
+using namespace std;\par
+\par
+class UnknownTree \{\par
+public:\par
+\tab int getCount(vector<int> , vector<int> , vector<int> );\par
+\};\par
+long long pmod = 1000000009;\par
+int cc[100];\par
+bool cmp(int a, int b) \{\par
+\tab return cc[a] < cc[b];\par
+\}\par
+long long f(vector<int> p, int i) \{\par
+\tab if (p.size() == i)\par
+\tab\tab return 1;\par
+\tab sort(p.begin(), p.end(), cmp);\par
+\tab int v;\par
+\tab long long ret, now, up;\par
+\tab ret = 1;\par
+\tab now = 1;\par
+\tab up = 1;\par
+\tab v = cc[p[i]];\par
+\tab for (; i < p.size(); ++i) \{\par
+\tab\tab if (v != cc[p[i]]) \{\par
+\tab\tab\tab v = cc[p[i]];\par
+\tab\tab\tab now = up;\par
+\tab\tab\}\par
+\tab\tab ret *= now;\par
+\tab\tab ret %= pmod;\par
+\tab\tab up++;\par
+\tab\}\par
+\tab return ret;\par
+\}\par
+long long gao1(vector<int> a, vector<int> b, vector<int> c) \{\par
+\tab int i;\par
+\tab int ca, cb, cc;\par
+\tab int n = a.size();\par
+\tab vector<int> va, vb, vc;\par
+\tab int x = abs(a[0] - b[0]);\par
+\tab int y = abs(c[0] - b[0]);\par
+\tab ca = cb = cc = 0;\par
+\tab for (i = 0; i < n; ++i) \{\par
+\tab\tab if (abs(a[i] - b[i]) != x)\par
+\tab\tab\tab return 0;\par
+\tab\tab if (abs(c[i] - b[i]) != y)\par
+\tab\tab\tab return 0;\par
+\tab\tab if (a[i] < b[i] && b[i] < c[i])\par
+\tab\tab\tab va.push_back(i);\par
+\tab\tab else if (a[i] > b[i] && b[i] > c[i])\par
+\tab\tab\tab vc.push_back(i);\par
+\tab\tab else if (a[i] > b[i] && c[i] > b[i])\par
+\tab\tab\tab vb.push_back(i);\par
+\tab\tab else\par
+\tab\tab\tab return 0;\par
+\tab\}\par
+\tab return f(va, 0) * f(vb, 0) % pmod * f(vc, 0) % pmod;\par
+\}\par
+long long gao2(vector<int> a, vector<int> b, vector<int> c) \{\par
+\tab int i, j;\par
+\tab int n = a.size();\par
+\tab int lab = abs(a[0] - b[0]);\par
+\tab if (lab == 0)\par
+\tab\tab return 0;\par
+\tab for (i = 0; i < n; ++i) \{\par
+\tab\tab if (abs(a[i] - b[i]) != lab)\par
+\tab\tab\tab return 0;\par
+\tab\}\par
+\tab int lbc = b[0] + c[0];\par
+\tab for (i = 0; i < n; ++i) \{\par
+\tab\tab if (lbc > b[i] + c[i])\par
+\tab\tab\tab lbc = b[i] + c[i];\par
+\tab\}\par
+\tab int ed = 1;\par
+\tab map<int, int> m;\par
+\tab vector<int> v[55];\par
+\tab vector<int> va;\par
+\tab for (i = 0; i < n; ++i) \{\par
+\tab\tab if (a[i] < b[i]) \{\par
+\tab\tab\tab if (c[i] - b[i] != lbc)\par
+\tab\tab\tab\tab return 0;\par
+\tab\tab\tab va.push_back(i);\par
+\tab\tab\} else \{\par
+\tab\tab\tab if (abs(c[i] - b[i]) > lbc)\par
+\tab\tab\tab\tab return 0;\par
+\tab\tab\tab int p = m[c[i] - b[i]];\par
+\tab\tab\tab if (p == 0) \{\par
+\tab\tab\tab\tab p = ed++;\par
+\tab\tab\tab\tab m[c[i] - b[i]] = p;\par
+\tab\tab\tab\}\par
+\tab\tab\tab v[p].push_back(i);\par
+\tab\tab\}\par
+\tab\}\par
+\tab long long ret = f(va, 0);\par
+\tab for (i = 1; i < ed; ++i) \{\par
+\tab\tab int rr = 0;\par
+\tab\tab for (j = 0; j < v[i].size(); ++j) \{\par
+\tab\tab\tab if (b[v[i][j]] + c[v[i][j]] == lbc)\par
+\tab\tab\tab\tab rr++;\par
+\tab\tab\}\par
+\tab\tab if (abs(c[v[i][0]] - b[v[i][0]]) != lbc && rr != 1)\par
+\tab\tab\tab return 0;\par
+\tab\tab if (abs(c[v[i][0]] - b[v[i][0]]) != lbc)\par
+\tab\tab\tab ret *= f(v[i], 1);\par
+\tab\tab else\par
+\tab\tab\tab ret *= f(v[i], 0);\par
+\tab\tab ret %= pmod;\par
+\tab\}\par
+\tab return ret;\par
+\}\par
+long long gao3(vector<int> a, vector<int> b, vector<int> c) \{\par
+\tab int i, j;\par
+\tab int n = a.size();\par
+\tab int lab = a[0] + b[0];\par
+\tab for (i = 0; i < n; ++i) \{\par
+\tab\tab if (lab > a[i] + b[i])\par
+\tab\tab\tab lab = a[i] + b[i];\par
+\tab\}\par
+\tab int lac = a[0] + c[0];\par
+\tab for (i = 0; i < n; ++i) \{\par
+\tab\tab if (lac > a[i] + c[i])\par
+\tab\tab\tab lac = a[i] + c[i];\par
+\tab\}\par
+\tab int lbc = b[0] + c[0];\par
+\tab for (i = 0; i < n; ++i) \{\par
+\tab\tab if (lbc > b[i] + c[i])\par
+\tab\tab\tab lbc = b[i] + c[i];\par
+\tab\}\par
+\tab int mid = -1;\par
+\tab for (i = 0; i < n; ++i) \{\par
+\tab\tab if (a[i] + b[i] == lab && a[i] + c[i] == lac && b[i] + c[i] == lbc) \{\par
+\tab\tab\tab if (mid != -1) \{\par
+\tab\tab\tab\tab return 0;\par
+\tab\tab\tab\}\par
+\tab\tab\tab mid = i;\par
+\tab\tab\}\par
+\tab\}\par
+\tab if (mid == -1)\par
+\tab\tab return 0;\par
+\par
+\tab int an = 1, bn = 1, cn = 1;\par
+\tab map<int, int> am, bm, cm;\par
+\tab vector<int> av[55], bv[55], cv[55], vo;\par
+\tab for (i = 0; i < n; ++i) \{\par
+\tab\tab if (i == mid)\par
+\tab\tab\tab continue;\par
+\tab\tab if (b[i] - a[i] == b[mid] - a[mid] && c[i] - a[i] == c[mid] - a[mid]) \{\par
+\tab\tab\tab vo.push_back(i);\par
+\tab\tab\} else if (b[i] - a[i] > b[mid] - a[mid] && c[i] - a[i] > c[mid]\par
+\tab\tab\tab\tab - a[mid]) \{\par
+\tab\tab\tab int pos = b[i] - a[i] - b[mid];\par
+\tab\tab\tab if (pos != c[i] - a[i] - c[mid])\par
+\tab\tab\tab\tab return 0;\par
+\tab\tab\tab int p = am[pos];\par
+\tab\tab\tab if (p == 0) \{\par
+\tab\tab\tab\tab p = an++;\par
+\tab\tab\tab\tab am[pos] = p;\par
+\tab\tab\tab\}\par
+\tab\tab\tab av[p].push_back(i);\par
+\tab\tab\} else if (a[i] - b[i] > a[mid] - b[mid] && c[i] - b[i] > c[mid]\par
+\tab\tab\tab\tab - b[mid]) \{\par
+\tab\tab\tab int pos = a[i] - b[i] - a[mid];\par
+\tab\tab\tab if (pos != c[i] - b[i] - c[mid])\par
+\tab\tab\tab\tab return 0;\par
+\tab\tab\tab int p = bm[pos];\par
+\tab\tab\tab if (p == 0) \{\par
+\tab\tab\tab\tab p = bn++;\par
+\tab\tab\tab\tab bm[pos] = p;\par
+\tab\tab\tab\}\par
+\tab\tab\tab bv[p].push_back(i);\par
+\tab\tab\} else if (b[i] - c[i] > b[mid] - c[mid] && a[i] - c[i] > a[mid]\par
+\tab\tab\tab\tab - c[mid]) \{\par
+\tab\tab\tab int pos = b[i] - c[i] - b[mid];\par
+\tab\tab\tab if (pos != a[i] - c[i] - a[mid])\par
+\tab\tab\tab\tab return 0;\par
+\tab\tab\tab int p = cm[pos];\par
+\tab\tab\tab if (p == 0) \{\par
+\tab\tab\tab\tab p = cn++;\par
+\tab\tab\tab\tab cm[pos] = p;\par
+\tab\tab\tab\}\par
+\tab\tab\tab cv[p].push_back(i);\par
+\tab\tab\} else \{\par
+\tab\tab\tab return 0;\par
+\tab\tab\}\par
+\tab\}\par
+\tab long long ret = f(vo, 0);\par
+\tab for (i = 1; i < an; ++i) \{\par
+\tab\tab int rr = 0;\par
+\tab\tab for (j = 0; j < av[i].size(); ++j) \{\par
+\tab\tab\tab if (a[av[i][j]] + b[av[i][j]] == lab)\par
+\tab\tab\tab\tab rr++;\par
+\tab\tab\}\par
+\tab\tab if (abs(a[av[i][0]] - b[av[i][0]]) != lab && rr != 1)\par
+\tab\tab\tab return 0;\par
+\tab\tab if (abs(a[av[i][0]] - b[av[i][0]]) != lab)\par
+\tab\tab\tab ret *= f(av[i], 1);\par
+\tab\tab else\par
+\tab\tab\tab ret *= f(av[i], 0);\par
+\tab\tab ret %= pmod;\par
+\tab\}\par
+\tab for (i = 1; i < bn; ++i) \{\par
+\tab\tab int rr = 0;\par
+\tab\tab for (j = 0; j < bv[i].size(); ++j) \{\par
+\tab\tab\tab if (a[bv[i][j]] + b[bv[i][j]] == lab)\par
+\tab\tab\tab\tab rr++;\par
+\tab\tab\}\par
+\tab\tab if (abs(a[bv[i][0]] - b[bv[i][0]]) != lab && rr != 1)\par
+\tab\tab\tab return 0;\par
+\tab\tab if (abs(a[bv[i][0]] - b[bv[i][0]]) != lab)\par
+\tab\tab\tab ret *= f(bv[i], 1);\par
+\tab\tab else\par
+\tab\tab\tab ret *= f(bv[i], 0);\par
+\tab\tab ret %= pmod;\par
+\tab\}\par
+\tab for (i = 1; i < cn; ++i) \{\par
+\tab\tab int rr = 0;\par
+\tab\tab for (j = 0; j < cv[i].size(); ++j) \{\par
+\tab\tab\tab if (c[cv[i][j]] + b[cv[i][j]] == lbc)\par
+\tab\tab\tab\tab rr++;\par
+\tab\tab\}\par
+\tab\tab if (abs(c[cv[i][0]] - b[cv[i][0]]) != lbc && rr != 1)\par
+\tab\tab\tab return 0;\par
+\tab\tab if (abs(c[cv[i][0]] - b[cv[i][0]]) != lbc)\par
+\tab\tab\tab ret *= f(cv[i], 1);\par
+\tab\tab else\par
+\tab\tab\tab ret *= f(cv[i], 0);\par
+\tab\tab ret %= pmod;\par
+\tab\}\par
+\tab return ret;\par
+\}\par
+long long gao4(vector<int> a, vector<int> b, vector<int> c) \{\par
+\tab int i, j;\par
+\tab int n = a.size();\par
+\tab int lab = a[0] + b[0];\par
+\tab for (i = 0; i < n; ++i) \{\par
+\tab\tab if (lab > a[i] + b[i])\par
+\tab\tab\tab lab = a[i] + b[i];\par
+\tab\}\par
+\tab int lac = a[0] + c[0];\par
+\tab for (i = 0; i < n; ++i) \{\par
+\tab\tab if (lac > a[i] + c[i])\par
+\tab\tab\tab lac = a[i] + c[i];\par
+\tab\}\par
+\tab int lbc = b[0] + c[0];\par
+\tab for (i = 0; i < n; ++i) \{\par
+\tab\tab if (lbc > b[i] + c[i])\par
+\tab\tab\tab lbc = b[i] + c[i];\par
+\tab\}\par
+\tab if (lab + lbc != lac)\par
+\tab\tab return 0;\par
+\tab int an = 1, cn = 1;\par
+\tab map<int, int> am, cm;\par
+\tab vector<int> av[55], bv, cv[55];\par
+\tab for (i = 0; i < n; ++i) \{\par
+\tab\tab if (c[i] - b[i] == lbc && a[i] - b[i] == lab)\par
+\tab\tab\tab bv.push_back(i);\par
+\tab\tab else if (c[i] - b[i] == lbc) \{\par
+\tab\tab\tab if (abs(a[i] - b[i]) > lab)\par
+\tab\tab\tab\tab return 0;\par
+\tab\tab\tab int pos = a[i] - b[i];\par
+\tab\tab\tab int p = am[pos];\par
+\tab\tab\tab if (p == 0) \{\par
+\tab\tab\tab\tab p = an++;\par
+\tab\tab\tab\tab am[pos] = p;\par
+\tab\tab\tab\}\par
+\tab\tab\tab av[p].push_back(i);\par
+\tab\tab\} else if (a[i] - b[i] == lab) \{\par
+\tab\tab\tab if (abs(c[i] - b[i]) > lbc)\par
+\tab\tab\tab\tab return 0;\par
+\tab\tab\tab int pos = c[i] - b[i];\par
+\tab\tab\tab int p = cm[pos];\par
+\tab\tab\tab if (p == 0) \{\par
+\tab\tab\tab\tab p = cn++;\par
+\tab\tab\tab\tab cm[pos] = p;\par
+\tab\tab\tab\}\par
+\tab\tab\tab cv[p].push_back(i);\par
+\tab\tab\}\par
+\tab\}\par
+\tab long long ret = f(bv, 0);\par
+\tab for (i = 1; i < an; ++i) \{\par
+\tab\tab int rr = 0;\par
+\tab\tab for (j = 0; j < av[i].size(); ++j) \{\par
+\tab\tab\tab if (a[av[i][j]] + b[av[i][j]] == lab)\par
+\tab\tab\tab\tab rr++;\par
+\tab\tab\}\par
+\tab\tab if (abs(a[av[i][0]] - b[av[i][0]]) != lab && rr != 1)\par
+\tab\tab\tab return 0;\par
+\tab\tab if (abs(a[av[i][0]] - b[av[i][0]]) != lab)\par
+\tab\tab\tab ret *= f(av[i], 1);\par
+\tab\tab else\par
+\tab\tab\tab ret *= f(av[i], 0);\par
+\tab\tab ret %= pmod;\par
+\tab\}\par
+\tab for (i = 1; i < cn; ++i) \{\par
+\tab\tab int rr = 0;\par
+\tab\tab for (j = 0; j < cv[i].size(); ++j) \{\par
+\tab\tab\tab if (c[cv[i][j]] + b[cv[i][j]] == lbc)\par
+\tab\tab\tab\tab rr++;\par
+\tab\tab\}\par
+\tab\tab if (abs(c[cv[i][0]] - b[cv[i][0]]) != lbc && rr != 1)\par
+\tab\tab\tab return 0;\par
+\tab\tab if (abs(c[cv[i][0]] - b[cv[i][0]]) != lbc)\par
+\tab\tab\tab ret *= f(cv[i], 1);\par
+\tab\tab else\par
+\tab\tab\tab ret *= f(cv[i], 0);\par
+\tab\tab ret %= pmod;\par
+\tab\}\par
+\tab return ret;\par
+\}\par
+int UnknownTree::getCount(vector<int> a, vector<int> b, vector<int> c) \{\par
+\tab long long ans = 0;\par
+\tab int i;\par
+\tab for (i = 0; i < a.size(); ++i)\par
+\tab\tab cc[i] = a[i];\par
+\tab ans += gao1(a, b, c);\par
+\tab ans += gao1(a, c, b);\par
+\tab ans += gao1(b, a, c);\par
+\tab ans += gao2(a, b, c);\par
+\tab ans += gao2(b, a, c);\par
+\tab ans += gao2(a, c, b);\par
+\tab ans += gao2(c, a, b);\par
+\tab ans += gao2(b, c, a);\par
+\tab ans += gao2(c, b, a);\par
+\tab ans += gao3(b, c, a);\par
+\tab ans += gao4(a, b, c);\par
+\tab ans += gao4(a, c, b);\par
+\tab ans += gao4(b, a, c);\par
+\tab return ans % pmod;\par
+\}\par
+\par
+\par
+\par
+\par
+}
+ 
