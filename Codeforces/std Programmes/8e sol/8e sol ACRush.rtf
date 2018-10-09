@@ -1,0 +1,239 @@
+{\rtf1\ansi\ansicpg936\deff0\nouicompat\deflang1033\deflangfe2052{\fonttbl{\f0\fnil\fcharset134 \'cb\'ce\'cc\'e5;}}
+{\*\generator Riched20 10.0.16299}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang2052 #include <vector>\par
+#include <list>\par
+#include <map>\par
+#include <set>\par
+#include <deque>\par
+#include <queue>\par
+#include <stack>\par
+#include <bitset>\par
+#include <algorithm>\par
+#include <functional>\par
+#include <numeric>\par
+#include <utility>\par
+#include <sstream>\par
+#include <iostream>\par
+#include <iomanip>\par
+#include <cstdio>\par
+#include <cmath>\par
+#include <cstdlib>\par
+#include <cctype>\par
+#include <string>\par
+#include <cstring>\par
+#include <cstdio>\par
+#include <cmath>\par
+#include <cstdlib>\par
+#include <ctime>\par
+\par
+using namespace std;\par
+\par
+//BEGINTEMPLATE_BY_ACRUSH_TOPCODER\par
+#define SIZE(X) ((int)(X.size()))//NOTES:SIZE(\par
+#define LENGTH(X) ((int)(X.length()))//NOTES:LENGTH(\par
+#define MP(X,Y) make_pair(X,Y)//NOTES:MP(\par
+typedef long long int64;//NOTES:int64\par
+typedef unsigned long long uint64;//NOTES:uint64\par
+#define twoL(X) (((int64)(1))<<(X))//NOTES:twoL(\par
+#define containL(S,X) (((S)&twoL(X))!=0)//NOTES:containL(\par
+const double pi=acos(-1.0);//NOTES:pi\par
+const double eps=1e-11;//NOTES:eps\par
+template<class T> inline void checkmin(T &a,T b)\{if(b<a) a=b;\}//NOTES:checkmin(\par
+template<class T> inline void checkmax(T &a,T b)\{if(b>a) a=b;\}//NOTES:checkmax(\par
+template<class T> inline T sqr(T x)\{return x*x;\}//NOTES:sqr\par
+typedef pair<int,int> ipair;//NOTES:ipair\par
+template<class T> inline T lowbit(T n)\{return (n^(n-1))&n;\}//NOTES:lowbit(\par
+template<class T> inline int countbit(T n)\{return (n==0)?0:(1+countbit(n&(n-1)));\}//NOTES:countbit(\par
+//Numberic Functions\par
+template<class T> inline T gcd(T a,T b)//NOTES:gcd(\par
+  \{if(a<0)return gcd(-a,b);if(b<0)return gcd(a,-b);return (b==0)?a:gcd(b,a%b);\}\par
+template<class T> inline T lcm(T a,T b)//NOTES:lcm(\par
+  \{if(a<0)return lcm(-a,b);if(b<0)return lcm(a,-b);return a*(b/gcd(a,b));\}\par
+template<class T> inline T euclide(T a,T b,T &x,T &y)//NOTES:euclide(\par
+  \{if(a<0)\{T d=euclide(-a,b,x,y);x=-x;return d;\}\par
+   if(b<0)\{T d=euclide(a,-b,x,y);y=-y;return d;\}\par
+   if(b==0)\{x=1;y=0;return a;\}else\{T d=euclide(b,a%b,x,y);T t=x;x=y;y=t-(a/b)*y;return d;\}\}\par
+template<class T> inline vector<pair<T,int> > factorize(T n)//NOTES:factorize(\par
+  \{vector<pair<T,int> > R;for (T i=2;n>1;)\{if (n%i==0)\{int C=0;for (;n%i==0;C++,n/=i);R.push_back(make_pair(i,C));\}\par
+   i++;if (i>n/i) i=n;\}if (n>1) R.push_back(make_pair(n,1));return R;\}\par
+template<class T> inline bool isPrimeNumber(T n)//NOTES:isPrimeNumber(\par
+  \{if(n<=1)return false;for (T i=2;i*i<=n;i++) if (n%i==0) return false;return true;\}\par
+template<class T> inline T eularFunction(T n)//NOTES:eularFunction(\par
+  \{vector<pair<T,int> > R=factorize(n);T r=n;for (int i=0;i<R.size();i++)r=r/R[i].first*(R[i].first-1);return r;\}\par
+//Matrix Operations\par
+const int MaxMatrixSize=40;//NOTES:MaxMatrixSize\par
+template<class T> inline void showMatrix(int n,T A[MaxMatrixSize][MaxMatrixSize])//NOTES:showMatrix(\par
+  \{for (int i=0;i<n;i++)\{for (int j=0;j<n;j++)cout<<A[i][j];cout<<endl;\}\}\par
+template<class T> inline T checkMod(T n,T m) \{return (n%m+m)%m;\}//NOTES:checkMod(\par
+template<class T> inline void identityMatrix(int n,T A[MaxMatrixSize][MaxMatrixSize])//NOTES:identityMatrix(\par
+  \{for (int i=0;i<n;i++) for (int j=0;j<n;j++) A[i][j]=(i==j)?1:0;\}\par
+template<class T> inline void addMatrix(int n,T C[MaxMatrixSize][MaxMatrixSize],T A[MaxMatrixSize][MaxMatrixSize],T B[MaxMatrixSize][MaxMatrixSize])//NOTES:addMatrix(\par
+  \{for (int i=0;i<n;i++) for (int j=0;j<n;j++) C[i][j]=A[i][j]+B[i][j];\}\par
+template<class T> inline void subMatrix(int n,T C[MaxMatrixSize][MaxMatrixSize],T A[MaxMatrixSize][MaxMatrixSize],T B[MaxMatrixSize][MaxMatrixSize])//NOTES:subMatrix(\par
+  \{for (int i=0;i<n;i++) for (int j=0;j<n;j++) C[i][j]=A[i][j]-B[i][j];\}\par
+template<class T> inline void mulMatrix(int n,T C[MaxMatrixSize][MaxMatrixSize],T _A[MaxMatrixSize][MaxMatrixSize],T _B[MaxMatrixSize][MaxMatrixSize])//NOTES:mulMatrix(\par
+  \{ T A[MaxMatrixSize][MaxMatrixSize],B[MaxMatrixSize][MaxMatrixSize];\par
+  for (int i=0;i<n;i++) for (int j=0;j<n;j++) A[i][j]=_A[i][j],B[i][j]=_B[i][j],C[i][j]=0;\par
+  for (int i=0;i<n;i++) for (int j=0;j<n;j++) for (int k=0;k<n;k++) C[i][j]+=A[i][k]*B[k][j];\}\par
+template<class T> inline void addModMatrix(int n,T m,T C[MaxMatrixSize][MaxMatrixSize],T A[MaxMatrixSize][MaxMatrixSize],T B[MaxMatrixSize][MaxMatrixSize])//NOTES:addModMatrix(\par
+  \{for (int i=0;i<n;i++) for (int j=0;j<n;j++) C[i][j]=checkMod(A[i][j]+B[i][j],m);\}\par
+template<class T> inline void subModMatrix(int n,T m,T C[MaxMatrixSize][MaxMatrixSize],T A[MaxMatrixSize][MaxMatrixSize],T B[MaxMatrixSize][MaxMatrixSize])//NOTES:subModMatrix(\par
+  \{for (int i=0;i<n;i++) for (int j=0;j<n;j++) C[i][j]=checkMod(A[i][j]-B[i][j],m);\}\par
+template<class T> inline T multiplyMod(T a,T b,T m) \{return (T)((((int64)(a)*(int64)(b)%(int64)(m))+(int64)(m))%(int64)(m));\}//NOTES:multiplyMod(\par
+template<class T> inline void mulModMatrix(int n,T m,T C[MaxMatrixSize][MaxMatrixSize],T _A[MaxMatrixSize][MaxMatrixSize],T _B[MaxMatrixSize][MaxMatrixSize])//NOTES:mulModMatrix(\par
+  \{ T A[MaxMatrixSize][MaxMatrixSize],B[MaxMatrixSize][MaxMatrixSize];\par
+  for (int i=0;i<n;i++) for (int j=0;j<n;j++) A[i][j]=_A[i][j],B[i][j]=_B[i][j],C[i][j]=0;\par
+  for (int i=0;i<n;i++) for (int j=0;j<n;j++) for (int k=0;k<n;k++) C[i][j]=(C[i][j]+multiplyMod(A[i][k],B[k][j],m))%m;\}\par
+template<class T> inline T powerMod(T p,int e,T m)//NOTES:powerMod(\par
+  \{if(e==0)return 1%m;else if(e%2==0)\{T t=powerMod(p,e/2,m);return multiplyMod(t,t,m);\}else return multiplyMod(powerMod(p,e-1,m),p,m);\}\par
+//Point&Line\par
+double dist(double x1,double y1,double x2,double y2)\{return sqrt(sqr(x1-x2)+sqr(y1-y2));\}//NOTES:dist(\par
+double distR(double x1,double y1,double x2,double y2)\{return sqr(x1-x2)+sqr(y1-y2);\}//NOTES:distR(\par
+template<class T> T cross(T x0,T y0,T x1,T y1,T x2,T y2)\{return (x1-x0)*(y2-y0)-(x2-x0)*(y1-y0);\}//NOTES:cross(\par
+int crossOper(double x0,double y0,double x1,double y1,double x2,double y2)//NOTES:crossOper(\par
+  \{double t=(x1-x0)*(y2-y0)-(x2-x0)*(y1-y0);if (fabs(t)<=eps) return 0;return (t<0)?-1:1;\}\par
+bool isIntersect(double x1,double y1,double x2,double y2,double x3,double y3,double x4,double y4)//NOTES:isIntersect(\par
+  \{return crossOper(x1,y1,x2,y2,x3,y3)*crossOper(x1,y1,x2,y2,x4,y4)<0 && crossOper(x3,y3,x4,y4,x1,y1)*crossOper(x3,y3,x4,y4,x2,y2)<0;\}\par
+bool isMiddle(double s,double m,double t)\{return fabs(s-m)<=eps || fabs(t-m)<=eps || (s<m)!=(t<m);\}//NOTES:isMiddle(\par
+//Translator\par
+bool isUpperCase(char c)\{return c>='A' && c<='Z';\}//NOTES:isUpperCase(\par
+bool isLowerCase(char c)\{return c>='a' && c<='z';\}//NOTES:isLowerCase(\par
+bool isLetter(char c)\{return c>='A' && c<='Z' || c>='a' && c<='z';\}//NOTES:isLetter(\par
+bool isDigit(char c)\{return c>='0' && c<='9';\}//NOTES:isDigit(\par
+char toLowerCase(char c)\{return (isUpperCase(c))?(c+32):c;\}//NOTES:toLowerCase(\par
+char toUpperCase(char c)\{return (isLowerCase(c))?(c-32):c;\}//NOTES:toUpperCase(\par
+template<class T> string toString(T n)\{ostringstream ost;ost<<n;ost.flush();return ost.str();\}//NOTES:toString(\par
+int toInt(string s)\{int r=0;istringstream sin(s);sin>>r;return r;\}//NOTES:toInt(\par
+int64 toInt64(string s)\{int64 r=0;istringstream sin(s);sin>>r;return r;\}//NOTES:toInt64(\par
+double toDouble(string s)\{double r=0;istringstream sin(s);sin>>r;return r;\}//NOTES:toDouble(\par
+template<class T> void stoa(string s,int &n,T A[])\{n=0;istringstream sin(s);for(T v;sin>>v;A[n++]=v);\}//NOTES:stoa(\par
+template<class T> void atos(int n,T A[],string &s)\{ostringstream sout;for(int i=0;i<n;i++)\{if(i>0)sout<<' ';sout<<A[i];\}s=sout.str();\}//NOTES:atos(\par
+template<class T> void atov(int n,T A[],vector<T> &vi)\{vi.clear();for (int i=0;i<n;i++) vi.push_back(A[i]);\}//NOTES:atov(\par
+template<class T> void vtoa(vector<T> vi,int &n,T A[])\{n=vi.size();for (int i=0;i<n;i++)A[i]=vi[i];\}//NOTES:vtoa(\par
+template<class T> void stov(string s,vector<T> &vi)\{vi.clear();istringstream sin(s);for(T v;sin>>v;vi.push_bakc(v));\}//NOTES:stov(\par
+template<class T> void vtos(vector<T> vi,string &s)\{ostringstream sout;for (int i=0;i<vi.size();i++)\{if(i>0)sout<<' ';sout<<vi[i];\}s=sout.str();\}//NOTES:vtos(\par
+//Fraction\par
+template<class T> struct Fraction\{T a,b;Fraction(T a=0,T b=1);string toString();\};//NOTES:Fraction\par
+  template<class T> Fraction<T>::Fraction(T a,T b)\{T d=gcd(a,b);a/=d;b/=d;if (b<0) a=-a,b=-b;this->a=a;this->b=b;\}\par
+  template<class T> string Fraction<T>::toString()\{ostringstream sout;sout<<a<<"/"<<b;return sout.str();\}\par
+  template<class T> Fraction<T> operator+(Fraction<T> p,Fraction<T> q)\{return Fraction<T>(p.a*q.b+q.a*p.b,p.b*q.b);\}\par
+  template<class T> Fraction<T> operator-(Fraction<T> p,Fraction<T> q)\{return Fraction<T>(p.a*q.b-q.a*p.b,p.b*q.b);\}\par
+  template<class T> Fraction<T> operator*(Fraction<T> p,Fraction<T> q)\{return Fraction<T>(p.a*q.a,p.b*q.b);\}\par
+  template<class T> Fraction<T> operator/(Fraction<T> p,Fraction<T> q)\{return Fraction<T>(p.a*q.b,p.b*q.a);\}\par
+//ENDTEMPLATE_BY_ACRUSH_TOPCODER\par
+\par
+const int hashsize=1000003;\par
+\par
+int n;\par
+map<string,int64> M;\par
+\par
+void R1(char *s)\par
+\{\par
+\tab for (int i=0;i<n;i++) if (s[i]!='*')\par
+\tab\tab if (s[i]=='0')\par
+\tab\tab\tab s[i]='1';\par
+\tab\tab else\par
+\tab\tab\tab s[i]='0';\par
+\}\par
+void R2(char *s)\par
+\{\par
+\tab reverse(s,s+n);\par
+\}\par
+int64 doIt2(char *s,int set);\par
+int64 doIt(string s)\par
+\{\par
+\tab while (LENGTH(s)<n) s+="*";\par
+\tab char str[60];\par
+\tab strcpy(str,s.c_str());\par
+\tab return doIt2(str,7);\par
+\}\par
+int compare(char *s1,char *s2)\par
+\{\par
+\tab for (int i=0;i<n;i++)\par
+\tab\tab if (s1[i]=='*' || s2[i]=='*')\par
+\tab\tab\tab return 0;\par
+\tab\tab else if (s1[i]!=s2[i])\par
+\tab\tab\tab return (s1[i]<s2[i])?-1:1;\par
+\tab return 0;\par
+\}\par
+int64 doIt2(char *s,int set)\par
+\{\par
+\tab int leftset=0;\par
+\tab for (int i=1;i<=3;i++) if (set&(1<<(i-1)))\par
+\tab\{\par
+\tab\tab char s0[60];\par
+\tab\tab strcpy(s0,s);\par
+\tab\tab if (i&1) R1(s0);\par
+\tab\tab if (i&2) R2(s0);\par
+\tab\tab int c=compare(s,s0);\par
+\tab\tab if (c>0) return 0;\par
+\tab\tab if (c==0) leftset|=(1<<(i-1));\par
+\tab\}\par
+\tab if (leftset==0)\par
+\tab\{\par
+\tab\tab int64 R=1;\par
+\tab\tab for (int i=0;i<n;i++) if (s[i]=='*') R*=2;\par
+\tab\tab return R;\par
+\tab\}\par
+\tab string buffer=s;\par
+\tab if (leftset==2)\par
+\tab\{\par
+\tab\tab for (int i=0;i<n-1-i;i++)\par
+\tab\tab\tab if (buffer[i]!='*' && buffer[n-1-i]!='*')\par
+\tab\tab\tab\tab buffer[i]=buffer[n-1-i]='0';\par
+\tab\tab\tab else\par
+\tab\tab\tab\tab break;\par
+\tab\}\par
+\tab if (leftset==4)\par
+\tab\{\par
+\tab\tab for (int i=0;i<n-1-i;i++)\par
+\tab\tab\tab if (buffer[i]!='*' && buffer[n-1-i]!='*')\par
+\tab\tab\tab\tab buffer[i]='0',buffer[n-1-i]='1';\par
+\tab\tab\tab else\par
+\tab\tab\tab\tab break;\par
+\tab\}\par
+\tab if (M.find(buffer)!=M.end()) return M[buffer];\par
+\tab int pos=-1;\par
+\tab for (int i=0;pos<0 && i<n;i++)\par
+\tab\tab if (s[i]=='*')\par
+\tab\tab\tab pos=i;\par
+\tab\tab else if (s[n-1-i]=='*')\par
+\tab\tab\tab pos=n-1-i;\par
+\tab if (pos<0) return M[s]=1;\par
+\tab int64 R=0;\par
+\tab s[pos]='0';\par
+\tab R+=doIt2(s,leftset);\par
+\tab s[pos]='1';\par
+\tab R+=doIt2(s,leftset);\par
+\tab s[pos]='*';\par
+\tab return M[buffer]=R;\par
+\}\par
+\par
+int main()\par
+\{\par
+#ifdef _MSC_VER\par
+\tab freopen("input.txt","r",stdin);\par
+#endif\par
+\tab int64 m;\par
+\tab cin>>n>>m;\par
+\tab m++;\par
+\tab string s="";\par
+\tab M.clear();\par
+\tab if (doIt(s)<m)\par
+\tab\{\par
+\tab\tab printf("-1\\n");\par
+\tab\tab return 0;\par
+\tab\}\par
+\tab while (LENGTH(s)<n)\par
+\tab\{\par
+\tab\tab int64 c=doIt(s+"0");\par
+\tab\tab if (c>=m)\par
+\tab\tab\tab s+="0";\par
+\tab\tab else\par
+\tab\tab\tab s+="1",m-=c;\par
+\tab\}\par
+\tab cout<<s<<endl;\par
+\tab return 0;\par
+\}\par
+}
+ 

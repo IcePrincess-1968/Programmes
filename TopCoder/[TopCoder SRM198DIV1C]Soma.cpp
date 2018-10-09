@@ -13,7 +13,7 @@ using namespace std;
 #define pLL pair<LL,LL>
 #define pii pair<double,double>
 #define LOWBIT(x) x & (-x)
-#define LOCAL true
+// #define LOCAL true
 
 const int INF=2e9;
 const LL LINF=2e16;
@@ -88,6 +88,8 @@ inline void Sub(int &x,int y,int MO) {x=sub(x-y,MO);}
 inline int quick_pow(int x,int y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
 inline int quick_pow(int x,int y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
 
+int n,m;
+
 struct Matrix
 {
 	int b[4][4];
@@ -133,7 +135,6 @@ struct Matrix
 					res.b[i][j]+=b[i][k]*ma.b[k][j];
 		return res;
 	}
-	inline void print() {cerr<<b[1][1]<<','<<b[1][2]<<','<<b[1][3]<<endl;}
 }rx,ry,rz;
 
 inline Matrix quick_pow(Matrix x,int y)
@@ -147,27 +148,30 @@ inline Matrix quick_pow(Matrix x,int y)
 	return res;
 }
 
-
-typedef pair<int,pair<int,int> > P;
 typedef vector<Matrix> soma;
 
-inline bool operator < (const P &x,const P &y)
+struct somapos
 {
-	if (x.y.y!=y.y.y) return x.y.y<y.y.y;
-	if (x.x!=y.x) return x.x<y.x;
-	return x.y.x<y.y.x;
-}
-
-inline P Matrix_to_P(Matrix ma) {return mp(ma.b[1][1],mp(ma.b[1][2],ma.b[1][3]));}
+	int x,y,z;
+	somapos () {}
+	inline somapos(int xx,int yy,int zz) {x=xx;y=yy;z=zz;}
+	inline bool operator < (const somapos &other) const
+	{
+		if (z!=other.z) return z<other.z;
+		if (x!=other.x) return x<other.x;
+		return y<other.y;
+	}
+}P[48];int tot=0;
 
 soma base[48];
 vector<soma> candidate[48];
+int Cx[48][48][5],Cy[48][48][5],Cz[48][48][5];int ctot[48],wtot[48];
 
-inline soma Move(soma ori,Matrix pos,P topos)
+inline soma Move(soma ori,Matrix pos,somapos topos)
 {
 	Matrix delta;delta.clear();
 	for (register int i=1;i<=3;i++) delta.b[1][i]=-pos.b[1][i];
-	delta.b[1][1]+=topos.x;delta.b[1][2]+=topos.y.x;delta.b[1][3]+=topos.y.y;
+	delta.b[1][1]+=topos.x;delta.b[1][2]+=topos.y;delta.b[1][3]+=topos.z;
 	for (register int i=0;i<int(ori.size());i++) ori[i]=ori[i]+delta;
 	return ori;
 }
@@ -191,10 +195,6 @@ inline soma getsoma(soma ori,int dx,int dy,int dz)
 inline bool issame(soma x,soma y)
 {
 	Matrix cmp=x[0]-y[0];
-	/*for (register int i=2;i<=3;i++)
-		for (register int j=1;j<=3;j++)
-			assert(cmp.b[i][j]==0);
-	*/
 	for (register int i=1;i<int(x.size());i++)
 		if (!(x[i]-y[i]==cmp)) return false;
 	return true;
@@ -230,118 +230,104 @@ inline void init_soma()
 				}
 }
 
-set<P> ss;
-int dx[]={0,1,0,-1,0,0},dy[]={-1,0,1,0,0,0},dz[]={0,0,0,0,1,-1};
-
-inline int dfs(P cur)
-{
-	int res=1,x,y,z;
-	ss.erase(cur);
-	for (register int dir=0;dir<=5;dir++)
-	{
-		x=cur.x+dx[dir];y=cur.y.x+dy[dir];z=cur.y.y+dz[dir];
-		if (ss.find(mp(x,mp(y,z)))!=ss.end()) res+=dfs(mp(x,mp(y,z)));
-	}
-	return res;
-}
-
-inline bool check_valid(set<P> s,bool three)
-{	
-	ss=s;int ccc=0;
-	while (!ss.empty())
-	{
-		int cnt=dfs(*ss.begin());
-		if (cnt<3) return false;
-		if (!three && cnt%4) return false;
-		if (three && cnt%4!=0 && cnt%4!=3) return false;
-		if (cnt%4==3) ccc++;
-		if (ccc>1) return false;
-		// cerr<<cnt<<endl;
-	}
-	return true;
-}
+bool exist[48][48][48];
 
 class Soma
 {
-	int n,m,ans;
+	int ans;
 	int a[48][48];
-	inline int dfs(set<P> s,vector<bool> used)
+	inline int dfs(int used)
 	{
-		//int res=MMp[mp(s,used)];
-		//if (res) return res;
-		//cerr<<s.size()<<endl;
-		//for (register int i=1;i<=7;i++) cerr<<used[i]<<' ';
-		//cerr<<endl;
 		int res=0;
-		if (s.empty()) {return 1;}
-		//P pos=(*s.begin());
-		P pos;pos.y.y=INF;
-		for (set<P>::iterator iter=s.begin();iter!=s.end();iter++)
-			if (iter->y.y<pos.y.y) pos=(*iter);
+		if (used==127) return 1;
+		int tox,toy,toz;
+		for (register int i=1;i<=27;i++)
+			if (exist[P[i].x][P[i].y][P[i].z]) {tox=P[i].x;toy=P[i].y;toz=P[i].z;break;}
 		for (register int i=1;i<=7;i++)
-			if (!used[i])
+			if (!(used&(1<<(i-1))))
 			{
-				for (register int j=0;j<int(candidate[i].size());j++)
-					for (register int k=0;k<int(candidate[i][j].size());k++)
+				for (register int j=1;j<=ctot[i];j++)
+				{
+					int deltax=tox-Cx[i][j][1],deltay=toy-Cy[i][j][1],deltaz=toz-Cz[i][j][1];
+					bool valid=true;
+					for (register int k=2;k<=wtot[i];k++)
 					{
-						soma cur=Move(candidate[i][j],candidate[i][j][k],pos);
-						bool valid=true;
-						for (register int p=0;p<int(cur.size());p++)
-							if (s.find(Matrix_to_P(cur[p]))==s.end()) {valid=false;break;}
-						if (valid)
-						{
-							for (register int p=0;p<int(cur.size());p++)
-								s.erase(Matrix_to_P(cur[p]));
-							used[i]=true;
-							if (check_valid(s,~used[4])) res+=dfs(s,used);
-							for (register int p=0;p<int(cur.size());p++)
-								s.insert(Matrix_to_P(cur[p]));
-							used[i]=false;
-						}
+						int xx=Cx[i][j][k]+deltax,yy=Cy[i][j][k]+deltay,zz=Cz[i][j][k]+deltaz;
+						if (!exist[xx][yy][zz]) {valid=false;break;}
 					}
+					if (valid)
+					{
+						for (register int k=1;k<=wtot[i];k++)
+						{
+							int xx=Cx[i][j][k]+deltax,yy=Cy[i][j][k]+deltay,zz=Cz[i][j][k]+deltaz;
+							exist[xx][yy][zz]=false;
+						}
+						used|=(1<<(i-1));
+						res+=dfs(used);
+						for (register int k=1;k<=wtot[i];k++)
+						{
+							int xx=Cx[i][j][k]+deltax,yy=Cy[i][j][k]+deltay,zz=Cz[i][j][k]+deltaz;
+							exist[xx][yy][zz]=true;
+						}
+						used^=(1<<(i-1));
+					}
+				}
 			}
 		return res;
+	}
+	inline void toarray()
+	{
+		for (register int i=1;i<=7;i++)
+		{
+			ctot[i]=int(candidate[i].size());
+			wtot[i]=((i==4)?3:4);
+			for (register int j=1;j<=ctot[i];j++)
+				for (register int k=1;k<=wtot[i];k++)
+				{
+					Cx[i][j][k]=candidate[i][j-1][k-1].b[1][1];
+					Cy[i][j][k]=candidate[i][j-1][k-1].b[1][2];
+					Cz[i][j][k]=candidate[i][j-1][k-1].b[1][3];
+				}
+		}
 	}
 	public:
 		inline int letMeCountTheWays(vector<string> pattern)
 		{
-			double T=clock();
 			n=int(pattern.size());m=int(pattern[0].size());
 			for (register int i=1;i<=n;i++)
 				for (register int j=1;j<=m;j++)
 					a[i][j]=pattern[i-1][j-1]-'0';
-			init_soma();
-			vector<bool> used;used.clear();used.resize(10);
-			for (register int i=1;i<=7;i++) used[i]=false;
-			set<P> s;
+			init_soma();toarray();
+			tot=0;memset(exist,false,sizeof(exist));
 			for (register int i=1;i<=n;i++)
 				for (register int j=1;j<=m;j++)
-					if (a[i][j])
-						for (register int k=1;k<=a[i][j];k++)
-							s.insert(mp(i,mp(j,k)));
-			// for (set<P>::iterator iter=s.begin();iter!=s.end();iter++)
-				// cerr<<iter->x<<' '<<iter->y.x<<' '<<iter->y.y<<endl;
-			int aa=dfs(s,used);
-			cerr<<"TIME:"<<(clock()-T)/CLOCKS_PER_SEC<<endl;
-			return aa;
+					for (register int k=1;k<=a[i][j];k++)
+					{
+						P[++tot]=somapos(i,j,k);
+						exist[i][j][k]=true;
+					}
+			sort(P+1,P+tot+1);
+			for (register int i=1;i<=27;i++) ind[P[i].x][P[i].y][P[i].z]=i;
+			return dfs(0);
 		}
 };
 
+#ifdef LOCAL
 int main ()
 {
-#ifdef LOCAL
 	double TIME=clock();
 	freopen ("a.in","r",stdin);
 	freopen ("a.out","w",stdout);
 	cerr<<"Running..."<<endl;
-#endif
 	int nn;vector<string> vv;string ss;
 	Soma A;
 	while (cin>>nn)
 	{
 		vv.clear();
 		for (register int i=1;i<=nn;i++) cin>>ss,vv.pb(ss);
+		double t=clock();
 		cout<<A.letMeCountTheWays(vv)<<endl;
+		cerr<<"Time: "<<(clock()-t)/CLOCKS_PER_SEC<<endl;
 	}
 	io.flush();
 #ifdef LOCAL
@@ -349,3 +335,4 @@ int main ()
 #endif
 	return 0;
 }
+#endif

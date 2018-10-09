@@ -1,0 +1,613 @@
+{\rtf1\ansi\ansicpg936\deff0\nouicompat\deflang1033\deflangfe2052{\fonttbl{\f0\fnil\fcharset134 \'cb\'ce\'cc\'e5;}}
+{\*\generator Riched20 10.0.16299}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang2052 rng\par
+\par
+using namespace std;\par
+\par
+#define REP(i,n) for((i)=0;(i)<(int)(n);(i)++)\par
+#define foreach(c,itr) for(__typeof((c).begin()) itr=(c).begin();itr!=(c).end();itr++)\par
+template <class T> inline string itos(T n) \{return (n)<0?"-"+itos(-(n)):(n)<10?(string)("")+(char)('0'+(n)):itos((n)/10)+itos((n)%10);\}\par
+\par
+typedef long long ll;\par
+#define INF (1ll<<60)\par
+\par
+int N,L,a[60],b[60],c[60];\par
+\par
+bool check(void)\{\par
+    int i;\par
+    REP(i,N) c[i] = b[N-1-i];\par
+    if(c[0] == 1) REP(i,N) c[i] = 1 - c[i];\par
+    REP(i,N) if(b[i] < c[i]) return true; else if(b[i] > c[i]) return false;\par
+    return true;\par
+\}\par
+\par
+ll func2(int n)\{\par
+    return ((1ll<<n) + (1ll<<((n+1)/2)) + (1ll<<n) + ((n%2 == 0) ? (1ll<<((n+1)/2)) : 0)) / 2;\par
+\}\par
+\par
+ll func(void)\{\par
+    int i;\par
+    \par
+    if(a[0] == 1) return 0;\par
+    \par
+    ll tmp = 0;\par
+    REP(i,min(L,N-L)) if(i != 0) tmp = tmp * 2 + (1 - a[i]);\par
+    \par
+    if(L*2 <= N)\{\par
+        double d = 2.0 * tmp * (1ll<<(N-2*L)) + func2(N-2*L);\par
+        if(d > INF) return INF;\par
+        return 2 * tmp * (1ll<<(N-2*L)) + func2(N-2*L);\par
+    \}\par
+    \par
+    ll ans = tmp * 2;\par
+    if(L == N)\{\par
+        REP(i,N) b[i] = a[i];\par
+        if(check()) ans++;\par
+    \} else \{\par
+        REP(i,N) b[i] = ((i < L) ? a[i] : a[N-1-i]); if(check()) ans++;\par
+        REP(i,N) b[i] = ((i < L) ? a[i] : (1 - a[N-1-i])); if(check()) ans++;\par
+    \}\par
+    \par
+    return ans;\par
+\}\par
+\par
+bool dfs(ll K)\{\par
+    if(L == N) return true;\par
+    L++; a[L-1] = 0; ll tmp = func();\par
+    if(K <= tmp) return dfs(K);\par
+    a[L-1] = 1; ll tmp2 = func();\par
+    if(K <= tmp + tmp2) return dfs(K-tmp);\par
+    return false;\par
+\}\par
+\par
+int main(void)\{\par
+    int i;\par
+    ll K;\par
+    \par
+    cin >> N >> K; K++;\par
+    if(!dfs(K)) cout << -1 << endl;\par
+    else \{\par
+        REP(i,N) cout << a[i];\par
+        cout << endl;\par
+    \}\par
+    \par
+    return 0;\par
+\}\par
+\par
+tourist\par
+\par
+\{R+,S+,Q+,I+,O-\}\par
+\{$R-,S-,Q-,I-,O+\}\par
+var\par
+  ii,n: longint;\par
+  k,cnt: int64;\par
+  a,b: array [0..55] of longint;\par
+\par
+function rec1(i,j:longint):int64;\par
+var\par
+  v,cnt: int64;\par
+begin\par
+  cnt:=0;\par
+  if i < j then\par
+  begin\par
+    a[i]:=1;\par
+    a[j]:=0;\par
+    if ((i > ii) or (a[i] = b[i])) and ((j > ii) or (a[j] = b[j])) then\par
+      cnt:=cnt+rec1(i+1,j-1);\par
+    a[i]:=0;\par
+    a[j]:=1;\par
+    if ((i > ii) or (a[i] = b[i])) and ((j > ii) or (a[j] = b[j])) then\par
+      cnt:=cnt+rec1(i+1,j-1);\par
+    a[i]:=0;\par
+    a[j]:=0;\par
+    if ((i > ii) or (a[i] = b[i])) and ((j > ii) or (a[j] = b[j])) then\par
+    begin\par
+      v:=j-i-1;\par
+      if ii >= j-1 then v:=0 else\par
+      if ii >= i+1 then v:=v-(ii-i);\par
+      cnt:=cnt+(int64(1) shl v);\par
+    end;\par
+  end else\par
+  begin\par
+    if i = j then\par
+    begin\par
+      a[i]:=0;\par
+      if (i > ii) or (a[i] = b[i]) then cnt:=1;\par
+    end\par
+    else cnt:=1;\par
+  end;\par
+  rec1:=cnt;\par
+end;\par
+\par
+function rec2(i,j:longint):int64;\par
+var\par
+  v,cnt: int64;\par
+begin\par
+  cnt:=0;\par
+  if i < j then\par
+  begin\par
+    a[i]:=0;\par
+    a[j]:=1;\par
+    if ((i > ii) or (a[i] = b[i])) and ((j > ii) or (a[j] = b[j])) then\par
+    begin\par
+      v:=j-i-1;\par
+      if ii >= j-1 then v:=0 else\par
+      if ii >= i+1 then v:=v-(ii-i);\par
+      cnt:=cnt+(int64(1) shl v);\par
+    end;\par
+    a[i]:=0;\par
+    a[j]:=0;\par
+    if ((i > ii) or (a[i] = b[i])) and ((j > ii) or (a[j] = b[j])) then\par
+      cnt:=cnt+rec2(i+1,j-1);\par
+    a[i]:=1;\par
+    a[j]:=1;\par
+    if ((i > ii) or (a[i] = b[i])) and ((j > ii) or (a[j] = b[j])) then\par
+      cnt:=cnt+rec2(i+1,j-1);\par
+  end else\par
+  if i = j then\par
+  begin\par
+    if i <= ii then cnt:=1\par
+    else cnt:=2;\par
+  end\par
+  else cnt:=1;\par
+  rec2:=cnt;\par
+end;\par
+\par
+begin\par
+//assign(input,'in'); reset(input);\par
+//assign(output,'out'); rewrite(output);\par
+  read(n,k);\par
+  inc(k);\par
+  ii:=0;\par
+  a[1]:=0; a[n]:=1;\par
+  cnt:=rec1(2,n-1);\par
+  a[n]:=0;\par
+  cnt:=cnt+rec2(2,n-1);\par
+  if cnt < k then writeln(-1) else\par
+  begin\par
+    write('0');\par
+    b[1]:=0;\par
+    for ii:=2 to n do\par
+    begin\par
+      b[ii]:=0;\par
+      a[n]:=1;\par
+      if ii < n then cnt:=rec1(2,n-1)\par
+      else cnt:=0;\par
+      a[n]:=0;\par
+      cnt:=cnt+rec2(2,n-1);\par
+      if cnt < k then\par
+      begin\par
+        write('1');\par
+        b[ii]:=1;\par
+        dec(k,cnt);\par
+      end\par
+      else write('0');\par
+    end;\par
+    writeln;\par
+  end;\par
+  close(input);\par
+  close(output);\par
+end.\par
+\par
+Petr\par
+\par
+import java.io.BufferedReader;\par
+import java.io.IOException;\par
+import java.io.InputStreamReader;\par
+import java.io.PrintWriter;\par
+import java.util.Arrays;\par
+import java.util.StringTokenizer;\par
+\par
+public class Xorg implements Runnable \{\par
+    private void solve() throws IOException \{\par
+        int n = nextInt();\par
+        long k = nextLong();\par
+        writer.println(doit(n, k));\par
+    \}\par
+\par
+    private String doit(int n, long k) \{\par
+        long total = howMany("", n);\par
+        if (k > total)\par
+            return "-1";\par
+        else \{\par
+            String res = "";\par
+            for (int i = 0; i < n; ++i) \{\par
+                String cur = res + "0";\par
+                long am = howMany(cur, n);\par
+                if (k > am) \{\par
+                    k -= am;\par
+                    cur = res + "1";\par
+                \}\par
+                res = cur;\par
+            \}\par
+            return res;\par
+        \}\par
+    \}\par
+\par
+    private long howMany(String prefix, int n) \{\par
+        if (prefix.length() == 0)\par
+            return howMany("0", n);\par
+        if (prefix.charAt(0) == '1')\par
+            return 0;\par
+        long res = 0;\par
+        if (prefix.length() < n || prefix.charAt(n - 1) == '0')\par
+            res += howManyWith0(prefix, n);\par
+        if (prefix.length() < n || prefix.charAt(n - 1) == '1')\par
+            res += howManyWith1(prefix, n);\par
+        return res;\par
+    \}\par
+\par
+    private long howManyWith1(String prefix, int n) \{\par
+        StringBuilder b = new StringBuilder();\par
+        b.append(prefix);\par
+        while (b.length() < n - 1)\par
+            b.append("?");\par
+        if (b.length() < n)\par
+            b.append("1");\par
+        String mask = b.toString();\par
+        long res = 0;\par
+        for (int numMatch = 0; numMatch <= n; ++numMatch) \{\par
+            int[] rel = new int[n];\par
+            Arrays.fill(rel, -2);\par
+            for (int eqi = 0; eqi < numMatch; ++eqi) \{\par
+                setRel2(eqi, n - 1 - eqi, rel, 0);\par
+            \}\par
+            if (numMatch < n)\par
+                setRel2(numMatch, n - 1 - numMatch, rel, -1);\par
+            long cur = 1;\par
+            for (int i = 0; i <= n - 1 - i; ++i) \{\par
+                int cases = 0;\par
+                for (int ca = '0'; ca <= '1'; ++ca)\par
+                    if (ca == mask.charAt(i) || mask.charAt(i) == '?')\par
+                        for (int cb = '0'; cb <= '1'; ++cb)\par
+                            if ((cb == mask.charAt(n - 1 - i) || mask.charAt(n - 1 - i) == '?') && (i < n - 1 - i || ca == cb)) \{\par
+                                switch (rel[i]) \{\par
+                                    case -2:\par
+                                        ++cases;\par
+                                        break;\par
+                                    case -1:\par
+                                        if (ca < (cb ^ 1))\par
+                                            ++cases;\par
+                                        break;\par
+                                    case 0:\par
+                                        if (ca == (cb ^ 1))\par
+                                            ++cases;\par
+                                        break;\par
+                                    case 1:\par
+                                        if (ca > (cb ^ 1))\par
+                                            ++cases;\par
+                                        break;\par
+                                \}\par
+                            \}\par
+                cur *= cases;\par
+            \}\par
+            res += cur;\par
+        \}\par
+        return res;\par
+    \}\par
+\par
+    private long howManyWith0(String prefix, int n) \{\par
+        StringBuilder b = new StringBuilder();\par
+        b.append(prefix);\par
+        while (b.length() < n - 1)\par
+            b.append("?");\par
+        if (b.length() < n)\par
+            b.append("0");\par
+        String mask = b.toString();\par
+        long res = 0;\par
+        for (int numMatch = 0; numMatch <= n; ++numMatch) \{\par
+            int[] rel = new int[n];\par
+            Arrays.fill(rel, -2);\par
+            for (int eqi = 0; eqi < numMatch; ++eqi) \{\par
+                setRel(eqi, n - 1 - eqi, rel, 0);\par
+            \}\par
+            if (numMatch < n)\par
+                setRel(numMatch, n - 1 - numMatch, rel, -1);\par
+            long cur = 1;\par
+            for (int i = 0; i <= n - 1 - i; ++i) \{\par
+                int cases = 0;\par
+                for (int ca = '0'; ca <= '1'; ++ca)\par
+                    if (ca == mask.charAt(i) || mask.charAt(i) == '?')\par
+                        for (int cb = '0'; cb <= '1'; ++cb)\par
+                            if ((cb == mask.charAt(n - 1 - i) || mask.charAt(n - 1 - i) == '?') && (i < n - 1 - i || ca == cb)) \{\par
+                                switch (rel[i]) \{\par
+                                    case -2:\par
+                                        ++cases;\par
+                                        break;\par
+                                    case -1:\par
+                                        if (ca < cb)\par
+                                            ++cases;\par
+                                        break;\par
+                                    case 0:\par
+                                        if (ca == cb)\par
+                                            ++cases;\par
+                                        break;\par
+                                    case 1:\par
+                                        if (ca > cb)\par
+                                            ++cases;\par
+                                        break;\par
+                                \}\par
+                            \}\par
+                cur *= cases;\par
+            \}\par
+            res += cur;\par
+        \}\par
+        if (mask.indexOf("1") < 0)\par
+            --res;\par
+        return res;\par
+    \}\par
+\par
+    private void setRel(int a, int b, int[] rel, int what) \{\par
+        if (rel[a] == 2 || rel[b] == 2)\par
+            return;\par
+        if (rel[a] == -2) \{\par
+            rel[a] = what;\par
+        \} else if (rel[a] != what) \{\par
+            rel[a] = 2;\par
+            rel[b] = 2;\par
+            return;\par
+        \}\par
+        if (rel[b] == -2) \{\par
+            rel[b] = -what;\par
+        \} else if (rel[b] != -what) \{\par
+            rel[b] = 2;\par
+            rel[a] = 2;\par
+            return;\par
+        \}\par
+    \}\par
+\par
+\par
+    private void setRel2(int a, int b, int[] rel, int what) \{\par
+        if (rel[a] == 2 || rel[b] == 2)\par
+            return;\par
+        if (rel[a] == -2) \{\par
+            rel[a] = what;\par
+        \} else if (rel[a] != what) \{\par
+            rel[a] = 2;\par
+            rel[b] = 2;\par
+            return;\par
+        \}\par
+        if (rel[b] == -2) \{\par
+            rel[b] = what;\par
+        \} else if (rel[b] != what) \{\par
+            rel[b] = 2;\par
+            rel[a] = 2;\par
+            return;\par
+        \}\par
+    \}\par
+\par
+\par
+    public static void main(String[] args) \{\par
+        new Xorg().run();\par
+    \}\par
+\par
+    BufferedReader reader;\par
+    StringTokenizer tokenizer;\par
+    PrintWriter writer;\par
+\par
+    public void run() \{\par
+        try \{\par
+            reader = new BufferedReader(new InputStreamReader(System.in));\par
+            tokenizer = null;\par
+            writer = new PrintWriter(System.out);\par
+            solve();\par
+            reader.close();\par
+            writer.close();\par
+        \} catch (Exception e) \{\par
+            e.printStackTrace();\par
+            System.exit(1);\par
+        \}\par
+    \}\par
+\par
+    int nextInt() throws IOException \{\par
+        return Integer.parseInt(nextToken());\par
+    \}\par
+\par
+    long nextLong() throws IOException \{\par
+        return Long.parseLong(nextToken());\par
+    \}\par
+\par
+    double nextDouble() throws IOException \{\par
+        return Double.parseDouble(nextToken());\par
+    \}\par
+\par
+    String nextToken() throws IOException \{\par
+        while (tokenizer == null || !tokenizer.hasMoreTokens()) \{\par
+            tokenizer = new StringTokenizer(reader.readLine());\par
+        \}\par
+        return tokenizer.nextToken();\par
+    \}\par
+\}\par
+\par
+\par
+RAVEman\par
+\par
+using namespace std;\par
+\par
+typedef long long ll;\par
+typedef vector<int> vi;\par
+typedef pair<int,int> pii;\par
+typedef pair<double,double> pdd;\par
+typedef pair<int,pii> p3i;\par
+\par
+#define FOR(i,a,b) for (int i(a); i < (b); i++) \par
+#define REP(i,n) FOR(i,0,n) \par
+#define UN(v) sort((v).begin(),(v).end()),v.erase(unique(v.begin(),v.end()),v.end())\par
+#define CL(a,b) memset(a,b,sizeof(a))\par
+#define pb push_back\par
+#define SORT(a) sort((a).begin(),(a).end())\par
+\par
+int n;\par
+ll k;\par
+bool u[55];\par
+int len;\par
+int len_down;\par
+\par
+int getNum()\{\par
+    int total = 0;\par
+    int mask = 0;\par
+    REP(i,len_down)  mask<<=1,mask|=u[i];\par
+    \par
+    total += (1<<(len_down-1)) - (((mask)));\par
+    total += (1<<(len_down-1)) - (((mask)));\par
+    //total += (mask>>1)+1;\par
+\par
+    if(len!=len_down && u[len_down]) total--;\par
+\par
+\par
+    return total;\par
+\}\par
+\par
+bool v[55];\par
+void stupid(int n,int k)\{\par
+    while(1)\{\par
+        bool good = true;\par
+\par
+        REP(i,n)\par
+            if(v[i]!=v[n-i-1])\{\par
+                if(v[i]) good=false;\par
+                break;\par
+            \}\par
+        REP(i,n)\par
+            if(v[i]==v[n-i-1])\{\par
+                if(v[i]) good=false;\par
+                break;\par
+            \}\par
+\par
+        \par
+        if(good)\{\par
+            k--;\par
+            if(k==0)\{\par
+                REP(i,n) cout<<(v[i]?1:0);\par
+                puts("");\par
+                return;\par
+            \}\par
+        \}\par
+\par
+        int pos = n-1;\par
+        while(pos>=0 && v[pos]) v[pos]=0,pos--;\par
+        if(pos==0) break;\par
+        v[pos]=true;\par
+    \}\par
+    puts("-1");\par
+\}\par
+\par
+int main()\{ \par
+#ifdef LocalHost\par
+    freopen("input.txt","r",stdin);\par
+#endif\par
+\par
+    cin>>n>>k;\par
+    //stupid(n,k+1);\par
+    k++;\par
+    len = (n+1)/2;\par
+    len_down = n/2;\par
+\par
+    while(1)\{\par
+\par
+        int num = getNum();\par
+\par
+        if(k<=num)\{\par
+            while(1)\{\par
+                \par
+                bool good = true;\par
+                if(u[n-1])\{\par
+                    REP(i,len) if(u[i]!=u[n-i-1]) continue;\par
+                    else if(u[i]) \{good=false;break;\}\par
+                    else break;\par
+                \}else\{\par
+                    REP(i,len) if(u[i]==u[n-i-1]) continue;\par
+                    else if(u[i]) \{good=false;break;\}\par
+                    else break;\par
+\par
+                \}\par
+\par
+\par
+                if(good)\{\par
+                    k--;\par
+                    if(k==0) break;\par
+                \}\par
+                int p = n-1;\par
+                while(u[p]) u[p]=0,p--;\par
+                if(p<=len-1) puts("FUCK");\par
+                u[p]=true;\par
+\par
+            \}\par
+            REP(i,n) cout<<(u[i]?1:0);\par
+            \par
+            puts("");\par
+            return 0;\par
+        \}else k-=num;\par
+\par
+        int pos = len - 1;\par
+        while(u[pos]) u[pos]=false,pos--;\par
+        if(pos==0) break;\par
+        u[pos]=true;\par
+    \}\par
+    puts("-1");\par
+\par
+    return 0;\par
+\}\par
+\par
+vepifanov\par
+\par
+using namespace std;\par
+\par
+#define mp make_pair\par
+#define pb push_back\par
+#define rep(i,n) for(int i = 0; i < n; i++)\par
+#define re return\par
+#define fi first\par
+#define se second\par
+#define sz(x) ((int) (x).size())\par
+#define all(x) (x).begin(), (x).end()\par
+#define sqr(x) ((x) * (x))\par
+#define y0 y3487465\par
+#define y1 y8687969\par
+\par
+typedef vector<int> vi;\par
+typedef long long ll;\par
+typedef long double ld;\par
+typedef pair<int, int> ii;\par
+typedef vector<ii> vii;\par
+typedef vector<string> vs;\par
+typedef vector<vi> vvi;\par
+\par
+template<class T> T abs(T x) \{\par
+    re x > 0 ? x : -x;\par
+\}\par
+\par
+int n;\par
+int m;\par
+ll k;\par
+int was[51][2][2];\par
+ll res[51][2][2];\par
+\par
+ll go (string s, int l, int r, int e, int er) \{\par
+    if (l > r) re 1;\par
+    if (was[l][e][er]) re res[l][e][er];\par
+    was[l][e][er] = 1;\par
+    res[l][e][er] = 0;\par
+    for (int a = 0; a < 2; a++)\par
+        for (int b = 0; b < 2; b++)\par
+            if ((s[l] == '?' || s[l] - '0' == a) && (s[r] == '?' || s[r] - '0' == b) && (l < r || a == b) && (!e || a <= b) && (!er || a <= 1 - b))\par
+                res[l][e][er] += go (s, l + 1, r - 1, e & int (a == b), er & int (a == 1 - b));\par
+    re res[l][e][er];\par
+\}                \par
+\par
+int main() \{\par
+    cin >> n >> k;  \par
+    k++;\par
+    string s (n, '?');\par
+    for (int i = 0; i < n; i++) \{\par
+        s[i] = '0';\par
+        memset (was, 0, sizeof (was));\par
+        ll t = go (s, 0, n - 1, 1, 1);\par
+        if (t < k) \{ k -= t; s[i] = '1'; \}\par
+    \}\par
+    if (s[0] == '1') s = "-1";\par
+    cout << s << endl;\par
+    return 0;\par
+\}\par
+}
+ 
