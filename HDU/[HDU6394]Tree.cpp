@@ -183,12 +183,6 @@ namespace LCT
 		tree[x].val=val;
 		pushup(x);
 	}
-	inline int query(int u,int v)
-	{
-		makeroot(u);
-		access(v);splay(v);
-		return tree[v].xsum;
-	}
 }
 
 int main ()
