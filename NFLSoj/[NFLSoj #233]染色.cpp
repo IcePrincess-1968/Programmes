@@ -174,8 +174,7 @@ inline void init(int cur,int father)
 inline int getroot(int cur,int father,int Sz)
 {
     cerr<<cur<<"))"<<endl;
-    for (register int i=0;i<int(v[cur].size());i++)
-    {
+    for (register int i=0;i<int(v[cur].size());i++) {
         int y=v[cur][i];
         if (y!=father && !visited[y] && sz[y]>Sz/2) return getroot(y,cur,Sz);
     }
@@ -256,19 +255,14 @@ int main ()
     cerr<<"Running..."<<endl;
 #endif
     io.Get(n);io.Get(m);io.Get(L);io.Get(R);
-    cerr<<n<<' '<<m<<' '<<L<<' '<<R<<endl;
     int x,y;
     for (register int i=1;i<=n-1;i++)
     {
         io.Get(x);io.Get(y);
         v[x].pb(y);v[y].pb(x);
     }
-    cerr<<"!"<<endl;
     init_dist();
-    cerr<<"!"<<endl;
     dfs(1,-1);
-    cerr<<"!"<<endl;
-    cerr<<solve(L)<<"$"<<endl;
     io.Print(sub(solve(L)-solve(R+1)),'\n');
     io.flush();
 #ifdef LOCAL
