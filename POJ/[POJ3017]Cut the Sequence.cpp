@@ -4,6 +4,7 @@
 #include <string>
 #include <cmath>
 #include <algorithm>
+#include <ctime>
 using namespace std;
 
 #define LL long long
@@ -18,7 +19,7 @@ using namespace std;
 #define pLL pair<LL,LL>
 #define pii pair<double,double>
 #define LOWBIT(x) x & (-x)
-#define LOCAL true
+// #define LOCAL true
 
 const int INF=2e9;
 const LL LINF=2e16;
@@ -96,10 +97,9 @@ template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y)
 const int MAXN=1e5;
 
 int n;LL m;
-int a[MAXN+48],sufmaxn[MAXN+48];
+int a[MAXN+48];
 
 LL dp[MAXN+48];
-bool superf;
 
 namespace SegmentTree
 {
@@ -108,7 +108,6 @@ namespace SegmentTree
 	{
 		dpminn[cur]=min(dpminn[cur<<1],dpminn[cur<<1|1]);
 		addmaxn[cur]=max(addmaxn[cur<<1],addmaxn[cur<<1|1]);
-		if (addmaxn[cur<<1]==addmaxn[cur<<1|1]) issame[cur]=true; else issame[cur]=false;
 		Minn[cur]=min(Minn[cur<<1],Minn[cur<<1|1]);
 	}
 	inline void pushdown(int cur)
@@ -131,7 +130,6 @@ namespace SegmentTree
 	}
 	inline void update_add(int cur,int left,int right,int nv,int l,int r)
 	{
-		if (superf) cerr<<l<<' '<<r<<' '<<' '<<left<<' '<<right<<' '<<nv<<"@"<<endl;
 		if (l==r)
 		{
 			if (addmaxn[cur]<nv)
@@ -146,7 +144,6 @@ namespace SegmentTree
 		if (left<=l && r<=right)
 		{
 			int vv=addmaxn[cur<<1|1];
-			if (superf && l==5 && r==6) cerr<<cur<<' '<<vv<<"###"<<' '<<issame[cur]<<"^"<<' '<<issame[cur<<1|1]<<endl;
 			if (vv<=nv)
 			{
 				addmaxn[cur<<1|1]=nv;
@@ -159,6 +156,7 @@ namespace SegmentTree
 			{
 				if (issame[cur<<1|1]) return;
 				update_add(cur<<1|1,left,right,nv,mid+1,r);
+				pushup(cur);
 			}
 			return;
 		}
@@ -189,18 +187,13 @@ int main ()
 	for (register int i=1;i<=n;i++) scanf("%d",a+i);
 	for (register int i=1;i<=n;i++) if (a[i]>m) {printf("-1\n");return 0;}
 	dp[0]=0;SegmentTree::update_dp(1,0,dp[0],0,n);int pt=1;LL presum=0;
-	//dp[1]=a[1];SegmentTree::update_dp(1,1,dp[1],1,n);int pt=1;LL presum=a[1];
 	for (register int i=1;i<=n;i++)
 	{
 		presum+=a[i];
 		while (presum>m) presum-=a[pt++];
-		//interval: (pt-1)~(i-1);
-		if (i==7) superf=true; else superf=false;
 		SegmentTree::update_add(1,0,i-1,a[i],0,n);
 		dp[i]=SegmentTree::query(1,pt-1,i-1,0,n);
-		cerr<<i<<' '<<pt-1<<' '<<i-1<<' '<<dp[i]<<endl;
 		SegmentTree::update_dp(1,i,dp[i],0,n);
-		if (i==6) cerr<<SegmentTree::addmaxn[6]<<'$'<<' '<<SegmentTree::issame[6]<<endl;
 	}
 	cout<<dp[n]<<endl;
 	io.flush();
