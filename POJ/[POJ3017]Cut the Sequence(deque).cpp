@@ -2,9 +2,12 @@
 #include <iostream>
 #include <cstring>
 #include <string>
-#include <cmath>
 #include <algorithm>
 #include <ctime>
+#include <set>
+#include <queue>
+#include <deque>
+#include <cmath>
 using namespace std;
 
 #define LL long long
@@ -19,7 +22,7 @@ using namespace std;
 #define pLL pair<LL,LL>
 #define pii pair<double,double>
 #define LOWBIT(x) x & (-x)
-#define LOCAL true
+// #define LOCAL true
 
 const int INF=2e9;
 const LL LINF=2e16;
@@ -91,89 +94,19 @@ inline void Add(int &x,int y) {x=add(x+y);}
 inline void Add(int &x,int y,int MO) {x=add(x+y,MO);}
 inline void Sub(int &x,int y) {x=sub(x-y);}
 inline void Sub(int &x,int y,int MO) {x=sub(x-y,MO);}
-template<typename T> inline int quick_pow(int x,T y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
-template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
+inline int quick_pow(int x,int y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
+inline int quick_pow(int x,int y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
 
 const int MAXN=1e5;
 
 int n;LL m;
-int a[MAXN+48];
+int a[MAXN+48];LL dp[MAXN+48];
 
-LL dp[MAXN+48];
+int ind[MAXN+48],sufval[MAXN+48];LL val[MAXN+48];
+int head,tail;
 
-namespace SegmentTree
-{
-	LL dpminn[MAXN*4],Minn[MAXN*4];int addmaxn[MAXN*4];bool issame[MAXN*4];
-	inline void pushup(int cur)
-	{
-		dpminn[cur]=min(dpminn[cur<<1],dpminn[cur<<1|1]);
-		addmaxn[cur]=max(addmaxn[cur<<1],addmaxn[cur<<1|1]);
-		Minn[cur]=min(Minn[cur<<1],Minn[cur<<1|1]);
-	}
-	inline void pushdown(int cur)
-	{
-		if (issame[cur])
-		{
-			addmaxn[cur<<1]=addmaxn[cur];addmaxn[cur<<1|1]=addmaxn[cur];
-			issame[cur<<1]=issame[cur<<1|1]=true;
-			Minn[cur<<1]=dpminn[cur<<1]+addmaxn[cur<<1];
-			Minn[cur<<1|1]=dpminn[cur<<1|1]+addmaxn[cur<<1|1];
-		}
-	}
-	inline void update_dp(int cur,int pos,LL vv,int l,int r)
-	{
-		if (l==r) {dpminn[cur]=Minn[cur]=vv;addmaxn[cur]=0;issame[cur]=true;return;}
-		pushdown(cur);
-		int mid=(l+r)>>1;
-		if (pos<=mid) update_dp(cur<<1,pos,vv,l,mid); else update_dp(cur<<1|1,pos,vv,mid+1,r);
-		pushup(cur);
-	}
-	inline void update_add(int cur,int left,int right,int nv,int l,int r)
-	{
-		if (l==r)
-		{
-			if (addmaxn[cur]<nv)
-			{
-				addmaxn[cur]=nv;
-				Minn[cur]=dpminn[cur]+addmaxn[cur];
-			}
-			return;
-		}
-		pushdown(cur);
-		int mid=(l+r)>>1;
-		if (left<=l && r<=right)
-		{
-			int vv=addmaxn[cur<<1|1];
-			if (vv<=nv)
-			{
-				addmaxn[cur<<1|1]=nv;
-				Minn[cur<<1|1]=dpminn[cur<<1|1]+addmaxn[cur<<1|1];
-				issame[cur<<1|1]=true;
-				update_add(cur<<1,left,right,nv,l,mid);
-				pushup(cur);
-			}
-			else
-			{
-				if (issame[cur<<1|1]) return;
-				update_add(cur<<1|1,left,right,nv,mid+1,r);
-				pushup(cur);
-			}
-			return;
-		}
-		if (left<=mid) update_add(cur<<1,left,right,nv,l,mid);
-		if (mid+1<=right) update_add(cur<<1|1,left,right,nv,mid+1,r);
-		pushup(cur);
-	}
-	inline LL query(int cur,int left,int right,int l,int r)
-	{
-		if (left<=l && r<=right) return Minn[cur];
-		pushdown(cur);
-		int mid=(l+r)>>1;LL res=LINF;
-		if (left<=mid) check_min(res,query(cur<<1,left,right,l,mid));
-		if (mid+1<=right) check_min(res,query(cur<<1|1,left,right,mid+1,r));
-		return res;
-	}
-}
+LL needval[MAXN+48];
+priority_queue<pair<LL,int> > q;
 
 int main ()
 {
@@ -184,16 +117,52 @@ int main ()
 	cerr<<"Running..."<<endl;
 #endif
 	cin>>n>>m;
-	for (register int i=1;i<=n;i++) scanf("%d",a+i);
+	for (register int i=1;i<=n;i++) scanf("%d",&a[i]);
 	for (register int i=1;i<=n;i++) if (a[i]>m) {printf("-1\n");return 0;}
-	dp[0]=0;SegmentTree::update_dp(1,0,dp[0],0,n);int pt=1;LL presum=0;
+	dp[0]=0;
+	head=tail=1;ind[1]=0;sufval[1]=0;val[1]=dp[0];LL presum=0;int pt=1;
+	memset(needval,-1,sizeof(needval));
+	needval[0]=0;q.push(mp(0,0));
 	for (register int i=1;i<=n;i++)
 	{
 		presum+=a[i];
 		while (presum>m) presum-=a[pt++];
-		SegmentTree::update_add(1,0,i-1,a[i],0,n);
-		dp[i]=SegmentTree::query(1,pt-1,i-1,0,n);
-		SegmentTree::update_dp(1,i,dp[i],0,n);
+		//range: (pt-1)~(i-1)
+		while (ind[head]<pt-1)
+		{
+			if (head<tail && ind[head+1]<=pt-1)
+			{
+				needval[ind[head]]=-1;
+				head++;continue;
+			}
+			needval[ind[head]]=-1;
+			ind[head]=pt-1;val[head]=dp[pt-1];
+			needval[ind[head]]=val[head]+sufval[head];
+			q.push(mp(-(val[head]+sufval[head]),ind[head]));
+			break;
+		}
+		while(sufval[tail]<a[i])
+		{
+			if (head<tail && sufval[tail-1]<a[i])
+			{
+				needval[ind[tail]]=-1;
+				tail--;continue;
+			}
+			sufval[tail]=a[i];
+			needval[ind[tail]]=val[tail]+sufval[tail];
+			q.push(mp(-(val[tail]+sufval[tail]),ind[tail]));
+			break;
+		}
+		int pos;LL vv;
+		while (!q.empty())
+		{
+			vv=-q.top().x;pos=q.top().y;
+			if (needval[pos]!=vv || needval[pos]==-1) {q.pop();continue;}
+			dp[i]=vv;
+			++tail;ind[tail]=i;sufval[tail]=0;val[tail]=dp[i];
+			needval[ind[tail]]=dp[i];q.push(mp(-dp[i],ind[tail]));
+			break;
+		}
 	}
 	cout<<dp[n]<<endl;
 	io.flush();
