@@ -13,12 +13,12 @@ using namespace std;
 #define pLL pair<LL,LL>
 #define pii pair<double,double>
 #define LOWBIT(x) x & (-x)
-// #define LOCAL true
+#define LOCAL true
 
 const int INF=2e9;
 const LL LINF=2e16;
 const int magic=348;
-const int MOD=1e9+7;
+const int MOD=51123987;
 const double eps=1e-10;
 const double pi=acos(-1);
 
@@ -85,62 +85,18 @@ inline void Add(int &x,int y) {x=add(x+y);}
 inline void Add(int &x,int y,int MO) {x=add(x+y,MO);}
 inline void Sub(int &x,int y) {x=sub(x-y);}
 inline void Sub(int &x,int y,int MO) {x=sub(x-y,MO);}
-template<typename T> inline int quick_pow(int x,T y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
-template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
+inline int quick_pow(int x,int y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
+inline int quick_pow(int x,int y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
 
-const int MAXN=5e5;
+const int MAXN=150;
 
-int n,q;
-int a[MAXN+48];
+int n;
+char s[MAXN+48];
+int dp[MAXN+1][52][52][52],nxt[MAXN+1][4];
 
-bool valid;int cnt=0;
-namespace SegmentTree
+inline bool check(int a,int b,int c)
 {
-	int g[MAXN*4];
-	inline void pushup(int cur) {g[cur]=gcd(g[cur<<1],g[cur<<1|1]);}
-	inline void build(int cur,int l,int r)
-	{
-		if (l==r) {g[cur]=a[l];return;}
-		int mid=(l+r)>>1;
-		build(cur<<1,l,mid);build(cur<<1|1,mid+1,r);
-		pushup(cur);
-	}
-	inline void update(int cur,int pos,int nv,int l,int r)
-	{
-		if (l==r) {g[cur]=nv;return;}
-		int mid=(l+r)>>1;
-		if (pos<=mid) update(cur<<1,pos,nv,l,mid); else update(cur<<1|1,pos,nv,mid+1,r);
-		pushup(cur);
-	}
-	inline int search(int cur,int cmp,int l,int r)
-	{
-		if (l==r) return 1;
-		int res1=(g[cur<<1]%cmp==0?0:1),res2=(g[cur<<1|1]%cmp==0?0:1);
-		if (res1 && res2) return 2;
-		int mid=(l+r)>>1;
-		if (res1) return search(cur<<1,cmp,l,mid); else return search(cur<<1|1,cmp,mid+1,r);
-	}
-	inline int query(int cur,int left,int right,int cmp,int l,int r)
-	{
-		if (!valid) return 0;
-		if (left<=l && r<=right)
-		{
-			if (g[cur]%cmp!=0)
-			{
-				cnt++;
-				if (cnt>1) {valid=false;return 0;}
-				if (search(cur,cmp,l,r)>1) {valid=false;return 0;}
-			}
-			return 0;
-		}
-		int mid=(l+r)>>1;
-		if (right<=mid) return query(cur<<1,left,right,cmp,l,mid);
-		if (left>=mid+1) return query(cur<<1|1,left,right,cmp,mid+1,r);
-		int res1=query(cur<<1,left,right,cmp,l,mid);
-		int res2=query(cur<<1|1,left,right,cmp,mid+1,r);
-		if (res1 && res2) {valid=false;return 1;}
-		return (res1|res2);
-	}
+	return myabs(a-b)<=1 && myabs(a-c)<=1 && myabs(b-c)<=1;
 }
 
 int main ()
@@ -151,26 +107,29 @@ int main ()
 	freopen ("a.out","w",stdout);
 	cerr<<"Running..."<<endl;
 #endif
-	io.Get(n);
-	for (register int i=1;i<=n;i++) io.Get(a[i]);
-	SegmentTree::build(1,1,n);
-	io.Get(q);int op,l,r,x;
-	while (q--)
+	io.Get(n);io.getstring(s+1);
+	nxt[n+1][1]=nxt[n+1][2]=nxt[n+1][3]=-1;
+	for (register int i=n;i>=0;i--)
 	{
-		io.Get(op);
-		if (op==1)
-		{
-			io.Get(l);io.Get(r);io.Get(x);
-			valid=true;cnt=0;
-			SegmentTree::query(1,l,r,x,1,n);
-			if (valid) puts("YES"); else puts("NO");
-		}
-		else
-		{
-			io.Get(l);io.Get(x);
-			SegmentTree::update(1,l,x,1,n);
-		}
+		nxt[i][1]=nxt[i+1][1];nxt[i][2]=nxt[i+1][2];nxt[i][3]=nxt[i+1][3];
+		if (i) nxt[i][s[i]-'a'+1]=i;
 	}
+	int lim=n/3+1;
+	dp[0][0][0][0]=1;int ans=0;
+	for (register int i=0;i<=n;i++)
+		for (register int j=0;j<=lim;j++)
+			for (register int k=0;k<=lim;k++)
+				for (register int l=0;l<=lim;l++)
+					if (dp[i][j][k][l])
+					{
+						cerr<<i<<' '<<j<<' '<<k<<' '<<l<<' '<<dp[i][j][k][l]<<endl;
+						if (nxt[i][1]!=-1) Add(dp[nxt[i][1]+((nxt[i][1]==i && j+k+l==i)?1:0)][j+1][k][l],dp[i][j][k][l]);
+						if (nxt[i][2]!=-1) Add(dp[nxt[i][2]+((nxt[i][2]==i && j+k+l==i)?1:0)][j][k+1][l],dp[i][j][k][l]);
+						if (nxt[i][3]!=-1) Add(dp[nxt[i][3]+((nxt[i][3]==i && j+k+l==i)?1:0)][j][k][l+1],dp[i][j][k][l]);
+						if (i==n && j+k+l==n && check(j,k,l)) Add(ans,dp[i][j][k][l]);
+					}
+	io.Print(ans,'\n');
+	io.flush();
 #ifdef LOCAL
 	cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;
 #endif
