@@ -13,12 +13,12 @@ using namespace std;
 #define pLL pair<LL,LL>
 #define pii pair<double,double>
 #define LOWBIT(x) x & (-x)
-// #define LOCAL true
+#define LOCAL true
 
 const int INF=2e9;
 const LL LINF=2e16;
 const int magic=348;
-const int MOD=51123987;
+const int MOD=1e9+7;
 const double eps=1e-10;
 const double pi=acos(-1);
 
@@ -85,53 +85,69 @@ inline void Add(int &x,int y) {x=add(x+y);}
 inline void Add(int &x,int y,int MO) {x=add(x+y,MO);}
 inline void Sub(int &x,int y) {x=sub(x-y);}
 inline void Sub(int &x,int y,int MO) {x=sub(x-y,MO);}
-inline int quick_pow(int x,int y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
-inline int quick_pow(int x,int y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
+template<typename T> inline int quick_pow(int x,T y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
+template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
 
-const int MAXN=150;
+const int N = 2e6+5;
 
-int n;
-char s[MAXN+48];
-int dp[MAXN+1][52][52][52],nxt[MAXN+1][4];
+unsigned int SA,SB,SC;
+int n,a[N],b[N],c[N];
 
-inline bool check(int a,int b,int c)
+inline unsigned int rd()
 {
-	return myabs(a-b)<=1 && myabs(a-c)<=1 && myabs(b-c)<=1;
+    SA^=SA<<16;SA^=SA>>5;SA^=SA<<1;
+    unsigned int t=SA;SA=SB;SB=SC;SC^=t^SA;return SC;
 }
 
-int main ()
+inline void gen(int *P)
 {
-#ifdef LOCAL
-	double TIME=clock();
-	freopen ("a.in","r",stdin);
-	freopen ("a.out","w",stdout);
-	cerr<<"Running..."<<endl;
-#endif
-	io.Get(n);io.getstring(s+1);
-	nxt[n+1][1]=nxt[n+1][2]=nxt[n+1][3]=-1;
-	for (register int i=n;i>=0;i--)
+    for (int i=1;i<=n;++i) P[i]=i;
+    for (int i=1;i<=n;++i) swap(P[i],P[1+rd()%n]);
+}
+
+namespace BIT
+{
+	int c[N+48];
+	inline void clear() {for (register int i=1;i<=n;i++) c[i]=0;}
+	inline void update(int x,int delta)
 	{
-		nxt[i][1]=nxt[i+1][1];nxt[i][2]=nxt[i+1][2];nxt[i][3]=nxt[i+1][3];
-		if (i) nxt[i][s[i]-'a'+1]=i;
+		while (x<=n)
+		{
+			c[x]+=delta;
+			x+=LOWBIT(x);
+		}
 	}
-	int lim=(n+2)/3;
-	dp[0][0][0][0]=1;int ans=0;
-	for (register int i=0;i<=n;i++)
-		for (register int j=0;j<=lim;j++)
-			for (register int k=0;k<=lim;k++)
-				for (register int l=0;l<=lim;l++)
-					if (dp[i][j][k][l])
-					{
-						// cerr<<i<<' '<<j<<' '<<k<<' '<<l<<' '<<dp[i][j][k][l]<<endl;
-						if (nxt[i][1]!=-1) Add(dp[nxt[i][1]][j+1][k][l],dp[i][j][k][l]);
-						if (nxt[i][2]!=-1) Add(dp[nxt[i][2]][j][k+1][l],dp[i][j][k][l]);
-						if (nxt[i][3]!=-1) Add(dp[nxt[i][3]][j][k][l+1],dp[i][j][k][l]);
-						if (j+k+l==n && check(j,k,l)) Add(ans,dp[i][j][k][l]);
-					}
-	io.Print(ans,'\n');
-	io.flush();
-#ifdef LOCAL
-	cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;
-#endif
+	inline int query(int x)
+	{
+		int res=0;
+		while (x)
+		{
+			res+=c[x];
+			x^=LOWBIT(x);
+		}
+		return res;
+	}
+}
+
+Pair A[N+48];
+inline LL doit()
+{
+	sort(A+1,A+n+1);LL res=0;BIT::clear();
+	for (register int i=1;i<=n;i++)
+	{
+		res+=BIT::query(A[i].y-1);
+		BIT::update(A[i].y,1);
+	}
+	return res;
+}
+
+int main()
+{
+	scanf("%d%u%u%u",&n,&SA,&SB,&SC);
+	gen(a);gen(b);gen(c);
+	for (register int i=1;i<=n;i++) A[i]=mp(a[i],b[i]); LL X=doit();
+	for (register int i=1;i<=n;i++) A[i]=mp(a[i],c[i]); LL Y=doit();
+	for (register int i=1;i<=n;i++) A[i]=mp(b[i],c[i]); LL Z=doit();
+	printf("%lld\n",(X+Y+Z-1ll*n*(n-1)/2)/2);
 	return 0;
 }

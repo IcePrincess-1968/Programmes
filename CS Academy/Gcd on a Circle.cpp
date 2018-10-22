@@ -18,7 +18,7 @@ using namespace std;
 const int INF=2e9;
 const LL LINF=2e16;
 const int magic=348;
-const int MOD=51123987;
+const int MOD=1e9+7;
 const double eps=1e-10;
 const double pi=acos(-1);
 
@@ -85,49 +85,76 @@ inline void Add(int &x,int y) {x=add(x+y);}
 inline void Add(int &x,int y,int MO) {x=add(x+y,MO);}
 inline void Sub(int &x,int y) {x=sub(x-y);}
 inline void Sub(int &x,int y,int MO) {x=sub(x-y,MO);}
-inline int quick_pow(int x,int y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
-inline int quick_pow(int x,int y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
+template<typename T> inline int quick_pow(int x,T y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
+template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
 
-const int MAXN=150;
+const int MAXN=1e5;
 
 int n;
-char s[MAXN+48];
-int dp[MAXN+1][52][52][52],nxt[MAXN+1][4];
+int a[MAXN+48],nxt[MAXN+48],sufgcd[MAXN+48];
+int gt[MAXN+48][21];
 
-inline bool check(int a,int b,int c)
+inline void init_nxt()
 {
-	return myabs(a-b)<=1 && myabs(a-c)<=1 && myabs(b-c)<=1;
+	sufgcd[n-1]=a[n-1];
+	for (register int i=n-2;i>=1;i--) sufgcd[i]=gcd(sufgcd[i+1],a[i]);
+	for (register int i=1;i<=n;i++) gt[i][0]=a[i];
+	for (register int j=1;j<=20;j++)
+		for (register int i=1;i<=n;i++)
+		{
+			gt[i][j]=gt[i][j-1];
+			if (i+(1<<(j-1))<=n) gt[i][j]=gcd(gt[i][j],gt[i+(1<<(j-1))][j-1]);
+		}
+	for (register int i=1;i<=n;i++)
+	{
+		if (gt[i][20]>1) {nxt[i]=n;continue;}
+		int cur=-1,u=i;
+		for (register int j=20;j>=0;j--)
+			if ((cur==-1 && gt[u][j]>1) || (cur!=-1 && gcd(cur,gt[u][j])>1))
+			{
+				if (cur==-1) cur=gt[u][j]; else cur=gcd(cur,gt[u][j]);
+				u+=(1<<j);
+			}
+		nxt[i]=u-1;
+	}
+}
+
+int dp[MAXN+48],sum[MAXN+48];
+inline void doit_dp(int lim)
+{
+	for (register int i=lim;i<=n-1;i++)
+		if (nxt[i]==n && gcd(sufgcd[i],a[n])==1) nxt[i]=n-1;
+	nxt[n]=n;
+	memset(sum,0,sizeof(sum));
+	sum[n+1]=1;
+	for (register int i=n;i>=lim;i--)
+	{
+		//range: i+1~nxt[i]+1
+		dp[i]=sub(sum[i+1]-sum[nxt[i]+2]);
+		sum[i]=add(sum[i+1]+dp[i]);
+	}
 }
 
 int main ()
 {
 #ifdef LOCAL
 	double TIME=clock();
-	freopen ("a.in","r",stdin);
-	freopen ("a.out","w",stdout);
+	freopen ("b.in","r",stdin);
+	freopen ("b.out","w",stdout);
 	cerr<<"Running..."<<endl;
 #endif
-	io.Get(n);io.getstring(s+1);
-	nxt[n+1][1]=nxt[n+1][2]=nxt[n+1][3]=-1;
-	for (register int i=n;i>=0;i--)
+	io.Get(n);
+	for (register int i=1;i<=n;i++) io.Get(a[i]);
+	for (register int i=1;i<=n;i++) if (a[i]==1) {printf("0\n");return 0;}
+	init_nxt();doit_dp(1);int ans=dp[1];
+	for (register int i=1;i<=n-1;i++)
 	{
-		nxt[i][1]=nxt[i+1][1];nxt[i][2]=nxt[i+1][2];nxt[i][3]=nxt[i+1][3];
-		if (i) nxt[i][s[i]-'a'+1]=i;
+		int tmp=a[n];a[n]=gcd(a[n],a[i]);
+		if (a[n]==1) break;
+		if (tmp!=a[n]) doit_dp(i+1);
+		Add(ans,dp[i+1]);
 	}
-	int lim=(n+2)/3;
-	dp[0][0][0][0]=1;int ans=0;
-	for (register int i=0;i<=n;i++)
-		for (register int j=0;j<=lim;j++)
-			for (register int k=0;k<=lim;k++)
-				for (register int l=0;l<=lim;l++)
-					if (dp[i][j][k][l])
-					{
-						// cerr<<i<<' '<<j<<' '<<k<<' '<<l<<' '<<dp[i][j][k][l]<<endl;
-						if (nxt[i][1]!=-1) Add(dp[nxt[i][1]][j+1][k][l],dp[i][j][k][l]);
-						if (nxt[i][2]!=-1) Add(dp[nxt[i][2]][j][k+1][l],dp[i][j][k][l]);
-						if (nxt[i][3]!=-1) Add(dp[nxt[i][3]][j][k][l+1],dp[i][j][k][l]);
-						if (j+k+l==n && check(j,k,l)) Add(ans,dp[i][j][k][l]);
-					}
+	if (a[n]>1) Sub(ans,n-1);
 	io.Print(ans,'\n');
 	io.flush();
 #ifdef LOCAL

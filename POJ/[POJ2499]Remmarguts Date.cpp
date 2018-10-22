@@ -1,4 +1,11 @@
-#include <bits/stdc++.h>
+#include <cstdio>
+#include <iostream>
+#include <cstring>
+#include <string>
+#include <algorithm>
+#include <queue>
+#include <vector>
+#include <cmath>
 using namespace std;
 
 #define LL long long
@@ -18,7 +25,7 @@ using namespace std;
 const int INF=2e9;
 const LL LINF=2e16;
 const int magic=348;
-const int MOD=51123987;
+const int MOD=1e9+7;
 const double eps=1e-10;
 const double pi=acos(-1);
 
@@ -85,18 +92,71 @@ inline void Add(int &x,int y) {x=add(x+y);}
 inline void Add(int &x,int y,int MO) {x=add(x+y,MO);}
 inline void Sub(int &x,int y) {x=sub(x-y);}
 inline void Sub(int &x,int y,int MO) {x=sub(x-y,MO);}
-inline int quick_pow(int x,int y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
-inline int quick_pow(int x,int y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
+template<typename T> inline int quick_pow(int x,T y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
+template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
 
-const int MAXN=150;
+const int MAXN=1000;
+const int MAXM=100000;
 
-int n;
-char s[MAXN+48];
-int dp[MAXN+1][52][52][52],nxt[MAXN+1][4];
+int n,m,s,t,k;
+vector<Pair> v[MAXN+48],vv[MAXN+48];
 
-inline bool check(int a,int b,int c)
+int dist[MAXN+48];
+namespace init
 {
-	return myabs(a-b)<=1 && myabs(a-c)<=1 && myabs(b-c)<=1;
+	priority_queue<Pair> q;
+	inline void dijkstra()
+	{
+		for (register int i=1;i<=n;i++) dist[i]=INF;
+		dist[t]=0;q.push(mp(0,t));
+		while (!q.empty())
+		{
+			int x=q.top().y,dd=-q.top().y;q.pop();
+			if (dd>dist[x]) continue;
+			for (register int i=0;i<int(vv[x].size());i++)
+			{
+				int y=vv[x][i].x;
+				if (dist[y]>dist[x]+vv[x][i].y)
+				{
+					dist[y]=dist[x]+vv[x][i].y;
+					q.push(mp(-dist[y],y));
+				}
+			}
+		}
+	}
+}
+
+namespace Astar
+{
+	int cnt[MAXN+48];
+	struct node
+	{
+		int g,h,id;
+		node () {}
+		inline node (int gg,int hh,int ii) {g=gg;h=hh;id=ii;}
+		inline bool operator < (const node &other) const
+		{
+			return g+h>other.g+other.h;
+		}
+	};
+	priority_queue<node> q;
+	inline int solve()
+	{
+		q.push(node(0,dist[s],s));
+		while (!q.empty())
+		{
+			node cur=q.top();q.pop();int x=cur.id;
+			cnt[x]++;
+			if (x==t && cnt[x]==k) return cur.g+cur.h;
+			if (cnt[x]>k) continue;
+			for (register int i=0;i<int(v[x].size());i++)
+			{
+				int y=v[x][i].x;
+				q.push(node(cur.g+v[x][i].y,dist[y],y));
+			}
+		}
+		return -1;
+	}
 }
 
 int main ()
@@ -107,28 +167,16 @@ int main ()
 	freopen ("a.out","w",stdout);
 	cerr<<"Running..."<<endl;
 #endif
-	io.Get(n);io.getstring(s+1);
-	nxt[n+1][1]=nxt[n+1][2]=nxt[n+1][3]=-1;
-	for (register int i=n;i>=0;i--)
+	io.Get(n);io.Get(m);int x,y,c;
+	for (register int i=1;i<=m;i++)
 	{
-		nxt[i][1]=nxt[i+1][1];nxt[i][2]=nxt[i+1][2];nxt[i][3]=nxt[i+1][3];
-		if (i) nxt[i][s[i]-'a'+1]=i;
+		io.Get(x);io.Get(y);io.Get(c);
+		v[x].pb(mp(y,c));vv[y].pb(mp(x,c));
 	}
-	int lim=(n+2)/3;
-	dp[0][0][0][0]=1;int ans=0;
-	for (register int i=0;i<=n;i++)
-		for (register int j=0;j<=lim;j++)
-			for (register int k=0;k<=lim;k++)
-				for (register int l=0;l<=lim;l++)
-					if (dp[i][j][k][l])
-					{
-						// cerr<<i<<' '<<j<<' '<<k<<' '<<l<<' '<<dp[i][j][k][l]<<endl;
-						if (nxt[i][1]!=-1) Add(dp[nxt[i][1]][j+1][k][l],dp[i][j][k][l]);
-						if (nxt[i][2]!=-1) Add(dp[nxt[i][2]][j][k+1][l],dp[i][j][k][l]);
-						if (nxt[i][3]!=-1) Add(dp[nxt[i][3]][j][k][l+1],dp[i][j][k][l]);
-						if (j+k+l==n && check(j,k,l)) Add(ans,dp[i][j][k][l]);
-					}
-	io.Print(ans,'\n');
+	io.Get(s);io.Get(t);io.Get(k);
+	if (s==t) k++;
+	init::dijkstra();
+	io.Print(Astar::solve(),'\n');
 	io.flush();
 #ifdef LOCAL
 	cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;
