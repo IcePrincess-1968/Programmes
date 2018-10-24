@@ -97,8 +97,8 @@ int dp1[MAXN+48][MAXN+48],dp2[MAXN+48][MAXN+48];
 
 int main ()
 {
-	freopen ("a.in","r",stdin);
-	freopen ("a.out","w",stdout);
+	// freopen ("a.in","r",stdin);
+	// freopen ("a.out","w",stdout);
 	io.Get(n);io.Get(p);io.Get(q);io.Get(a);io.Get(b);
 	Lwin=1ll*p*quick_pow(p+q,MOD-2)%MOD;
 	Rwin=1ll*q*quick_pow(p+q,MOD-2)%MOD;
@@ -112,7 +112,7 @@ int main ()
 		else
 		{
 			int presum=0;
-			for (register int j=0;j<=n;j++)
+			for (register int j=1;j<=n;j++)
 			{
 				presum=add(1ll*presum*Rwin%MOD+1ll*dp1[i-1][j]*Lwin%MOD);
 				dp1[i][j]=presum;
@@ -128,7 +128,7 @@ int main ()
 		else
 		{
 			int presum=0;
-			for (register int j=0;j<=n;j++)
+			for (register int j=1;j<=n;j++)
 			{
 				presum=add(1ll*presum*Lwin%MOD+1ll*dp2[i+1][j]*Rwin%MOD);
 				dp2[i][j]=presum;
@@ -136,7 +136,7 @@ int main ()
 		}
 	}
 	int ans=0;
-	for (register int i=1;i<=n-1;i++) Add(ans,1ll*dp1[i][0]*dp2[i+1][0]%MOD);
+	for (register int i=0;i<=n;i++) Add(ans,1ll*dp1[i][0]*dp2[i+1][0]%MOD);
 	io.Print(ans,'\n');io.flush();
 	return 0;			
 }
