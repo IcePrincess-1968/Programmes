@@ -16,7 +16,7 @@ using namespace std;
 // #define LOCAL true
 
 const int INF=2e9;
-const LL LINF=2e16;
+const LL LINF=4e18;
 const int magic=348;
 const int MOD=1e9+7;
 const double eps=1e-10;
@@ -88,135 +88,104 @@ inline void Sub(int &x,int y,int MO) {x=sub(x-y,MO);}
 template<typename T> inline int quick_pow(int x,T y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
 template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
 
-const int MAXM=3e5;
+const int MAXM=6e5;
 
 int n,m;
 
 struct node
 {
-    int l,r;LL sta,d;
-    inline void input() {io.Get(l);io.Get(r);io.Get(d);io.Get(sta);}
+    int op,l,r,nl,nr;LL sta,d;
+    inline void input()
+    {
+        io.Get(op);
+        if (op==3) io.Get(l);
+        else io.Get(l),io.Get(r),io.Get(d),io.Get(sta);
+    }
 }a[MAXM+48];
 
-namespace sgt
+struct Pt
 {
-    int root;
-    int lson[MAXM*80+48],rson[MAXM*80+48],sum[MAXM*80+48],tot=0;
-    inline int Create()
-    {
-        ++tot;lson[tot]=rson[tot]=sum[tot]=0;
-        return tot;
-    }
-    inline void pushup(int cur) {sum[cur]=sum[lson[cur]]+sum[rson[cur]];}
-    inline void update(int &cur,int pos,int val,int l,int r)
-    {
-        if (!cur) cur=Create();
-        if (l==r) {sum[cur]+=val;return;}
-        int mid=(l+r)>>1;
-        if (pos<=mid) update(lson[cur],pos,val,l,mid); else update(rson[cur],pos,val,mid+1,r);
-        pushup(cur);
-    }
-    inline int query(int cur,int left,int right,int l,int r)
-    {
-        if (!cur) return 0;
-        if (left<=l && r<=right) return sum[cur];
-        int res=0,mid=(l+r)>>1;
-        if (left<=mid) res+=query(lson[cur],left,right,l,mid);
-        if (mid+1<=right) res+=query(rson[cur],left,right,mid+1,r);
-        return res;
-    }
+    int from,type,val;
+    Pt () {}
+    inline Pt(int ff,int tt,int vv) {from=ff;type=tt;val=vv;}
+    inline bool operator < (const Pt &other) const {return val<other.val;}
+}b[MAXM+48];int btot;
+
+int topos[MAXM+48];
+
+inline LL query_val(int id,int pos)
+{
+    if (!id) return -LINF;
+    return a[id].sta+a[id].d*(topos[pos]-a[id].l);
 }
 
 namespace SegmentTree
 {
-    int root;
-    int lson[MAXM*80+48],rson[MAXM*80+48];LL sta[MAXM*80+48],d[MAXM*80+48];int tot=0;
-    inline int Create ()
+    vector<int> ind[MAXM*4];
+    inline void update(int cur,int left,int right,int id,int l,int r)
     {
-        ++tot;lson[tot]=rson[tot]=sta[tot]=d[tot]=0;
-        return tot;
-    }
-    inline void update(int &cur,int left,int right,LL st,LL dd,int l,int r)
-    {
-        if (!cur) cur=Create();
-        if (left<=l && r<=right)
-        {
-            sta[cur]+=(st+1ll*(l-left)*dd);
-            d[cur]+=dd;
-            return;
-        }
+        if (left<=l && r<=right) {ind[cur].pb(id);return;}
         int mid=(l+r)>>1;
-        if (left<=mid) update(lson[cur],left,right,st,dd,l,mid);
-        if (mid+1<=right) update(rson[cur],left,right,st,dd,mid+1,r);
+        if (left<=mid) update(cur<<1,left,right,id,l,mid);
+        if (mid+1<=right) update(cur<<1|1,left,right,id,mid+1,r);
     }
     inline LL query(int cur,int pos,int l,int r)
     {
         if (!cur) return 0;
-        int mid=(l+r)>>1;LL res=sta[cur]+d[cur]*(pos-l);
+        int mid=(l+r)>>1;LL res=0;
+        for (register int i=0;i<int(ind[cur].size());i++) res+=query_val(ind[cur][i],pos);
         if (l==r) return res;
-        if (pos<=mid) res+=query(lson[cur],pos,l,mid); else res+=query(rson[cur],pos,mid+1,r);
+        if (pos<=mid) res+=query(cur<<1,pos,l,mid); else res+=query(cur<<1|1,pos,mid+1,r);
         return res;
     }
 }
 
 namespace LiChaoTree
 {
-    int root;
-    int lson[MAXM*80+48],rson[MAXM*80+48],maxind[MAXM*80+48],tot=0;
-    inline int Create()
+    int maxind[MAXM*4];
+    inline void modify(int cur,int id,int l,int r)
     {
-        ++tot;lson[tot]=rson[tot]=maxind[tot]=0;
-        return tot;
-    }
-    inline LL query_val(int id,int pos)
-    {
-        if (!id) return -LINF;
-        return a[id].sta+1ll*(pos-a[id].l)*a[id].d;
-    }
-    inline void update(int &cur,int left,int right,int id,int l,int r)
-    {
-        if (!cur) cur=Create();
         if (l==r)
         {
             if (query_val(id,l)>query_val(maxind[cur],l)) maxind[cur]=id;
             return;
         }
+        if (!maxind[cur]) {maxind[cur]=id;return;}
         int mid=(l+r)>>1;
-        if (left<=l && r<=right)
+        if (a[id].d>a[maxind[cur]].d)
         {
-            if (!maxind[cur]) {maxind[cur]=id;return;}
-            if (a[id].d>a[maxind[cur]].d)
+            if (query_val(id,mid)>=query_val(maxind[cur],mid))
             {
-                if (query_val(id,mid)>=query_val(maxind[cur],mid))
-                {
-                    maxind[cur]=id;
-                    update(lson[cur],left,right,id,l,mid);
-                }
-                else
-                    update(rson[cur],left,right,id,mid+1,r);
+                modify(cur<<1,maxind[cur],l,mid);
+                maxind[cur]=id;
             }
             else
-            {
-                if (query_val(id,mid)>=query_val(maxind[cur],mid))
-                {
-                    maxind[cur]=id;
-                    update(rson[cur],left,right,id,mid+1,r);
-                }
-                else
-                    update(lson[cur],left,right,id,l,mid);
-            }
-            return;
+                modify(cur<<1|1,id,mid+1,r);
         }
-        if (left<=mid) update(lson[cur],left,right,id,l,mid);
-        if (mid+1<=right) update(rson[cur],left,right,id,mid+1,r);
+        else
+        {
+            if (query_val(id,mid)>=query_val(maxind[cur],mid))
+            {
+                modify(cur<<1|1,maxind[cur],mid+1,r);
+                maxind[cur]=id;
+            }
+            else
+                modify(cur<<1,id,l,mid);
+        }
+    }
+    inline void update(int cur,int left,int right,int id,int l,int r)
+    {
+        int mid=(l+r)>>1;
+        if (left<=l && r<=right) {modify(cur,id,l,r);return;}
+        if (left<=mid) update(cur<<1,left,right,id,l,mid);
+        if (mid+1<=right) update(cur<<1|1,left,right,id,mid+1,r);
     }
     inline LL query(int cur,int pos,int l,int r)
     {
-        if (!cur) return -LINF;
-        if (l==r) return query_val(maxind[cur],l);
         LL ans=query_val(maxind[cur],pos);
+        if (l==r) return ans;
         int mid=(l+r)>>1;
-        if (pos<=mid) check_max(ans,query(lson[cur],pos,l,mid)); else check_max(ans,query(rson[cur],pos,mid+1,r));
+        if (pos<=mid) check_max(ans,query(cur<<1,pos,l,mid)); else check_max(ans,query(cur<<1|1,pos,mid+1,r));
         return ans;
     }
 }
@@ -229,27 +198,32 @@ int main ()
     freopen ("a.out","w",stdout);
     cerr<<"Running..."<<endl;
 #endif
-    io.Get(n);io.Get(m);int op;
+    io.Get(n);io.Get(m);
     for (register int i=1;i<=m;i++)
     {
-        io.Get(op);
-        if (op<3) a[i].input();
-        if (op==1)
+        a[i].input();
+        if (a[i].op<3) b[++btot]=Pt(i,0,a[i].l),b[++btot]=Pt(i,1,a[i].r);
+        else b[++btot]=Pt(i,0,a[i].l);
+    }
+    sort(b+1,b+btot+1);int itot=0;
+    for (register int i=1;i<=btot;i++)
+    {
+        if (i==1 || b[i].val!=b[i-1].val) itot++;
+        topos[itot]=b[i].val;
+        if (!b[i].type) a[b[i].from].nl=itot; else a[b[i].from].nr=itot;
+    }
+    for (register int i=1;i<=m;i++)
+    {
+        if (a[i].op==1) LiChaoTree::update(1,a[i].nl,a[i].nr,i,1,itot);
+        if (a[i].op==2) SegmentTree::update(1,a[i].nl,a[i].nr,i,1,itot);
+        if (a[i].op==3)
         {
-            LiChaoTree::update(LiChaoTree::root,a[i].l,a[i].r,i,1,n);
-            sgt::update(sgt::root,a[i].l,1,1,n);
-            if (a[i].r!=n) sgt::update(sgt::root,a[i].r+1,-1,1,n);
-        }
-        if (op==2)
-            SegmentTree::update(SegmentTree::root,a[i].l,a[i].r,a[i].sta,a[i].d,1,n);
-        if (op==3)
-        {
-            int x;io.Get(x);
-            if (!sgt::query(sgt::root,1,x,1,n)) {printf("NA\n");continue;}
-            printf("%lld\n",LiChaoTree::query(LiChaoTree::root,x,1,n)+SegmentTree::query(SegmentTree::root,x,1,n));
+            LL res=LiChaoTree::query(1,a[i].nl,1,itot);
+            if (res<=-LINF) {printf("NA\n");continue;}
+            res+=SegmentTree::query(1,a[i].nl,1,itot);
+            printf("%lld\n",res);
         }
     }
-    // io.flush();
 #ifdef LOCAL
     cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;
 #endif
