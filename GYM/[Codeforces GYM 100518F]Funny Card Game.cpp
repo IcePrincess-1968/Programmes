@@ -88,34 +88,25 @@ inline void Sub(int &x,int y,int MO) {x=sub(x-y,MO);}
 template<typename T> inline int quick_pow(int x,T y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
 template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
 
-const int MAXN=1000;
-const int MAXM=10000;
+const int MAXN=1e5;
 
-int n,m,L,s,t;
-LL w[MAXM+48];
-vector<Pair> v[MAXN+48];
-int List[MAXM+48],tot;
+int k,n;
+int a[MAXN+48];
 
-LL dist[MAXN+48];
-priority_queue<pair<LL,int> > q;
-inline void dijkstra()
+struct node
 {
-    for (register int i=1;i<=n;i++) dist[i]=LINF;
-    dist[s]=0;q.push(mp(0,s));
-    while (!q.empty())
-    {
-        int x=q.top().y;LL dd=-q.top().x;q.pop();
-        if (dd>dist[x]) continue;
-        for (register int i=0;i<int(v[x].size());i++)
-        {
-            int y=v[x][i].x;LL ww=w[v[x][i].y];
-            if (dist[x]+ww<dist[y])
-            {
-                dist[y]=dist[x]+ww;
-                q.push(mp(-dist[y],y));
-            }
-        }
-    }
+    int val,from;
+    inline bool operator < (const node &other) const {return val<other.val;}
+}b[MAXN+48];
+
+int pre[MAXN+48],pos[MAXN+48];
+int dp[101][MAXN+48],maxn[101][MAXN+48],maxpos[101][MAXN+48],from[101][MAXN+48];
+
+int List[MAXN+48],tot=0;
+inline void getans(int r,int i)
+{
+    if (!i) return;
+    List[++tot]=i;getans(r-1,from[r][i]);
 }
 
 int main ()
@@ -126,41 +117,43 @@ int main ()
     freopen ("a.out","w",stdout);
     cerr<<"Running..."<<endl;
 #endif
-    int x,y;
-    io.Get(n);io.Get(m);io.Get(L);io.Get(s);io.Get(t);s++;t++;
-    for (register int i=1;i<=m;i++)
+    freopen ("funny.in","r",stdin);
+    freopen ("funny.out","w",stdout);
+    while (scanf("%d%d",&n,&k) && n && k)
     {
-        io.Get(x);io.Get(y);x++;y++;
-        v[x].pb(mp(y,i));v[y].pb(mp(x,i));
-        io.Get(w[i]);
-        if (!w[i]) List[++tot]=i;
+        for (register int i=1;i<=n;i++) scanf("%d",a+i),b[i].val=a[i],b[i].from=i;
+        sort(b+1,b+n+1);int itot=0;
+        for (register int i=1;i<=n;i++)
+        {
+            if (i==1 || b[i].val!=b[i-1].val) itot++;
+            a[b[i].from]=itot;
+        }
+        for (register int i=1;i<=itot;i++) pos[i]=0;
+        for (register int i=1;i<=n;i++) pre[i]=pos[a[i]],pos[a[i]]=i;
+        for (register int i=0;i<=k;i++)
+            for (register int j=0;j<=n;j++)
+                dp[i][j]=-INF,maxn[i][j]=-INF;
+        for (register int i=0;i<=n;i++) dp[0][i]=0,from[0][i]=0,maxn[0][i]=1+(pre[i]?maxn[0][pre[i]]:0);
+        for (register int r=1;r<=k;r++)
+            for (register int i=r;i<=n;i++)
+            {
+                //ignore current
+                if (i!=r) dp[r][i]=dp[r][i-1],from[r][i]=from[r][i-1];
+                //choose current
+                int curv=1+dp[r-1][i-1],curf=i-1;
+                if (pre[i] && curv<maxn[r-1][pre[i]]+1)
+                {
+                    curv=maxn[r-1][pre[i]]+1;
+                    curf=maxpos[r-1][pre[i]];
+                }
+                maxn[r][i]=curv;maxpos[r][i]=curf;
+                if (curv>dp[r][i]) dp[r][i]=curv,from[r][i]=curf;
+            }
+        printf("%d\n",dp[k][n]);
+        tot=0;getans(k,n);reverse(List+1,List+k+1);
+        for (register int i=1;i<=k-1;i++) printf("%d ",List[i]);
+        printf("\n");
     }
-    LL l=1,r=INF,mid,ans=-1;
-    while (l<=r)
-    {
-        mid=(l+r)>>1;
-        for (register int i=1;i<=tot;i++) w[List[i]]=mid;
-        dijkstra();
-        if (dist[t]<=L) ans=mid,l=mid+1; else r=mid-1;
-    }
-    if (ans<0) {printf("NO\n");return 0;}
-    if (ans>=INF && dist[t]<L) {printf("NO\n");return 0;}
-    for (register int i=1;i<=tot;i++) w[List[i]]=ans;
-    l=0;r=tot-1;
-    while (l<=r)
-    {
-        mid=(l+r)>>1;
-        for (register int i=1;i<=mid;i++) w[List[i]]++;
-        dijkstra();
-        if (dist[t]==L) break;
-        if (dist[t]<L) l=mid+1; else r=mid-1;
-        for (register int i=1;i<=mid;i++) w[List[i]]--;
-    }
-    printf("YES\n");
-    for (register int i=1;i<=n;i++)
-        for (register int j=0;j<int(v[i].size());j++)
-            if (v[i][j].x>i) printf("%d %d %lld\n",i-1,v[i][j].x-1,w[v[i][j].y]);
-    io.flush();
 #ifdef LOCAL
     cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;
 #endif

@@ -119,6 +119,22 @@ inline void init_can()
 
 int ansa[148],ansb[148],ans[148];
 
+inline void gen(int A[],int res[],int N)
+{
+    for (register int i=0;i<=N;i++)
+        for (register int j=0;j<=N;j++)
+            dp[i][j].clear();
+    dp[0][0][0]=1;
+    for (register int i=0;i<=N-1;i++)
+        for (register int j=0;j<=i;j++)
+            for (unordered_map<bs,int>::iterator iter=dp[i][j].begin();iter!=dp[i][j].end();iter++)
+                for (register int nxt=0;nxt<=(1<<A[i+1])-1;nxt++)
+                    Add(dp[i+1][j+iter->x[(1<<A[i+1])+nxt]][iter->x|can[(1<<A[i+1])+nxt]],iter->y);
+    for (register int j=0;j<=N;j++)
+        for (unordered_map<bs,int>::iterator iter=dp[N][j].begin();iter!=dp[N][j].end();iter++)
+                Add(res[j],iter->y);
+}
+
 int main ()
 {
 #ifdef LOCAL
@@ -129,7 +145,7 @@ int main ()
 #endif
     io.Get(n);for (register int i=1;i<=n;i++) io.Get(a[i]);
     for (register int i=1;i<=n;i++) if (a[i]&1) A[++atot]=a[i]; else B[++btot]=a[i];
-    init_can();gen(A,ansa,atot);getn(B,ansb,btot);
+    init_can();gen(A,ansa,atot);gen(B,ansb,btot);
     for (register int i=0;i<=atot;i++)
         for (register int j=0;j<=btot;j++)
             Add(ans[i+j],1ll*ansa[i]*ansb[j]%MOD);
