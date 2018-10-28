@@ -13,12 +13,12 @@ using namespace std;
 #define pLL pair<LL,LL>
 #define pii pair<double,double>
 #define LOWBIT(x) x & (-x)
-// #define LOCAL true
+#define LOCAL true
 
 const int INF=2e9;
 const LL LINF=2e16;
 const int magic=348;
-const int MOD=998244353;
+const int MOD=1e9+7;
 const double eps=1e-10;
 const double pi=acos(-1);
 
@@ -88,36 +88,62 @@ inline void Sub(int &x,int y,int MO) {x=sub(x-y,MO);}
 template<typename T> inline int quick_pow(int x,T y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
 template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
 
-typedef bitset<256> bs;
+const int MAXN=1000;
+const int MAXM=10000;
 
-int n,a[58];
-int A[58],B[58],atot,btot;
-unordered_map<bs,int> dp[58][58];
+int n,m,L,s,t;
+LL w[MAXM+48];
+vector<Pair> v[MAXN+48];
+vector<Pair> vv[MAXN+48];
+int List[MAXM+48],tot;
+bool mark[MAXM+48];
 
-bs can[256];
-inline bool check(int len1,int x,int len2,int y)
+LL dist[MAXN+48];
+priority_queue<pair<LL,int> > q;
+inline void dijkstra()
 {
-    if ((len1+len2)&1) return false;
-    int bit[48];
-    for (register int i=1,pt=len1;i<=len1;i++) bit[pt--]=(x&1),x>>=1;
-    for (register int i=1,pt=len1+len2;i<=len2;i++) bit[pt--]=(y&1),y>>=1;
-    for (register int i=1,j=((len1+len2)>>1)+1;j<=len1+len2;i++,j++) if (bit[i]!=bit[j]) return true;
-    return false;
-}
-inline void init_can()
-{
-    for (register int i=2;i<=255;i++)
-        for (register int j=2;j<=255;j++)
+    for (register int i=1;i<=n;i++) dist[i]=LINF;
+    dist[s]=0;q.push(mp(0,s));
+    while (!q.empty())
+    {
+        int x=q.top().y;LL dd=-q.top().x;q.pop();
+        if (dd>dist[x]) continue;
+        for (register int i=0;i<int(v[x].size());i++)
         {
-            int len1=1,len2=1;
-            while ((1<<(len1+1))<=i) len1++;
-            while ((1<<(len2+1))<=j) len2++;
-            int x=i-(1<<len1),y=j-(1<<len2);
-            if (check(len1,x,len2,y)) can[i][j]=1;
+            int y=v[x][i].x;LL ww=w[v[x][i].y];
+            if (dist[x]+ww<dist[y])
+            {
+                dist[y]=dist[x]+ww;
+                q.push(mp(-dist[y],y));
+            }
         }
+    }
 }
 
-int ansa[148],ansb[148],ans[148];
+int dp[MAXN+48],to[MAXN+48],id[MAXN+48];
+inline int solve(int cur)
+{
+    cerr<<cur<<endl;
+    if (dp[cur]!=-1) return dp[cur];
+    if (cur==t)
+    {
+        dp[cur]=0;to[cur]=-1;
+        return cur;
+    }
+    for (register int i=0;i<int(vv[cur].size());i++)
+    {
+        int y=vv[cur][i].x;
+        if (solve(y)+(mark[vv[cur][i].y]?1:0)>dp[cur]) dp[cur]=solve(y)+vv[cur][i].x,to[cur]=y,id[cur]=vv[cur][i].y;
+    }
+    return dp[cur];
+}
+
+inline void doit(int cur,int left)
+{
+    if (!left) return;
+    if (mark[id[cur]]) w[id[cur]]--,left--;
+    doit(to[cur],left);
+}
 
 int main ()
 {
@@ -127,14 +153,31 @@ int main ()
     freopen ("a.out","w",stdout);
     cerr<<"Running..."<<endl;
 #endif
-    io.Get(n);for (register int i=1;i<=n;i++) io.Get(a[i]);
-    for (register int i=1;i<=n;i++) if (a[i]&1) A[++atot]=a[i]; else B[++btot]=a[i];
-    init_can();gen(A,ansa,atot);getn(B,ansb,btot);
-    for (register int i=0;i<=atot;i++)
-        for (register int j=0;j<=btot;j++)
-            Add(ans[i+j],1ll*ansa[i]*ansb[j]%MOD);
-    for (register int i=0;i<=n;i++) printf("%d ",ans[i]);
-    printf("\n");
+    int x,y;
+    io.Get(n);io.Get(m);io.Get(L);io.Get(s);io.Get(t);
+    for (register int i=1;i<=m;i++)
+    {
+        io.Get(x);io.Get(y);x++;y++;
+        v[x].pb(mp(y,i));v[y].pb(mp(x,i));
+        io.Get(w[i]);
+        if (!w[i]) List[++tot]=i,mark[i]=true;
+    }
+    LL l=1,r=INF,mid,ans=-1;
+    while (l<=r)
+    {
+        mid=(l+r)>>1;
+        for (register int i=1;i<=tot;i++) w[List[i]]=mid;
+        dijkstra();
+        if (dist[t]>=L) ans=mid,r=mid-1; else l=mid+1;
+    }
+    if (ans<0) {printf("NO\n");return 0;}
+    if (ans==1 && dist[t]>L) {printf("NO\n");return 0;}
+    l=0;r=tot-1;
+    while (l<=r)
+    {
+        mid=(l+r)>>1;
+    }
+    io.flush();
 #ifdef LOCAL
     cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;
 #endif

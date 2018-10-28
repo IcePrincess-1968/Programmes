@@ -18,7 +18,7 @@ using namespace std;
 const int INF=2e9;
 const LL LINF=2e16;
 const int magic=348;
-const int MOD=998244353;
+const int MOD=1e9+7;
 const double eps=1e-10;
 const double pi=acos(-1);
 
@@ -88,36 +88,62 @@ inline void Sub(int &x,int y,int MO) {x=sub(x-y,MO);}
 template<typename T> inline int quick_pow(int x,T y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
 template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
 
-typedef bitset<256> bs;
+const int MAXN=2000;
+const int MAXQ=1e6;
 
-int n,a[58];
-int A[58],B[58],atot,btot;
-unordered_map<bs,int> dp[58][58];
+int n,m,k,Q;
 
-bs can[256];
-inline bool check(int len1,int x,int len2,int y)
+struct bulb
 {
-    if ((len1+len2)&1) return false;
-    int bit[48];
-    for (register int i=1,pt=len1;i<=len1;i++) bit[pt--]=(x&1),x>>=1;
-    for (register int i=1,pt=len1+len2;i<=len2;i++) bit[pt--]=(y&1),y>>=1;
-    for (register int i=1,j=((len1+len2)>>1)+1;j<=len1+len2;i++,j++) if (bit[i]!=bit[j]) return true;
-    return false;
-}
-inline void init_can()
+    int x,y,w;
+    inline void input() {io.Get(x);io.Get(y);io.Get(w);}
+}gar[MAXN+48][MAXN+48];
+int len[MAXN+48];
+
+struct query
 {
-    for (register int i=2;i<=255;i++)
-        for (register int j=2;j<=255;j++)
+    int op,x1,y1,x2,y2,id;
+    inline void input()
+    {
+        char type[10];io.getstring(type+1);
+        if (type[1]=='S') op=1,io.Get(id); else op=2,io.Get(x1),io.Get(y1),io.Get(x2),io.Get(y2);
+    }
+}q[MAXQ+48];int topos[MAXQ+48];
+int List[MAXN+48],tot;
+LL vv[MAXN+48][MAXN+48];
+
+int exist[MAXN+48];
+
+namespace BIT
+{
+    LL c[MAXN+48][MAXN+48];
+    inline void update(int x,int y,int val)
+    {
+        int yy=y;
+        while (x<=n)
         {
-            int len1=1,len2=1;
-            while ((1<<(len1+1))<=i) len1++;
-            while ((1<<(len2+1))<=j) len2++;
-            int x=i-(1<<len1),y=j-(1<<len2);
-            if (check(len1,x,len2,y)) can[i][j]=1;
+            y=yy;
+            while (y<=m) c[x][y]+=val,y+=LOWBIT(y);
+            x+=LOWBIT(x);
         }
+    }
+    inline LL query(int x,int y)
+    {
+        LL res=0;int yy=y;
+        while (x)
+        {
+            y=yy;
+            while (y) res+=c[x][y],y^=LOWBIT(y);
+            x^=LOWBIT(x);
+        }
+        return res;
+    }
+    inline LL calc(int x1,int y1,int x2,int y2)
+    {
+        return query(x2,y2)-query(x1-1,y2)-query(x2,y1-1)+query(x1-1,y1-1);
+    }
 }
 
-int ansa[148],ansb[148],ans[148];
 
 int main ()
 {
@@ -127,14 +153,36 @@ int main ()
     freopen ("a.out","w",stdout);
     cerr<<"Running..."<<endl;
 #endif
-    io.Get(n);for (register int i=1;i<=n;i++) io.Get(a[i]);
-    for (register int i=1;i<=n;i++) if (a[i]&1) A[++atot]=a[i]; else B[++btot]=a[i];
-    init_can();gen(A,ansa,atot);getn(B,ansb,btot);
-    for (register int i=0;i<=atot;i++)
-        for (register int j=0;j<=btot;j++)
-            Add(ans[i+j],1ll*ansa[i]*ansb[j]%MOD);
-    for (register int i=0;i<=n;i++) printf("%d ",ans[i]);
-    printf("\n");
+    io.Get(n);io.Get(m);io.Get(k);
+    for (register int i=1;i<=k;i++)
+    {
+        io.Get(len[i]);
+        for (register int j=1;j<=len[i];j++) gar[i][j].input();
+    }
+    io.Get(Q);
+    for (register int i=1;i<=Q;i++)
+    {
+        q[i].input();
+        if (q[i].op==2) List[++tot]=i,topos[i]=tot;
+    }
+    for (register int i=1;i<=k;i++)
+    {
+        for (register int j=1;j<=len[i];j++) BIT::update(gar[i][j].x,gar[i][j].y,gar[i][j].w);
+        for (register int j=1;j<=tot;j++) vv[i][j]=BIT::calc(q[List[j]].x1,q[List[j]].y1,q[List[j]].x2,q[List[j]].y2);
+        for (register int j=1;j<=len[i];j++) BIT::update(gar[i][j].x,gar[i][j].y,-gar[i][j].w);
+    }
+    for (register int i=1;i<=k;i++) exist[i]=1;
+    for (register int i=1;i<=Q;i++)
+    {
+        if (q[i].op==1) exist[q[i].id]^=1;
+        else
+        {
+            LL ans=0;
+            for (register int j=1;j<=k;j++) if (exist[j]) ans+=vv[j][topos[i]];
+            io.Print(ans,'\n');
+        }
+    }
+    io.flush();
 #ifdef LOCAL
     cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;
 #endif
