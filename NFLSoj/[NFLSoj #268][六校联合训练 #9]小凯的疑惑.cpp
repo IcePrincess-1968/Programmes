@@ -88,25 +88,60 @@ inline void Sub(int &x,int y,int MO) {x=sub(x-y,MO);}
 template<typename T> inline int quick_pow(int x,T y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
 template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
 
-const int MAXN=1e5;
+const int MAXN=3e5;
 
-int k,n;
-int a[MAXN+48];
+int n,q;
+char s[MAXN+48];
 
-struct node
+struct Matrix
 {
-    int val,from;
-    inline bool operator < (const node &other) const {return val<other.val;}
-}b[MAXN+48];
+    int b[3][3];
+    inline void init() {memset(b,0x3f,sizeof(b));}
+    inline void init_I() {init();b[1][1]=b[2][2]=0;}
+    inline Matrix operator * (Matrix ma)
+    {
+        Matrix res;res.init();
+        for (register int i=1;i<=2;i++)
+            for (register int j=1;j<=2;j++)
+                for (register int k=1;k<=2;k++)
+                    check_min(res.b[i][j],b[i][k]+ma.b[k][j]);
+        return res;
+    }
+}base[2],sta;
 
-int pre[MAXN+48],pos[MAXN+48];
-int dp[101][MAXN+48],maxn[MAXN+48],maxpos[MAXN+48],from[101][MAXN+48];
-
-int List[MAXN+48],tot=0;
-inline void getans(int r,int i)
+inline void init_base()
 {
-    if (!i) return;
-    List[++tot]=i;getans(r-1,from[r][i]);
+    base[0].b[1][1]=0;base[0].b[1][2]=1;base[0].b[2][1]=2;base[0].b[2][2]=1;
+    base[1].b[1][1]=1;base[1].b[1][2]=0;base[1].b[2][1]=2;base[1].b[2][2]=0;
+    sta.b[1][1]=0;sta.b[1][2]=INF;
+}
+
+namespace SegmentTree
+{
+    Matrix ma[MAXN*4];
+    inline void pushup(int cur) {ma[cur]=ma[cur<<1]*ma[cur<<1|1];}
+    inline void build(int cur,int l,int r)
+    {
+        if (l==r) {ma[cur]=base[s[l]-'0'];return;}
+        int mid=(l+r)>>1;
+        build(cur<<1,l,mid);build(cur<<1|1,mid+1,r);
+        pushup(cur);
+    }
+    inline void update(int cur,int pos,int nw,int l,int r)
+    {
+        if (l==r) {ma[cur]=base[nw];return;}
+        int mid=(l+r)>>1;
+        if (pos<=mid) update(cur<<1,pos,nw,l,mid); else update(cur<<1|1,pos,nw,mid+1,r);
+        pushup(cur);
+    }
+    inline Matrix query(int cur,int left,int right,int l,int r)
+    {
+        if (left<=l && r<=right) return ma[cur];
+        int mid=(l+r)>>1;Matrix res;res.init_I();
+        if (left<=mid) res=res*query(cur<<1,left,right,l,mid);
+        if (mid+1<=right) res=res*query(cur<<1|1,left,right,mid+1,r);
+        return res;
+    }
 }
 
 int main ()
@@ -117,40 +152,27 @@ int main ()
     freopen ("a.out","w",stdout);
     cerr<<"Running..."<<endl;
 #endif
-    freopen ("funny.in","r",stdin);
-    freopen ("funny.out","w",stdout);
-    while (scanf("%d%d",&n,&k) && n && k)
+    init_base();
+    io.Get(n);io.getstring(s+1);
+    SegmentTree::build(1,1,n);
+    io.Get(q);int op,x,l,r;
+    while (q--)
     {
-        for (register int i=1;i<=n;i++) scanf("%d",a+i),b[i].val=a[i],b[i].from=i;
-        sort(b+1,b+n+1);int itot=0;
-        for (register int i=1;i<=n;i++)
+        io.Get(op);
+        if (op==1)
         {
-            if (i==1 || b[i].val!=b[i-1].val) itot++;
-            a[b[i].from]=itot;
+            io.Get(l);io.Get(r);
+            Matrix trans=SegmentTree::query(1,l,r,1,n);
+            Matrix res=sta*trans;
+            io.Print(res.b[1][1],'\n');
         }
-        for (register int i=1;i<=itot;i++) pos[i]=0;
-        for (register int i=1;i<=n;i++) pre[i]=pos[a[i]],pos[a[i]]=i;
-        for (register int r=1;r<=k;r++)
+        else
         {
-            for (register int i=0;i<=n;i++) maxn[i]=0,maxpos[i]=0;maxn[0]=-INF;
-            for (register int i=1;i<=r-1;i++) dp[r][i]=-INF;
-            for (register int i=r;i<=n;i++)
-            {
-                dp[r][i]=dp[r][i-1];from[r][i]=from[r][i-1];
-                maxn[i]=maxn[pre[i]]+1;maxpos[i]=maxpos[pre[i]];
-                if (dp[r-1][i-1]+1>maxn[i])
-                {
-                    maxn[i]=dp[r-1][i-1]+1;
-                    maxpos[i]=i-1;
-                }
-                if (maxn[i]>dp[r][i]) dp[r][i]=maxn[i],from[r][i]=maxpos[i];
-            }
+            io.Get(l);io.Get(x);
+            SegmentTree::update(1,l,x,1,n);
         }
-        printf("%d\n",dp[k][n]);
-        tot=0;getans(k,n);reverse(List+1,List+k+1);
-        for (register int i=1;i<=k-1;i++) printf("%d ",List[i]);
-        printf("\n");
     }
+    io.flush();
 #ifdef LOCAL
     cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;
 #endif
