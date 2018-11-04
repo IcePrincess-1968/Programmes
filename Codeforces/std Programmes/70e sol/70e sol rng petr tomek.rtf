@@ -1,0 +1,472 @@
+{\rtf1\ansi\ansicpg936\deff0\nouicompat\deflang1033\deflangfe2052{\fonttbl{\f0\fnil\fcharset134 \'cb\'ce\'cc\'e5;}}
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang2052 70e\par
+\par
+\par
+rng\par
+\par
+using namespace std;\par
+\par
+#define REP(i,n) for((i)=0;(i)<(int)(n);(i)++)\par
+#define foreach(c,itr) for(__typeof((c).begin()) itr=(c).begin();itr!=(c).end();itr++)\par
+\par
+typedef long long ll;\par
+#define INF (1<<29)\par
+\par
+int N;\par
+int K,d[200];\par
+vector <int> edge[200],child[200];\par
+int parent[200];\par
+int dp[200][200]; // root, dist\par
+int a[200];\par
+int ans[200];\par
+\par
+int make_tree(int p, int x)\{\par
+    int i;\par
+    if(p != -1) child[p].push_back(x);\par
+    parent[x] = p;\par
+    REP(i,edge[x].size()) if(edge[x][i] != p) make_tree(x,edge[x][i]);\par
+\}\par
+\par
+void dfs(int x)\{\par
+    int y,i,j;\par
+    \par
+    REP(i,child[x].size()) dfs(child[x][i]);\par
+    \par
+    dp[x][0] = INF;\par
+    REP(y,N)\{\par
+        int z = y;\par
+        while(z != -1 && z != x) z = parent[z];\par
+        if(z == -1) continue;\par
+        \par
+        ll tmp = 0;\par
+        z = y;\par
+        int dist = 0, prev = -1;\par
+        while(1)\{\par
+            tmp += ((dist == 0) ? K : d[dist]);\par
+            REP(i,child[z].size()) if(child[z][i] != prev) tmp += dp[child[z][i]][min(dist+1,N-1)];\par
+            if(z == x) break;\par
+            prev = z; z = parent[z]; dist++;\par
+        \}\par
+        \par
+        if(tmp < dp[x][0]) \{a[x] = y; dp[x][0] = tmp;\}\par
+    \}\par
+    \par
+    for(i=1;i<N;i++)\{\par
+        dp[x][i] = dp[x][0];\par
+        ll tmp = d[i];\par
+        REP(j,child[x].size()) tmp += dp[child[x][j]][min(i+1,N-1)];\par
+        if(tmp < dp[x][i]) dp[x][i] = (int)tmp;\par
+    \}\par
+\}\par
+\par
+void path(int x, int dist, int center)\{\par
+    int i,j;\par
+    \par
+    if(dp[x][dist] != dp[x][0])\{\par
+        ans[x] = center;\par
+        REP(i,child[x].size()) path(child[x][i],min(dist+1,N-1),center);\par
+        return;\par
+    \}\par
+    \par
+    int y = a[x];\par
+    i = y;\par
+    while(1)\{\par
+        ans[i] = y;\par
+        if(i == x) break;\par
+        i = parent[i];\par
+    \}\par
+    \par
+    int prev = -1;\par
+    i = y;\par
+    int dist2 = 0;\par
+    while(1)\{\par
+        REP(j,child[i].size()) if(child[i][j] != prev) path(child[i][j],dist2+1,y);\par
+        if(i == x) break;\par
+        prev = i; i = parent[i]; dist2++;\par
+    \}\par
+\}\par
+\par
+int main(void)\{\par
+    int i;\par
+    \par
+    cin >> N >> K;\par
+    REP(i,N-1) cin >> d[i+1];\par
+    REP(i,N-1)\{\par
+        int u,v;\par
+        cin >> u >> v; u--; v--;\par
+        edge[u].push_back(v);\par
+        edge[v].push_back(u);\par
+    \}\par
+    \par
+    make_tree(-1,0);\par
+    \par
+    dfs(0);\par
+    cout << dp[0][0] << endl;\par
+    path(0,0,-1);\par
+    REP(i,N)\{\par
+        cout << ans[i] + 1;\par
+        if(i == N-1) cout << endl; else cout << ' ';\par
+    \}\par
+    \par
+    return 0;\par
+\}\par
+\par
+\par
+petr\par
+\par
+import java.io.BufferedReader;\par
+import java.io.IOException;\par
+import java.io.InputStreamReader;\par
+import java.io.PrintWriter;\par
+import java.util.Arrays;\par
+import java.util.StringTokenizer;\par
+\par
+public class Reform implements Runnable \{\par
+    static final long INF = 10000000000L;\par
+\par
+    static enum SolutionMode \{\par
+        PUT_HERE,\par
+        DECREASE_DOWN,\par
+        NORMAL;\par
+    \}\par
+\par
+    static class Result \{\par
+        int id;\par
+        long[][] what;\par
+        Result[][] byChild;\par
+        SolutionMode[][] by;\par
+        Result[] children;\par
+    \}\par
+\par
+    private void solve() throws IOException \{\par
+        int n = nextInt();\par
+        long[] d = new long[3 * n];\par
+        Arrays.fill(d, INF);\par
+        for (int i = 0; i < n; ++i) \{\par
+            d[i] = nextInt();\par
+        \}\par
+        boolean[][] graph = new boolean[n][n];\par
+        for (int i = 0; i < n - 1; ++i) \{\par
+            int a = nextInt() - 1;\par
+            int b = nextInt() - 1;\par
+            graph[a][b] = true;\par
+            graph[b][a] = true;\par
+        \}\par
+        Result what = doit(n, graph, d, 0, -1);\par
+        writer.println(what.what[n][n]);\par
+        boolean[] isCenter = new boolean[n];\par
+        buildAnswer(what, n, n, n, isCenter);\par
+        int[][] dist = new int[n][n];\par
+        for (int i = 0; i < n; ++i)\par
+            for (int j = 0; j < n; ++j)\par
+                if (i == j) dist[i][j] = 0; else if (graph[i][j]) dist[i][j] = 1; else dist[i][j] = n + 10;\par
+        for (int k = 0; k < n; ++k)\par
+            for (int i = 0; i < n; ++i)\par
+                for (int j = 0; j < n; ++j)\par
+                    dist[i][j] = Math.min(dist[i][j], dist[i][k] + dist[k][j]);\par
+        for (int i = 0; i < n; ++i) \{\par
+            int best = n + 10;\par
+            int bj = -1;\par
+            for (int j = 0; j < n; ++j) \{\par
+                if (isCenter[j] && dist[i][j] < best) \{\par
+                    best = dist[i][j];\par
+                    bj = j;\par
+                \}\par
+            \}\par
+            if (i > 0) writer.print(" ");\par
+            writer.print(bj + 1);\par
+        \}\par
+        writer.println();\par
+    \}\par
+\par
+    private void buildAnswer(Result res, int n, int closestUp, int existsDown, boolean[] center) \{\par
+        switch (res.by[closestUp][existsDown]) \{\par
+            case PUT_HERE:\par
+            \{\par
+                center[res.id] = true;\par
+                for (Result child : res.children) \{\par
+                    buildAnswer(child, n, 1, n, center);\par
+                \}\par
+                break;\par
+            \}\par
+            case DECREASE_DOWN:\par
+            \{\par
+                buildAnswer(res, n, closestUp, existsDown - 1, center);\par
+                break;\par
+            \}\par
+            case NORMAL:\par
+            \{\par
+                for (Result child : res.children) \{\par
+                    int newReach = Math.min(existsDown + 1, Math.min(closestUp + 1, n));\par
+                    if (child == res.byChild[closestUp][existsDown]) \{\par
+                        buildAnswer(child, n, newReach, existsDown - 1, center);\par
+                    \} else \{\par
+                        buildAnswer(child, n, newReach, n, center);\par
+                    \}\par
+                \}\par
+                break;\par
+            \}\par
+        \}\par
+    \}\par
+\par
+    private Result doit(int n, boolean[][] graph, long[] d, int root, int rootParent) \{\par
+        Result res = new Result();\par
+        res.id = root;\par
+        res.what = new long[n + 1][n + 1];\par
+        res.by = new SolutionMode[n + 1][n + 1];\par
+        res.byChild = new Result[n + 1][n + 1];\par
+        Result[] children = new Result[n];\par
+        int nchildren = 0;\par
+        for (int child = 0; child < n; ++child)\par
+            if (child != rootParent && graph[child][root])\par
+            \{\par
+                children[nchildren++] = doit(n, graph, d, child, root);\par
+            \}\par
+        \{\par
+            Result[] tmp = new Result[nchildren];\par
+            System.arraycopy(children, 0, tmp, 0, tmp.length);\par
+            children = tmp;\par
+        \}\par
+        res.children = children;\par
+        for (int i = 0; i <= n; ++i) Arrays.fill(res.what[i], INF);\par
+        for (int closestUp = 1; closestUp <= n; ++closestUp) \{\par
+            for (int existsDown = 0; existsDown <= n; ++existsDown) \{\par
+                if (existsDown == 0) \{\par
+                    // Put something here.\par
+                    long r = d[0];\par
+                    for (Result child : children) \{\par
+                        r += child.what[1][n];\par
+                    \}\par
+                    if (r < res.what[closestUp][existsDown]) \{\par
+                        res.what[closestUp][existsDown] = r;\par
+                        res.by[closestUp][existsDown] = SolutionMode.PUT_HERE;\par
+                    \}\par
+                \} else \{\par
+                    if (res.what[closestUp][existsDown - 1] < res.what[closestUp][existsDown]) \{\par
+                        res.what[closestUp][existsDown] = res.what[closestUp][existsDown - 1];\par
+                        res.by[closestUp][existsDown] = SolutionMode.DECREASE_DOWN;\par
+                    \}\par
+                    long r = Math.min(d[closestUp], d[existsDown]);\par
+                    long bestDelta = existsDown == n ? 0 : INF * 1000;\par
+                    Result bestChild = null;\par
+                    for (Result child : children) \{\par
+                        int newReach = Math.min(existsDown + 1, Math.min(closestUp + 1, n));\par
+                        long alpha = child.what[newReach][n];\par
+                        long beta = child.what[newReach][existsDown - 1];\par
+                        r += alpha;\par
+                        if (beta - alpha < bestDelta) \{\par
+                            bestDelta = beta - alpha;\par
+                            bestChild = child;\par
+                        \}\par
+                    \}\par
+                    if (r + bestDelta < res.what[closestUp][existsDown]) \{\par
+                        res.what[closestUp][existsDown] = r + bestDelta;\par
+                        res.by[closestUp][existsDown] = SolutionMode.NORMAL;\par
+                        res.byChild[closestUp][existsDown] = bestChild;\par
+                    \}\par
+                \}\par
+            \}\par
+        \}\par
+        return res;\par
+    \}\par
+\par
+    public static void main(String[] args) \{\par
+        new Reform().run();\par
+    \}\par
+\par
+    BufferedReader reader;\par
+    StringTokenizer tokenizer;\par
+    PrintWriter writer;\par
+\par
+    public void run() \{\par
+        try \{\par
+            reader = new BufferedReader(new InputStreamReader(System.in));\par
+            tokenizer = null;\par
+            writer = new PrintWriter(System.out);\par
+            solve();\par
+            reader.close();\par
+            writer.close();\par
+        \} catch (Exception e) \{\par
+            e.printStackTrace();\par
+            System.exit(1);\par
+        \}\par
+    \}\par
+\par
+    int nextInt() throws IOException \{\par
+        return Integer.parseInt(nextToken());\par
+    \}\par
+\par
+    long nextLong() throws IOException \{\par
+        return Long.parseLong(nextToken());\par
+    \}\par
+\par
+    double nextDouble() throws IOException \{\par
+        return Double.parseDouble(nextToken());\par
+    \}\par
+\par
+    String nextToken() throws IOException \{\par
+        while (tokenizer == null || !tokenizer.hasMoreTokens()) \{\par
+            tokenizer = new StringTokenizer(reader.readLine());\par
+        \}\par
+        return tokenizer.nextToken();\par
+    \}\par
+\}\par
+\par
+\par
+tomek\par
+\par
+using namespace std;\par
+#define VAR(a,b) __typeof(b) a=(b)\par
+#define REP(i,n) for(int _n=n, i=0;i<_n;++i)\par
+#define FOR(i,a,b) for(int i=(a),_b=(b);i<=_b;++i)\par
+#define FORD(i,a,b) for(int i=(a),_b=(b);i>=_b;--i)\par
+#define FOREACH(it,c) for(VAR(it,(c).begin());it!=(c).end();++it)\par
+#define ALL(c) (c).begin(),(c).end()\par
+#define TRACE(x) cerr << "TRACE(" #x ")" << endl;\par
+#define DEBUG(x) cerr << #x << " = " << x << endl;\par
+\par
+template<class T>\par
+ostream& operator<<(ostream&o, const vector<T>&v) \{\par
+  o<<'\{';\par
+  FOREACH(it,v) o<<*it<<',';\par
+  return o<<'\}';\par
+\}\par
+typedef long long LL;\par
+const int INF = 1000000000; const LL INFLL = LL(INF) * LL(INF)/10;\par
+typedef vector<int> VI; typedef vector<string> VS; typedef vector<VI> VVI;\par
+template<class T> inline int size(const T&c) \{ return c.size(); \}\par
+int rint() \{ int x; if(scanf("%d",&x)!=1) return -1; return x; \}\par
+//\}\}\}\par
+\par
+int n;\par
+vector<vector<int> > ch;\par
+vector<int> parent;\par
+vector<LL> dcost;\par
+\par
+vector<int> isCenter;\par
+\par
+void readInput() \{\par
+  n = rint();\par
+  ch.resize(n);\par
+  dcost.resize(2*n);\par
+  dcost[0] = rint();\par
+  FOR(i,1,n-1) dcost[i] = rint();\par
+  FOR(i,n,2*n-1) dcost[i]=INFLL;\par
+  REP(i,n-1) \{\par
+    int a = rint()-1;\par
+    int b = rint()-1;\par
+    ch[a].push_back(b);\par
+    ch[b].push_back(a);\par
+  \}\par
+  parent.assign(n,-1);\par
+  isCenter.assign(n,0);\par
+\}\par
+\par
+void treewalk(int x) \{\par
+  if(parent[x] != -1) \{\par
+    ch[x].erase(find(ch[x].begin(), ch[x].end(), parent[x]));\par
+  \}\par
+  FOREACH(it, ch[x]) \{\par
+    parent[*it]=x;\par
+    treewalk(*it);\par
+  \}\par
+\}\par
+\par
+struct Res \{\par
+  LL score;\par
+  int dist;\par
+  int inchild;\par
+\};\par
+\par
+Res cache[200][400][2];\par
+\par
+Res f(int x, int dist, int doit) \{\par
+  Res &res = cache[x][dist][doit];\par
+  if(res.score != -1) return res;\par
+  res.score = INFLL;\par
+  FOR(d2,0,dist-1) \{\par
+    Res res2 = f(x, d2, 1);\par
+    if(res2.score < res.score) res=res2;\par
+  \}\par
+  \{\par
+    Res rr;\par
+    rr.score = dcost[0];\par
+    rr.dist = 0;\par
+    rr.inchild = -1;\par
+    FOREACH(it, ch[x]) rr.score += f(*it, 1, 0).score;\par
+    if(rr.score < res.score) res=rr;\par
+  \}\par
+  if(!doit) \{\par
+    Res rr;\par
+    rr.score = dcost[dist];\par
+    rr.dist = dist;\par
+    rr.inchild = -1;\par
+    FOREACH(it, ch[x]) rr.score += f(*it, dist+1, 0).score;\par
+    if(rr.score < res.score) res=rr;\par
+  \} else \{\par
+    Res rr;\par
+    rr.score = dcost[dist];\par
+    rr.dist = dist;\par
+    rr.inchild = -1;\par
+    FOREACH(it, ch[x]) rr.score += f(*it, dist+1, 0).score;\par
+    LL bestv = INFLL;\par
+    FOREACH(it, ch[x]) \{\par
+      LL v = f(*it, dist-1, 1).score - f(*it, dist+1, 0).score;\par
+      if(v < bestv) \{ bestv=v; rr.inchild = *it; \}\par
+    \}\par
+    rr.score += bestv;\par
+    if(rr.score < res.score) res=rr;\par
+  \}\par
+  return res;\par
+\}\par
+\par
+void calcCenters(int x, int dist, int doit) \{\par
+  Res res = f(x,dist,doit);\par
+  if(res.dist==0) isCenter[x]=1;\par
+  FOREACH(it, ch[x]) \{\par
+    if(*it == res.inchild) calcCenters(*it, res.dist-1, 1);\par
+    else calcCenters(*it, res.dist+1, 0);\par
+  \}\par
+\}\par
+\par
+LL calcCenters() \{\par
+  LL bestScore = INFLL;\par
+  int bestDist = -1;\par
+  FOR(d,0,n-1) \{\par
+    Res r = f(0, d, 1);\par
+    if(r.score < bestScore) \{ bestScore=r.score; bestDist=d; \}\par
+  \}\par
+  calcCenters(0, bestDist, 1);\par
+  return bestScore;\par
+\}\par
+\par
+int findNearestCenter(int x) \{\par
+  queue<int> q;\par
+  q.push(x);\par
+  vector<int> vis(n,0);\par
+  while(!q.empty()) \{\par
+    int a = q.front(); q.pop();\par
+    if(vis[a]) continue;\par
+    vis[a]=1;\par
+    if(isCenter[a]) return a;\par
+    if(parent[a]!=-1) q.push(parent[a]);\par
+    FOREACH(it, ch[a]) q.push(*it);\par
+  \}\par
+  return -1;\par
+\}\par
+\par
+int main() \{\par
+  REP(a,200) REP(b,400) REP(c,2) cache[a][b][c].score=-1;\par
+  readInput();\par
+  treewalk(0);\par
+  LL res = calcCenters();\par
+  printf("%lld\\n", res);\par
+  REP(i,n) \{\par
+    if(i>0) printf(" ");\par
+    printf("%d", 1 + findNearestCenter(i));\par
+  \}\par
+  printf("\\n");\par
+\}\par
+}
+ 

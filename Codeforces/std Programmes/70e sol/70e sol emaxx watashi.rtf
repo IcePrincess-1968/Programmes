@@ -1,0 +1,355 @@
+{\rtf1\ansi\ansicpg936\deff0\nouicompat\deflang1033\deflangfe2052{\fonttbl{\f0\fnil\fcharset134 \'cb\'ce\'cc\'e5;}}
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang2052 emaxx\par
+\par
+#define _CRT_SECURE_NO_DEPRECATE\par
+#pragma comment (linker, "/STACK:200000000")\par
+#include <algorithm>\par
+#include <cmath>\par
+#include <iostream>\par
+#include <map>\par
+#include <string>\par
+#include <vector>\par
+\par
+using namespace std;\par
+\par
+\par
+const int MAXN = 190;\par
+const long long INF = (long long) 1E18;\par
+\par
+\par
+int n, w, cost[MAXN*2];\par
+vector<int> g[MAXN], gorig[MAXN];\par
+\par
+void dfs (int v, int par = -1) \{\par
+\tab if (par != -1)\par
+\tab\tab g[v].erase (find (g[v].begin(), g[v].end(), par));\par
+\tab for (size_t i=0; i<g[v].size(); ++i)\par
+\tab\tab dfs (g[v][i], v);\par
+\}\par
+\par
+\par
+long long d[MAXN][MAXN*2], d2[MAXN][MAXN*2], d3[MAXN][MAXN*2];\par
+bool ans[MAXN];\par
+\par
+\par
+long long get_d (int v, int k);\par
+long long get_d2 (int v, int k);\par
+\par
+long long get_d3 (int v, int p) \{\par
+\tab long long & my = d3[v][p];\par
+\tab if (my != -1)  return my;\par
+\tab my = INF;\par
+\par
+\tab long long sum = cost[p];\par
+\tab for (size_t i=0; i<g[v].size(); ++i)\par
+\tab\tab sum += get_d (g[v][i], p+1);\par
+\tab\par
+\tab for (size_t i=0; i<g[v].size(); ++i) \{\par
+\tab\tab int to = g[v][i];\par
+\tab\tab long long nd = sum - get_d (to, p+1) + get_d2 (to, p-1);\par
+\tab\tab my = min (my, nd);\par
+\tab\}\par
+\par
+\tab if (p-1 >= 1)\par
+\tab\tab my = min (my, get_d3 (v, p-1));\par
+\tab return my;\par
+\}\par
+\par
+long long get_d (int v, int k) \{\par
+\tab long long & my = d[v][k];\par
+\tab if (my != -1)  return my;\par
+\tab my = INF;\par
+\par
+\tab if (k != 0)\par
+\tab\tab my = min (my, get_d (v, 0) + w);\par
+\par
+\tab long long nd = cost[k];\par
+\tab for (size_t i=0; i<g[v].size(); ++i)\par
+\tab\tab nd += get_d (g[v][i], k+1);\par
+\tab my = min (my, nd);\par
+\par
+\tab if (k-1 >= 1)\par
+\tab\tab my = min (my, get_d3 (v, k-1));\par
+\tab return my;\par
+\}\par
+\par
+long long get_d2 (int v, int k) \{\par
+\tab long long & my = d2[v][k];\par
+\tab if (my != -1)  return my;\par
+\tab my = INF;\par
+\tab\par
+\tab if (k == 0)\par
+\tab\tab my = w + get_d (v, 0);\par
+\tab else \{\par
+\tab\tab long long sum = cost[k];\par
+\tab\tab for (size_t i=0; i<g[v].size(); ++i)\par
+\tab\tab\tab sum += get_d (g[v][i], k+1);\par
+\tab\tab\par
+\tab\tab for (size_t i=0; i<g[v].size(); ++i) \{\par
+\tab\tab\tab int to = g[v][i];\par
+\tab\tab\tab long long nd = sum - get_d (to, k+1) + get_d2 (to, k-1);\par
+\tab\tab\tab my = min (my, nd);\par
+\tab\tab\}\par
+\tab\}\par
+\par
+\tab return my;\par
+\}\par
+\par
+\par
+void restore_d2 (int v, int k);\par
+\par
+void restore_d (int v, int k) \{\par
+\tab long long my = get_d (v, k);\par
+\par
+\tab if (k != 0 && my == get_d (v, 0) + w) \{\par
+\tab\tab ans[v] = true;\par
+\tab\tab return restore_d (v, 0);\par
+\tab\}\par
+\par
+\tab long long nd = cost[k];\par
+\tab for (size_t i=0; i<g[v].size(); ++i)\par
+\tab\tab nd += get_d (g[v][i], k+1);\par
+\tab if (my == nd) \{\par
+\tab\tab for (size_t i=0; i<g[v].size(); ++i)\par
+\tab\tab\tab restore_d (g[v][i], k+1);\par
+\tab\tab return;\par
+\tab\}\par
+\par
+\tab for (int p=1; p<k; ++p) \{\par
+\tab\tab long long sum = cost[p];\par
+\tab\tab for (size_t i=0; i<g[v].size(); ++i)\par
+\tab\tab\tab sum += get_d (g[v][i], p+1);\par
+\tab\tab\par
+\tab\tab for (size_t i=0; i<g[v].size(); ++i) \{\par
+\tab\tab\tab int to = g[v][i];\par
+\tab\tab\tab long long nd = sum - get_d (to, p+1) + get_d2 (to, p-1);\par
+\tab\tab\tab if (my == nd) \{\par
+\tab\tab\tab\tab for (size_t j=0; j<g[v].size(); ++j) \{\par
+\tab\tab\tab\tab\tab int to = g[v][j];\par
+\tab\tab\tab\tab\tab if (i == j)\par
+\tab\tab\tab\tab\tab\tab restore_d2 (to, p-1);\par
+\tab\tab\tab\tab\tab else\par
+\tab\tab\tab\tab\tab\tab restore_d (to, p+1);\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab return;\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\}\par
+\tab throw;\par
+\}\par
+\par
+void restore_d2 (int v, int k) \{\par
+\tab long long my = get_d2 (v, k);\par
+\tab\par
+\tab if (k == 0) \{\par
+\tab\tab ans[v] = true;\par
+\tab\tab return restore_d (v, 0);\par
+\tab\}\par
+\tab else \{\par
+\tab\tab long long sum = cost[k];\par
+\tab\tab for (size_t i=0; i<g[v].size(); ++i)\par
+\tab\tab\tab sum += get_d (g[v][i], k+1);\par
+\tab\tab\par
+\tab\tab for (size_t i=0; i<g[v].size(); ++i) \{\par
+\tab\tab\tab int to = g[v][i];\par
+\tab\tab\tab long long nd = sum - get_d (to, k+1) + get_d2 (to, k-1);\par
+\tab\tab\tab if (my == nd) \{\par
+\tab\tab\tab\tab for (size_t j=0; j<g[v].size(); ++j) \{\par
+\tab\tab\tab\tab\tab int to = g[v][j];\par
+\tab\tab\tab\tab\tab if (i == j)\par
+\tab\tab\tab\tab\tab\tab restore_d2 (to, k-1);\par
+\tab\tab\tab\tab\tab else\par
+\tab\tab\tab\tab\tab\tab restore_d (to, k+1);\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab return;\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\}\par
+\tab throw;\par
+\}\par
+\par
+\par
+int bfs (int v) \{\par
+\tab static int q[MAXN], u[MAXN], cu=0;\par
+\par
+\tab int qh=0, qt=0;\par
+\tab q[qt++] = v;\par
+\tab u[v] = ++cu;\par
+\tab while (qh != qt) \{\par
+\tab\tab int v = q[qh++];\par
+\tab\tab if (ans[v])  return v;\par
+\par
+\tab\tab for (size_t i=0; i<gorig[v].size(); ++i) \{\par
+\tab\tab\tab int to = gorig[v][i];\par
+\tab\tab\tab if (u[to] != cu) \{\par
+\tab\tab\tab\tab u[to] = cu;\par
+\tab\tab\tab\tab q[qt++] = to;\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\}\par
+\tab throw;\par
+\}\par
+\par
+\par
+int main() \{\par
+#ifndef ONLINE_JUDGE\par
+\tab freopen ("input.txt", "rt", stdin);\par
+\tab freopen ("output.txt", "wt", stdout);\par
+#endif\par
+\par
+\tab cin >> n >> w;\par
+\tab for (int i=1; i<n; ++i)\par
+\tab\tab cin >> cost[i];\par
+\tab for (int i=0; i<n-1; ++i) \{\par
+\tab\tab int a, b;\par
+\tab\tab cin >> a >> b;\par
+\tab\tab --a, --b;\par
+\tab\tab g[a].push_back (b);\par
+\tab\tab g[b].push_back (a);\par
+\tab\}\par
+\tab\par
+\tab for (int i=0; i<n; ++i)\par
+\tab\tab gorig[i] = g[i];\par
+\tab dfs (0);\par
+\par
+\tab for (int i=n; i<2*MAXN; ++i)\par
+\tab\tab cost[i] = 1000000000;\par
+\tab memset (d, -1, sizeof d);\par
+\tab memset (d2, -1, sizeof d2);\par
+\tab memset (d3, -1, sizeof d3);\par
+\tab long long res = get_d (0, n);\par
+\tab cout << res << endl;\par
+\tab restore_d (0, n);\par
+\tab\par
+\tab for (int i=0; i<n; ++i) \{\par
+\tab\tab int res;\par
+\tab\tab if (ans[i])\par
+\tab\tab\tab res = i;\par
+\tab\tab else\par
+\tab\tab\tab res = bfs (i);\par
+\tab\tab cout << res+1 << ' ';\par
+\tab\}\par
+\par
+\}\par
+\par
+watashi\par
+\par
+\par
+using namespace std;\par
+\par
+const int MAXN = 200;\par
+const int INF = 1000000007;\par
+\par
+int m, x[MAXN];\par
+\par
+int d[MAXN][MAXN];\par
+vector<int> c[MAXN], cs[MAXN];\par
+\par
+void dfs(int v, int p) \{\par
+\tab c[v].erase(remove(c[v].begin(), c[v].end(), p), c[v].end());\par
+\tab cs[v].push_back(v);\par
+\tab for (vector<int>::const_iterator w = c[v].begin(); w != c[v].end(); ++w) \{\par
+\tab\tab dfs(*w, v);\par
+\tab\tab cs[v].insert(cs[v].end(), cs[*w].begin(), cs[*w].end());\par
+\tab\}\par
+\}\par
+\par
+typedef pair<int, int> PII;\par
+\par
+pair<int, vector<PII> > ans[MAXN], dp[MAXN][MAXN];\par
+\par
+int gao(int v);\par
+int gao(int v, int p);\par
+\par
+int gao(int v) \{\par
+\tab if (ans[v].first != -1) \{\par
+\tab\tab return ans[v].first;\par
+\tab\}\par
+\tab ans[v].first = INF;\par
+\tab for (vector<int>::const_iterator u = cs[v].begin(); u != cs[v].end(); ++u) \{\par
+\tab\tab int tmp = m + x[d[v][*u]];\par
+\tab\tab for (vector<int>::const_iterator w = c[v].begin(); w != c[v].end(); ++w) \{\par
+\tab\tab\tab tmp += gao(*w, *u);\par
+\tab\tab\}\par
+\tab\tab if (ans[v].first > tmp) \{\par
+\tab\tab\tab ans[v].first = tmp;\par
+\tab\tab\tab ans[v].second.clear();\par
+\tab\tab\tab ans[v].second.push_back(make_pair(v, *u));\par
+\tab\tab\tab for (vector<int>::const_iterator w = c[v].begin(); w != c[v].end(); ++w) \{\par
+\tab\tab\tab\tab ans[v].second.insert(ans[v].second.end(),\par
+\tab\tab\tab\tab\tab dp[*w][*u].second.begin(), dp[*w][*u].second.end());\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\}\par
+\tab return ans[v].first;\par
+\}\par
+\par
+int gao(int v, int u) \{\par
+\tab if (dp[v][u].first != -1) \{\par
+\tab\tab return dp[v][u].first;\par
+\tab\}\par
+\tab gao(v);\par
+\tab dp[v][u] = ans[v];\par
+\tab int tmp = x[d[v][u]];\par
+\tab for (vector<int>::const_iterator w = c[v].begin(); w != c[v].end(); ++w) \{\par
+\tab\tab tmp += gao(*w, u);\par
+\tab\}\par
+\tab if (dp[v][u].first > tmp) \{\par
+\tab\tab dp[v][u].first = tmp;\par
+\tab\tab dp[v][u].second.clear();\par
+\tab\tab dp[v][u].second.push_back(make_pair(v, u));\par
+\tab\tab for (vector<int>::const_iterator w = c[v].begin(); w != c[v].end(); ++w) \{\par
+\tab\tab\tab dp[v][u].second.insert(dp[v][u].second.end(),\par
+\tab\tab\tab\tab dp[*w][u].second.begin(), dp[*w][u].second.end());\par
+\tab\tab\}\par
+\tab\}\par
+\tab return dp[v][u].first;\par
+\}\par
+\par
+int main() \{\par
+\tab int n, a, b;\par
+\par
+\tab scanf("%d%d", &n, &m);\par
+\tab x[0] = 0;\par
+\tab for (int i = 1; i < n; ++i) \{\par
+\tab\tab scanf("%d", &x[i]);\par
+\tab\}\par
+\tab for (int i = 0; i < n; ++i) \{\par
+\tab\tab for (int j = 0; j < n; ++j) \{\par
+\tab\tab\tab d[i][j] = i == j ? 0 : INF;\par
+\tab\tab\}\par
+\tab\}\par
+\tab for (int i = 1; i < n; ++i) \{\par
+\tab\tab scanf("%d%d", &a, &b);\par
+\tab\tab --a;\par
+\tab\tab --b;\par
+\tab\tab c[a].push_back(b);\par
+\tab\tab c[b].push_back(a);\par
+\tab\tab d[a][b] = d[b][a] = 1;\par
+\tab\}\par
+\tab for (int k = 0; k < n; ++k) \{\par
+\tab\tab for (int i = 0; i < n; ++i) \{\par
+\tab\tab\tab for (int j = 0; j < n; ++j) \{\par
+\tab\tab\tab\tab d[i][j] = min(d[i][j], d[i][k] + d[k][j]);\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\}\par
+\par
+\tab dfs(0, -1);\par
+\tab for (int i = 0; i < n; ++i) \{\par
+\tab\tab ans[i].first = -1;\par
+\tab\tab for (int j = 0; j < n; ++j) \{\par
+\tab\tab\tab dp[i][j].first = -1;\par
+\tab\tab\}\par
+\tab\}\par
+\tab printf("%d\\n", gao(0));\par
+\tab sort(ans[0].second.begin(), ans[0].second.end());\par
+\tab for (int i = 0; i < n; ++i) \{\par
+\tab\tab printf("%d ", ans[0].second[i].second + 1);\par
+\tab\}\par
+\par
+\tab return 0;\par
+\}\par
+}
+ 

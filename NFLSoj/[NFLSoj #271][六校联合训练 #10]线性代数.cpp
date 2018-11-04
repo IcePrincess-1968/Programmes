@@ -13,7 +13,7 @@ using namespace std;
 #define pLL pair<LL,LL>
 #define pii pair<double,double>
 #define LOWBIT(x) x & (-x)
-#define LOCAL true
+// #define LOCAL true
 
 const int INF=2e9;
 const LL LINF=2e16;
@@ -96,44 +96,90 @@ vector<int> List;
 int dx[]={-1,0,1,0},dy[]={0,1,0,-1};
 int X,Y;
 
+bool taboo[148][148];
+
 inline void Up() {List.pb(0);swap(a[X][Y],a[X-1][Y]);X--;}
 inline void Down() {List.pb(2);swap(a[X][Y],a[X+1][Y]);X++;}
 inline void Left() {List.pb(3);swap(a[X][Y],a[X][Y-1]);Y--;}
 inline void Right() {List.pb(1);swap(a[X][Y],a[X][Y+1]);Y++;}
 
 inline int getind(int x,int y) {return (x-1)*n+y;}
-inline void Move_white(int tx,int ty,int taboox,int tabooy)
+
+queue<int> q;
+bool visited[148][148];
+Pair vlist[148];int vtot;
+Pair pre[148][148];int ope[148][148];
+
+inline void getpath(int x,int y,int op)
 {
-    unordered_map<int,int> path;path.clear();
-    while (X!=tx || Y!=ty)
+    // //cerr<<x<<' '<<y<<endl;
+    int px=pre[x][y].x,py=pre[x][y].y;
+    if (px) getpath(px,py,ope[x][y]);
+    if (op>=0)
     {
-        path[getind(X,Y)]=1;
-        int d=INF,mindir;
+        if (op==0) Up();
+        if (op==1) Right();
+        if (op==2) Down();
+        if (op==3) Left();
+    }
+}
+
+inline void Move_white(int tx,int ty)
+{
+    //cerr<<tx<<' '<<ty<<endl;
+    vtot=0;
+    q.push(X);q.push(Y);pre[X][Y]=mp(0,0);visited[X][Y]=true;
+    vlist[++vtot]=mp(X,Y);
+    // //cerr<<X<<' '<<Y<<endl;
+    while (!q.empty())
+    {
+        int x=q.front();q.pop();int y=q.front();q.pop();
+        // if (tx==3 && ty==3) //cerr<<x<<' '<<y<<"##"<<endl;
+        if (x==tx && y==ty) break;
         for (register int dir=0;dir<=3;dir++)
         {
-            int xx=X+dx[dir],yy=Y+dy[dir];
-            if (path[getind(xx,yy)]) continue;
-            if (xx>taboox && yy>tabooy) continue;
-            if (myabs(xx-tx)+myabs(yy-ty)<d)
+            int xx=x+dx[dir],yy=y+dy[dir];
+            if (1<=xx && xx<=n && 1<=yy && yy<=n && !taboo[xx][yy] && !visited[xx][yy])
             {
-                d=myabs(xx-tx)+myabs(yy-ty);
-                mindir=dir;
+                pre[xx][yy]=mp(x,y);ope[xx][yy]=dir;visited[xx][yy]=true;
+                q.push(xx);q.push(yy);vlist[++vtot]=mp(xx,yy);
             }
         }
-        if (mindir==0) Up();
-        if (mindir==1) Right();
-        if (mindir==2) Down();
-        if (mindir==3) Left();
     }
+    getpath(tx,ty,-1);
+    for (register int i=1;i<=vtot;i++)
+    {
+        int x=vlist[i].x,y=vlist[i].y;
+        pre[x][y]=mp(0,0);ope[x][y]=-1;visited[x][y]=false;
+    }
+    while (!q.empty()) q.pop();
 }
 
 inline void Move(int vv,int tx,int ty)
 {
+    //cerr<<vv<<' '<<tx<<' '<<ty<<"*"<<endl;
     int x,y;
     for (register int i=1;i<=n;i++)
         for (register int j=1;j<=n;j++)
             if (a[i][j]==vv) {x=i;y=j;break;}
-    
+    //cerr<<x<<' '<<y<<endl;
+    while (x>tx) taboo[x][y]=true,Move_white(x-1,y),taboo[x][y]=false,Down(),x--;
+    while (y>ty) taboo[x][y]=true,Move_white(x,y-1),taboo[x][y]=false,Right(),y--;
+    while (x<tx) taboo[x][y]=true,Move_white(x+1,y),taboo[x][y]=false,Up(),x++;
+    /*for (register int i=1;i<=3;i++)
+    {
+        for (register int j=1;j<=3;j++)
+            //cerr<<a[i][j]<<' ';
+        //cerr<<endl;
+    }
+    //cerr<<X<<' '<<Y<<"*"<<' '<<x<<' '<<y<<' '<<tx<<' '<<ty<<endl;
+    for (register int i=1;i<=3;i++)
+    {
+        for (register int j=1;j<=3;j++)
+            //cerr<<taboo[i][j]<<' ';
+        //cerr<<endl;
+    }*/
+    while (y<ty) taboo[x][y]=true,Move_white(x,y+1),taboo[x][y]=false,Left(),y++;
 }
 
 inline void Falun_row(int x,int y)
@@ -152,12 +198,22 @@ inline void doit_row(int id)
 {
     for (register int j=id;j>=2;j--)
     {
+        // //cerr<<j<<endl;
         if (a[id][j]==(id-1)*n+(j-1)) continue;
         Move((id-1)*n+(j-1),id,j);
+        taboo[id][j]=true;
     }
+    //cerr<<"-----"<<endl;
+    /*for (register int i=1;i<=3;i++)
+    {
+        for (register int j=1;j<=3;j++)
+            //cerr<<a[i][j]<<' ';
+        //cerr<<endl;
+    }*/
+    taboo[id][1]=true;
     if (a[id][1]!=(id-1)*n)
     {
-        Move((id-1)*n,id-1,1);Move_white(id-1,2,id-1,1);
+        Move((id-1)*n,id-1,1);Move_white(id-1,2);
         Falun_row(id-1,2);
     }
 }
@@ -168,12 +224,88 @@ inline void doit_col(int id)
     {
         if (a[i][id]==(i-1)*n+(id-1)) continue;
         Move((i-1)*n+(id-1),i,id);
+        taboo[i][id]=true;
     }
+    taboo[1][id]=true;
     if (a[1][id]!=id-1)
     {
-        Move(id-1,1,id-1);Move_white(2,id-1,1,id-1);
+        Move(id-1,1,id-1);Move_white(2,id-1);
         Falun_col(2,id-1);
     }
+}
+
+int table[10048];
+
+int aa[48][48];
+inline void dns(int Mask)
+{
+    for (register int i=min(n,3);i>=1;i--) aa[2][i]=Mask%7,Mask/=7;
+    for (register int i=min(n,3);i>=1;i--) aa[1][i]=Mask%7,Mask/=7;
+    for (register int i=1;i<=2;i++)
+        for (register int j=1;j<=min(n,3);j++)
+            if (aa[i][j]==1) X=i,Y=j;
+}
+
+inline int idns()
+{
+    int res=0;
+    for (register int i=1;i<=2;i++)
+        for (register int j=1;j<=min(n,3);j++)
+            res=res*7+aa[i][j];
+    return res;
+}
+
+bool vv[2000048];string Ope[2000048];
+queue<int> Q;
+inline void extend(int Mask)
+{
+    Q.push(Mask);vv[Mask]=true;
+    while (!Q.empty())
+    {
+        Mask=Q.front();Q.pop();
+        // //cerr<<Mask<<endl;
+        dns(Mask);
+        /*
+        for (register int i=1;i<=2;i++)
+        {
+            for (register int j=1;j<=3;j++)
+                //cerr<<aa[i][j]<<' ';
+            //cerr<<endl;
+        }*/
+        // //cerr<<X<<' '<<Y<<endl;
+        for (register int dir=0;dir<=3;dir++)
+        {
+            int xx=X+dx[dir],yy=Y+dy[dir];
+            if (1<=xx && xx<=2 && 1<=yy && yy<=min(n,3))
+            {
+                // //cerr<<"&"<<endl;
+                swap(aa[X][Y],aa[xx][yy]);
+                int toMask=idns();
+                // //cerr<<toMask<<endl;
+                if (!vv[toMask])
+                {
+                    // //cerr<<Mask<<' '<<toMask<<"#"<<endl;
+                    vv[toMask]=true;
+                    Ope[toMask]=Ope[Mask];
+                    if (dir==0) Ope[toMask]+="2";
+                    if (dir==1) Ope[toMask]+="3";
+                    if (dir==2) Ope[toMask]+="0";
+                    if (dir==3) Ope[toMask]+="1";
+                    Q.push(toMask);
+                }
+                swap(aa[X][Y],aa[xx][yy]);
+            }
+        }
+    }
+}
+
+inline void init_sta()
+{
+    int l[48];
+    for (register int i=1;i<=min(n,3);i++) l[i]=a[1][i],l[min(n,3)+i]=a[2][i];
+    sort(l+1,l+min(n*n+1,7));for (register int i=1;i<=min(n*n,6);i++) table[l[i]]=i;
+    int Mask=0;for (register int i=1;i<=min(n*n,6);i++) Mask=Mask*7+i;
+    extend(Mask);
 }
 
 int main ()
@@ -184,8 +316,6 @@ int main ()
     freopen ("a.out","w",stdout);
     cerr<<"Running..."<<endl;
 #endif
-    // freopen ("algebra.in","r",stdin);
-    // freopen ("algebra.out","w",stdout);
     io.Get(n);
     for (register int i=1;i<=n;i++)
         for (register int j=1;j<=n;j++)
@@ -193,8 +323,42 @@ int main ()
             io.Get(a[i][j]);
             if (!a[i][j]) X=i,Y=j;
         }
+    memset(ope,-1,sizeof(ope));
     for (register int i=n;i>=4;i--) doit_row(i),doit_col(i);
-    doit_row(3);
+    // //cerr<<"!"<<endl;
+    if (n>=3) doit_row(3);
+    // //cerr<<"!"<<endl;
+    
+    /*for (register int i=1;i<=n;i++)
+    {
+        for (register int j=1;j<=n;j++)
+            //cerr<<a[i][j]<<' ';
+        //cerr<<endl;
+    }*/
+    
+    init_sta();
+    // //cerr<<"#"<<endl;
+    int Mask=0;
+    for (register int i=1;i<=2;i++)
+        for (register int j=1;j<=min(n,3);j++)
+            Mask=Mask*7+table[a[i][j]];
+    if (!vv[Mask]) {printf("Impossible\n");return 0;}
+    for (auto item : List)
+    {
+        if (item==0) printf("U");
+        if (item==1) printf("R");
+        if (item==2) printf("D");
+        if (item==3) printf("L");
+    }
+    for (register int i=int(Ope[Mask].size())-1;i>=0;i--)
+    {
+        int w=Ope[Mask][i]-'0';
+        if (w==0) printf("U");
+        if (w==1) printf("R");
+        if (w==2) printf("D");
+        if (w==3) printf("L");
+    }
+    printf("\n");
     io.flush();
 #ifdef LOCAL
     cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;

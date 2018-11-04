@@ -13,7 +13,7 @@ using namespace std;
 #define pLL pair<LL,LL>
 #define pii pair<double,double>
 #define LOWBIT(x) x & (-x)
-#define LOCAL true
+// #define LOCAL true
 
 const int INF=2e9;
 const LL LINF=2e16;
@@ -91,8 +91,7 @@ template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y)
 class KingdomMap
 {
     static const int MAXN=500;
-    static const int MAXM=3000;
-    Pair edge[MAXM+48];
+    Pair edge[MAXN+48];
     vector<int> v[MAXN+48];int n,m;
     inline int string_to_int(string s)
     {
@@ -105,11 +104,12 @@ class KingdomMap
         int pt=0;
         while (s[pt]!=' ') pt++;
         int x=string_to_int(s.substr(0,pt)),y=string_to_int(s.substr(pt+1,int(s.size())-pt-1));
-        cerr<<x<<' '<<y<<endl;
+        x++;y++;
         edge[id]=mp(x,y);v[x].pb(id);v[y].pb(id);
     }
     inline void doit_roads(vector<string> roads)
     {
+        if (!int(roads.size())) return;
         string s="";for (register int i=0;i<int(roads.size());i++) s+=roads[i];
         s=","+s+",";int pt1=0,pt2;m=0;
         while (pt1!=int(s.size())-1)
@@ -121,9 +121,10 @@ class KingdomMap
         }
     }
     bool visited[MAXN+48];
-    int dp[MAXN+48][3][2][2];int taboo[MAXM+48];
+    int dp[MAXN+48][3][2][2];int taboo[MAXN+48];
     inline void dfs(int cur,int father)
     {
+        visited[cur]=true;
         int dp2[2][10][10][10];int cc=0,nxt=1;
         memset(dp2,0x3f,sizeof(dp2));
         dp2[0][0][0][0]=0;
@@ -138,12 +139,13 @@ class KingdomMap
                 for (register int pbs=0;pbs<=2;pbs++)
                     for (register int psz=0;psz<=1;psz++)
                         for (register int psta=0;psta<=1;psta++)
-                            if (dp2[cc][pbs][psz][psta]<0x3f)
+                            if (dp2[cc][pbs][psz][psta]<INF)
                                 for (register int cbs=0;cbs<=2;cbs++)
                                     for (register int csz=0;csz<=1;csz++)
                                         for (register int csta=0;csta<=1;csta++)
-                                            if (dp[y][cbs][csz])
+                                            if (dp[y][cbs][csz][csta]<INF)
                                             {
+                                                assert(dp[y][cbs][csz][csta]>=0);
                                                 // cut this edge
                                                 check_min(dp2[nxt][pbs][psz][psta],dp2[cc][pbs][psz][psta]+dp[y][cbs][csz][csta]+1);
                                                 // preserve this edge
@@ -169,7 +171,7 @@ class KingdomMap
         for (register int i=1;i<=n;i++)
             if (!visited[i])
             {
-                dfs(i,-1);int curans=0x3f;
+                dfs(i,-1);int curans=INF;
                 for (register int j=0;j<=2;j++)
                     for (register int k=0;k<=1;k++)
                         for (register int l=0;l<=1;l++)
@@ -182,7 +184,9 @@ class KingdomMap
     public:
         inline vector<int> getRoadsToRemove(int N,vector<string> roads)
         {
+            for (register int i=1;i<=N;i++) v[i].clear();
             n=N;doit_roads(roads);
+            memset(taboo,0,sizeof(taboo));
             int base=solve();int cnt=0;Res.clear();
             for (register int i=1;i<=m;i++)
             {
