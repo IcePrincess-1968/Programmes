@@ -107,12 +107,11 @@ inline int getind(int x,int y) {return (x-1)*n+y;}
 
 queue<int> q;
 bool visited[148][148];
-Pair vlist[148];int vtot;
+Pair vlist[10048];int vtot;
 Pair pre[148][148];int ope[148][148];
 
 inline void getpath(int x,int y,int op)
 {
-    // //cerr<<x<<' '<<y<<endl;
     int px=pre[x][y].x,py=pre[x][y].y;
     if (px) getpath(px,py,ope[x][y]);
     if (op>=0)
@@ -126,15 +125,12 @@ inline void getpath(int x,int y,int op)
 
 inline void Move_white(int tx,int ty)
 {
-    //cerr<<tx<<' '<<ty<<endl;
     vtot=0;
     q.push(X);q.push(Y);pre[X][Y]=mp(0,0);visited[X][Y]=true;
     vlist[++vtot]=mp(X,Y);
-    // //cerr<<X<<' '<<Y<<endl;
     while (!q.empty())
     {
         int x=q.front();q.pop();int y=q.front();q.pop();
-        // if (tx==3 && ty==3) //cerr<<x<<' '<<y<<"##"<<endl;
         if (x==tx && y==ty) break;
         for (register int dir=0;dir<=3;dir++)
         {
@@ -157,38 +153,23 @@ inline void Move_white(int tx,int ty)
 
 inline void Move(int vv,int tx,int ty)
 {
-    //cerr<<vv<<' '<<tx<<' '<<ty<<"*"<<endl;
     int x,y;
     for (register int i=1;i<=n;i++)
         for (register int j=1;j<=n;j++)
             if (a[i][j]==vv) {x=i;y=j;break;}
-    //cerr<<x<<' '<<y<<endl;
     while (x>tx) taboo[x][y]=true,Move_white(x-1,y),taboo[x][y]=false,Down(),x--;
     while (y>ty) taboo[x][y]=true,Move_white(x,y-1),taboo[x][y]=false,Right(),y--;
     while (x<tx) taboo[x][y]=true,Move_white(x+1,y),taboo[x][y]=false,Up(),x++;
-    /*for (register int i=1;i<=3;i++)
-    {
-        for (register int j=1;j<=3;j++)
-            //cerr<<a[i][j]<<' ';
-        //cerr<<endl;
-    }
-    //cerr<<X<<' '<<Y<<"*"<<' '<<x<<' '<<y<<' '<<tx<<' '<<ty<<endl;
-    for (register int i=1;i<=3;i++)
-    {
-        for (register int j=1;j<=3;j++)
-            //cerr<<taboo[i][j]<<' ';
-        //cerr<<endl;
-    }*/
     while (y<ty) taboo[x][y]=true,Move_white(x,y+1),taboo[x][y]=false,Left(),y++;
 }
 
-inline void Falun_row(int x,int y)
+inline void Falun_row()
 {
     Right();Down();Left();Left();
     Up();Right();Down();Right();Up();
 }
 
-inline void Falun_col(int x,int y)
+inline void Falun_col()
 {
     Down();Right();Up();Up();
     Left();Down();Right();Down();Left();
@@ -198,23 +179,21 @@ inline void doit_row(int id)
 {
     for (register int j=id;j>=2;j--)
     {
-        // //cerr<<j<<endl;
-        if (a[id][j]==(id-1)*n+(j-1)) continue;
+        if (a[id][j]==(id-1)*n+(j-1)) {taboo[id][j]=true;continue;}
         Move((id-1)*n+(j-1),id,j);
+        assert(a[id][j]==(id-1)*n+(j-1));
         taboo[id][j]=true;
     }
-    //cerr<<"-----"<<endl;
-    /*for (register int i=1;i<=3;i++)
-    {
-        for (register int j=1;j<=3;j++)
-            //cerr<<a[i][j]<<' ';
-        //cerr<<endl;
-    }*/
     taboo[id][1]=true;
     if (a[id][1]!=(id-1)*n)
     {
-        Move((id-1)*n,id-1,1);Move_white(id-1,2);
-        Falun_row(id-1,2);
+        if (!a[id][1] && a[id-1][1]==(id-1)*n) Up();
+        else
+        {
+            Move((id-1)*n,id-1,1);
+            taboo[id-1][1]=true;Move_white(id-1,2);taboo[id-1][1]=false;
+            Falun_row();
+        }
     }
 }
 
@@ -222,15 +201,21 @@ inline void doit_col(int id)
 {
     for (register int i=id-1;i>=2;i--)
     {
-        if (a[i][id]==(i-1)*n+(id-1)) continue;
+        if (a[i][id]==(i-1)*n+(id-1)) {taboo[i][id]=true;continue;}
         Move((i-1)*n+(id-1),i,id);
+        assert(a[i][id]==(i-1)*n+(id-1));
         taboo[i][id]=true;
     }
     taboo[1][id]=true;
     if (a[1][id]!=id-1)
     {
-        Move(id-1,1,id-1);Move_white(2,id-1);
-        Falun_col(2,id-1);
+        if (!a[1][id] && a[1][id-1]==id-1) Left();
+        else
+        {
+            Move(id-1,1,id-1);
+            taboo[1][id-1]=true;Move_white(2,id-1);taboo[1][id-1]=false;
+            Falun_col();
+        }
     }
 }
 
@@ -263,28 +248,16 @@ inline void extend(int Mask)
     while (!Q.empty())
     {
         Mask=Q.front();Q.pop();
-        // //cerr<<Mask<<endl;
         dns(Mask);
-        /*
-        for (register int i=1;i<=2;i++)
-        {
-            for (register int j=1;j<=3;j++)
-                //cerr<<aa[i][j]<<' ';
-            //cerr<<endl;
-        }*/
-        // //cerr<<X<<' '<<Y<<endl;
         for (register int dir=0;dir<=3;dir++)
         {
             int xx=X+dx[dir],yy=Y+dy[dir];
             if (1<=xx && xx<=2 && 1<=yy && yy<=min(n,3))
             {
-                // //cerr<<"&"<<endl;
                 swap(aa[X][Y],aa[xx][yy]);
                 int toMask=idns();
-                // //cerr<<toMask<<endl;
                 if (!vv[toMask])
                 {
-                    // //cerr<<Mask<<' '<<toMask<<"#"<<endl;
                     vv[toMask]=true;
                     Ope[toMask]=Ope[Mask];
                     if (dir==0) Ope[toMask]+="2";
@@ -324,20 +297,9 @@ int main ()
             if (!a[i][j]) X=i,Y=j;
         }
     memset(ope,-1,sizeof(ope));
-    for (register int i=n;i>=4;i--) doit_row(i),doit_col(i);
-    // //cerr<<"!"<<endl;
+    for (register int i=n;i>=4;i--) {doit_row(i);doit_col(i);}
     if (n>=3) doit_row(3);
-    // //cerr<<"!"<<endl;
-    
-    /*for (register int i=1;i<=n;i++)
-    {
-        for (register int j=1;j<=n;j++)
-            //cerr<<a[i][j]<<' ';
-        //cerr<<endl;
-    }*/
-    
     init_sta();
-    // //cerr<<"#"<<endl;
     int Mask=0;
     for (register int i=1;i<=2;i++)
         for (register int j=1;j<=min(n,3);j++)
