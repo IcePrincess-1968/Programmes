@@ -1,326 +1,247 @@
-#include <cstdio>
-#include <iostream>
-#include <cstring>
-#include <string>
-#include <cstdlib>
-#include <utility>
-#include <cctype>
-#include <algorithm>
-#include <bitset>
-#include <set>
-#include <map>
-#include <vector>
-#include <queue>
-#include <deque>
-#include <stack>
-#include <cmath>
+#include <bits/stdc++.h>
+using namespace std;
+
 #define LL long long
 #define LB long double
+#define ull unsigned long long
 #define x first
 #define y second
-#define Pair pair<int,int>
 #define pb push_back
 #define pf push_front
 #define mp make_pair
+#define Pair pair<int,int>
+#define pLL pair<LL,LL>
+#define pii pair<double,double>
 #define LOWBIT(x) x & (-x)
-using namespace std;
+// #define LOCAL true
 
-const int MOD=1e9+7;
-const LL LINF=2e16;
 const int INF=2e9;
+const LL LINF=2e16;
 const int magic=348;
+const int MOD=1e9+7;
 const double eps=1e-10;
-const double pi=3.14159265;
+const double pi=acos(-1);
 
-inline int getint()
+struct fastio
 {
-    char ch;int res;bool f;
-    while (!isdigit(ch=getchar()) && ch!='-') {}
-    if (ch=='-') f=false,res=0; else f=true,res=ch-'0';
-    while (isdigit(ch=getchar())) res=res*10+ch-'0';
-    return f?res:-res;
+    static const int S=1e7;
+    char rbuf[S+48],wbuf[S+48];int rpos,wpos,len;
+    fastio() {rpos=len=wpos=0;}
+    inline char Getchar()
+    {
+        if (rpos==len) rpos=0,len=fread(rbuf,1,S,stdin);
+        if (!len) return EOF;
+        return rbuf[rpos++];
+    }
+    template <class T> inline void Get(T &x)
+    {
+        char ch;bool f;T res;
+        while (!isdigit(ch=Getchar()) && ch!='-') {}
+        if (ch=='-') f=false,res=0; else f=true,res=ch-'0';
+        while (isdigit(ch=Getchar())) res=res*10+ch-'0';
+        x=(f?res:-res);
+    }
+    inline void getstring(char *s)
+    {
+        char ch;
+        while ((ch=Getchar())<=32) {}
+        for (;ch>32;ch=Getchar()) *s++=ch;
+        *s='\0';
+    }
+    inline void flush() {fwrite(wbuf,1,wpos,stdout);fflush(stdout);wpos=0;}
+    inline void Writechar(char ch)
+    {
+        if (wpos==S) flush();
+        wbuf[wpos++]=ch;
+    }
+    template <class T> inline void Print(T x,char ch)
+    {
+        char s[20];int pt=0;
+        if (x==0) s[++pt]='0';
+        else
+        {
+            if (x<0) Writechar('-'),x=-x;
+            while (x) s[++pt]='0'+x%10,x/=10;
+        }
+        while (pt) Writechar(s[pt--]);
+        Writechar(ch);
+    }
+    inline void printstring(char *s)
+    {
+        int pt=1;
+        while (s[pt]!='\0') Writechar(s[pt++]);
+    }
+}io;
+
+template<typename T> inline void check_max(T &x,T cmp) {x=max(x,cmp);}
+template<typename T> inline void check_min(T &x,T cmp) {x=min(x,cmp);}
+template<typename T> inline T myabs(T x) {return x>=0?x:-x;}
+template<typename T> inline T gcd(T x,T y) {return y==0?x:gcd(y,x%y);}
+inline int add(int x) {if (x>=MOD) x-=MOD;return x;}
+inline int add(int x,int MO) {if (x>=MO) x-=MO;return x;}
+inline int sub(int x) {if (x<0) x+=MOD;return x;}
+inline int sub(int x,int MO) {if (x<0) x+=MO;return x;}
+inline void Add(int &x,int y) {x=add(x+y);}
+inline void Add(int &x,int y,int MO) {x=add(x+y,MO);}
+inline void Sub(int &x,int y) {x=sub(x-y);}
+inline void Sub(int &x,int y,int MO) {x=sub(x-y,MO);}
+template<typename T> inline int quick_pow(int x,T y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
+template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
+
+const int MAXN=1e4;
+
+int n,m;
+vector<Pair> v[MAXN+48];
+
+bool intree[MAXN+48],vv[MAXN+48];
+int fa[MAXN+48],faind[MAXN+48],son[MAXN+48],sz[MAXN+48],depth[MAXN+48],top[MAXN+48];
+int tpos[MAXN+48],seq[MAXN+48],ind;
+inline void dfs1(int cur,int father)
+{
+    fa[cur]=father;sz[cur]=1;son[cur]=0;
+    vv[cur]=true;
+    for (register int i=0;i<int(v[cur].size());i++)
+    {
+        int y=v[cur][i].x;
+        if (!intree[v[cur][i].y]) continue;
+        if (y!=father)
+        {
+            depth[y]=depth[cur]+1;faind[y]=v[cur][i].y;
+            dfs1(y,cur);sz[cur]+=sz[y];
+            if (!son[cur] || sz[son[cur]]<sz[y]) son[cur]=y;
+        }
+    }
 }
 
-int n,e;
-Pair edge[10048];
-vector<Pair> v[10048];
-int ansnum;vector<int> ans;
-
-struct Edge
+inline void dfs2(int cur,int tp)
 {
-	int x,y;
-	int ind;
-};vector<Edge> tedge,ntgedge,ntbedge;
-int fa[10048],fa_ind[10048];
-bool visited[10048];
-int num[10048];
-vector<int> vv[10048];int tot;
-
-int dep[10048],depth[10048],sz[10048],son[10048],ffa[10048];
-int tpos[10048],ind=0,top[10048];
-int anc[10048][21];
-
-void dfs(int cur)
-{
-	visited[cur]=true;
-	if (!fa[cur]) num[fa_ind[cur]]=++tot;
-	int i,j,to;
-	for (i=0;i<int(v[cur].size());i++)
-	{
-		to=v[cur][i].x;
-		if (!visited[to])
-		{
-			fa[to]=cur;fa_ind[to]=v[cur][i].y;
-			tedge.pb(Edge{cur,to,v[cur][i].y});
-			num[v[cur][i].y]=++tot;
-			anc[to][0]=cur;dep[to]=dep[cur]+1;
-			for (j=1;j<=20;j++) anc[to][j]=anc[anc[to][j-1]][j-1];
-			dfs(to);
-			vv[num[fa_ind[cur]]].pb(num[v[cur][i].y]);
-		}
-		else
-		{
-			if (to!=fa[cur] && dep[cur]>dep[to])
-			{
-				if (!((dep[cur]-dep[to])&1))
-					ntbedge.pb(Edge{to,cur,v[cur][i].y});
-				else
-					ntgedge.pb(Edge{to,cur,v[cur][i].y});
-			}
-		}
-	}
+    seq[++ind]=cur;tpos[cur]=ind;top[cur]=tp;
+    if (son[cur]) dfs2(son[cur],tp);
+    for (register int i=0;i<int(v[cur].size());i++)
+    {
+        int y=v[cur][i].x;
+        if (!intree[v[cur][i].y]) continue;
+        if (y!=fa[cur] && y!=son[cur]) dfs2(y,y);
+    }
 }
 
-void dfs1(int cur,int father)
+namespace SegmentTree
 {
-	ffa[cur]=father;sz[cur]=1;son[cur]=0;
-	int i,to,max_size=-1;
-	for (i=0;i<int(vv[cur].size());i++)
-	{
-		to=vv[cur][i];depth[to]=depth[cur]+1;
-		dfs1(to,cur);
-		sz[cur]+=sz[to];
-		if (sz[to]>max_size)
-		{
-			max_size=sz[to];
-			son[cur]=to;
-		}
-	}
+    int lazy[MAXN*4];
+    inline void init() {for (register int i=1;i<=ind*4;i++) lazy[i]=0;}
+    inline void pushdown(int cur)
+    {
+        lazy[cur<<1]+=lazy[cur];
+        lazy[cur<<1|1]+=lazy[cur];
+        lazy[cur]=0;
+    }
+    inline void modify(int cur,int left,int right,int delta,int l,int r)
+    {
+        if (left>right) return;
+        if (left<=l && r<=right) {lazy[cur]+=delta;return;}
+        pushdown(cur);int mid=(l+r)>>1;
+        if (left<=mid) modify(cur<<1,left,right,delta,l,mid);
+        if (mid+1<=right) modify(cur<<1|1,left,right,delta,mid+1,r);
+    }
+    inline int query(int cur,int pos,int l,int r)
+    {
+        if (l==r) return lazy[cur];
+        pushdown(cur);int mid=(l+r)>>1;
+        if (pos<=mid) return query(cur<<1,pos,l,mid); else return query(cur<<1|1,pos,mid+1,r);
+    }
 }
 
-void dfs2(int cur,int tp)
+inline void update(int u,int v,int delta)
 {
-	top[cur]=tp;tpos[cur]=++ind;
-	if (son[cur]) dfs2(son[cur],tp);
-	int i;
-	for (i=0;i<int(vv[cur].size());i++)
-		if (vv[cur][i]!=son[cur]) dfs2(vv[cur][i],vv[cur][i]);
+    int tp1=top[u],tp2=top[v];
+    while (tp1!=tp2)
+    {
+        if (depth[tp1]<depth[tp2])
+        {
+            swap(u,v);
+            swap(tp1,tp2);
+        }
+        SegmentTree::modify(1,tpos[tp1],tpos[u],delta,1,ind);
+        u=fa[tp1];tp1=top[u];
+    }
+    if (depth[u]<depth[v]) swap(u,v);
+    SegmentTree::modify(1,tpos[v]+1,tpos[u],delta,1,ind);
 }
 
-struct node
+int cntodd,fnum,visited[MAXN+48],d[MAXN+48];
+vector<Pair> Odd,Even;
+inline void Dfs(int cur,int father)
 {
-	int left,right;
-	int cnt;
-}tree_good[40048],tree_bad[40048];
-
-void build_good(int cur,int left,int right)
-{
-	tree_good[cur].left=left;tree_good[cur].right=right;tree_good[cur].cnt=0;
-	if (left!=right)
-	{
-		int mid=(left+right)>>1;
-		build_good(cur<<1,left,mid);
-		build_good(cur<<1|1,mid+1,right);
-	}
+    visited[cur]=1;
+    for (register int i=0;i<int(v[cur].size());i++)
+    {
+        int y=v[cur][i].x;
+        if (!visited[y])
+        {
+            d[y]=d[cur]+1;
+            intree[v[cur][i].y]=true;
+            Dfs(y,cur);
+        }
+        else if (y!=father && visited[y]==1)
+        {
+            if ((d[cur]&1)==(d[y]&1))
+            {
+                cntodd++;
+                Odd.pb(mp(cur,y));
+                if (cntodd==1) fnum=v[cur][i].y;
+            }
+            else
+                Even.pb(mp(cur,y));
+        }
+    }
+    visited[cur]=2;
 }
 
-void build_bad(int cur,int left,int right)
-{
-	tree_bad[cur].left=left;tree_bad[cur].right=right;tree_bad[cur].cnt=0;
-	if (left!=right)
-	{
-		int mid=(left+right)>>1;
-		build_bad(cur<<1,left,mid);
-		build_bad(cur<<1|1,mid+1,right);
-	}
-}
-
-void update_good(int cur,int left,int right)
-{
-	if (left<=tree_good[cur].left && tree_good[cur].right<=right)
-	{
-		tree_good[cur].cnt++;
-		return;
-	}
-	int mid=(tree_good[cur].left+tree_good[cur].right)>>1;
-	if (left<=mid) update_good(cur<<1,left,right);
-	if (mid+1<=right) update_good(cur<<1|1,left,right);
-}
-
-void update_bad(int cur,int left,int right)
-{
-	if (left<=tree_bad[cur].left && tree_bad[cur].right<=right)
-	{
-		tree_bad[cur].cnt++;
-		return;
-	}
-	int mid=(tree_bad[cur].left+tree_bad[cur].right)>>1;
-	if (left<=mid) update_bad(cur<<1,left,right);
-	if (mid+1<=right) update_bad(cur<<1|1,left,right);
-}
-
-int query_good(int cur,int pos)
-{
-	if (tree_good[cur].left==tree_good[cur].right) return tree_good[cur].cnt;
-	int mid=(tree_good[cur].left+tree_good[cur].right)>>1;
-	if (pos<=mid)
-		return query_good(cur<<1,pos)+tree_good[cur].cnt;
-	else
-		return query_good(cur<<1|1,pos)+tree_good[cur].cnt;
-}
-
-int query_bad(int cur,int pos)
-{
-	if (tree_bad[cur].left==tree_bad[cur].right) return tree_bad[cur].cnt;
-	int mid=(tree_bad[cur].left+tree_bad[cur].right)>>1;
-	if (pos<=mid)
-		return query_bad(cur<<1,pos)+tree_bad[cur].cnt;
-	else
-		return query_bad(cur<<1|1,pos)+tree_bad[cur].cnt;
-}
-
-void doit_good(int u,int v)
-{
-	int tp1=top[u],tp2=top[v];
-	while (tp1!=tp2)
-	{
-		if (depth[tp1]<depth[tp2])
-		{
-			swap(u,v);
-			swap(tp1,tp2);
-		}
-		update_good(1,tpos[tp1],tpos[u]);
-		u=ffa[tp1];tp1=top[u];
-	}
-	if (depth[u]<depth[v]) swap(u,v);
-	update_good(1,tpos[v],tpos[u]);
-}
-
-void doit_bad(int u,int v)
-{
-	int tp1=top[u],tp2=top[v];
-	while (tp1!=tp2)
-	{
-		if (depth[tp1]<depth[tp2])
-		{
-			swap(u,v);
-			swap(tp1,tp2);
-		}
-		update_bad(1,tpos[tp1],tpos[u]);
-		u=ffa[tp1];tp1=top[u];
-	}
-	if (depth[u]<depth[v]) swap(u,v);
-	update_bad(1,tpos[v],tpos[u]);
-}
-
-int lca(int u,int v)
-{
-	if (dep[u]<dep[v]) swap(u,v);
-	int i;
-	for (i=20;i>=0;i--)
-		if (dep[anc[u][i]]>=dep[v]) u=anc[u][i];
-	if (u==v) return u;
-	for (i=20;i>=0;i--)
-		if (anc[u][i]!=anc[v][i])
-		{
-			u=anc[u][i];
-			v=anc[v][i];
-		}
-	return anc[u][0];
-}
-
-int getbelow(int u,int v)
-{
-	int i;
-	for (i=20;i>=0;i--)
-		if (dep[anc[u][i]]>dep[v]) u=anc[u][i];
-	return u;
-}
-
-Pair query_node(int u,int v)
-{
-	int LCA=lca(u,v);
-	if (LCA!=u && LCA!=v) return mp(num[fa_ind[u]],num[fa_ind[v]]);
-	if (dep[u]<dep[v]) swap(u,v);
-	int tmp=getbelow(u,v);
-	return mp(num[fa_ind[u]],num[fa_ind[tmp]]);
-}
+vector<int> edge;
 
 int main ()
 {
-	int i,j,cur,x,y;int wei;
-	n=getint();e=getint();
-	for (i=1;i<=e;i++)
-	{
-		x=getint();y=getint();
-		if (i==1) wei=x;
-		edge[i]=mp(x,y);
-		v[x].pb(mp(y,i));v[y].pb(mp(x,i));
-	}
-	memset(visited,false,sizeof(visited));
-	int all_cnt=0;ansnum=0;
-	for (cur=1;cur<=n;cur++)
-		if (!visited[cur])
-		{
-			for (j=1;j<=tot;j++) vv[j].clear();
-			tot=0;fa[cur]=fa_ind[cur]=0;dep[cur]=1;
-			tedge.clear();ntgedge.clear();ntbedge.clear();
-			dfs(cur);
-			depth[cur]=1;dfs1(1,0);
-			ind=0;dfs2(1,1);
-			if (!int(ntbedge.size())) continue;
-			all_cnt++;
-			if (int(ntbedge.size())==1)
-			{
-				ansnum++;
-				ans.pb(ntbedge[0].ind);
-			}
-			build_good(1,1,ind);build_bad(1,1,ind);
-			for (i=0;i<int(ntgedge.size());i++)
-			{
-				Pair res=query_node(ntgedge[i].x,ntgedge[i].y);
-				doit_good(res.x,res.y);
-			}
-			for (i=0;i<int(ntbedge.size());i++)
-			{
-				Pair res=query_node(ntbedge[i].x,ntbedge[i].y);
-				doit_bad(res.x,res.y);
-			}
-			for (i=0;i<int(tedge.size());i++)
-			{
-				if (dep[tedge[i].x]>dep[tedge[i].y]) swap(tedge[i].x,tedge[i].y);
-				if (query_good(1,tpos[num[fa_ind[tedge[i].y]]])==0 && query_bad(1,tpos[num[fa_ind[tedge[i].y]]])==int(ntbedge.size()))
-				{
-					ansnum++;
-					ans.pb(tedge[i].ind);
-				}
-			}
-		}	
-	if (all_cnt==0)
-	{
-		printf("%d\n",e);
-		for (i=1;i<=e;i++) printf("%d ",i);
-		printf("\n");return 0;
-	}
-	if (all_cnt>1)
-	{
-		printf("0\n");
-		return 0;
-	}
-	printf("%d\n",ansnum);
-	sort(ans.begin(),ans.end());
-	for (i=0;i<int(ans.size());i++)
-		printf("%d ",ans[i]);
-	printf("\n");
-	return 0;
+#ifdef LOCAL
+    double TIME=clock();
+    freopen ("a.in","r",stdin);
+    freopen ("a.out","w",stdout);
+    cerr<<"Running..."<<endl;
+#endif
+    io.Get(n);io.Get(m);int x,y;
+    for (register int i=1;i<=m;i++)
+    {
+        io.Get(x);io.Get(y);
+        v[x].pb(mp(y,i));v[y].pb(mp(x,i));
+    }
+    int ocnt=0;
+    for (register int i=1;i<=n;i++)
+        if (!vv[i])
+        {
+            int tmp=cntodd;
+            d[i]=1;Dfs(i,-1);
+            if (cntodd!=tmp) ocnt++; else continue;
+            depth[i]=1;dfs1(i,-1);ind=0;dfs2(i,i);
+            for (auto item : Odd) update(item.x,item.y,1);
+            for (auto item : Even) update(item.x,item.y,-1);
+        }
+    if (ocnt>1) {printf("0\n");return 0;}
+    if (!cntodd)
+    {
+        printf("%d\n",m);
+        for (register int i=1;i<=m;i++) printf("%d ",i);
+        printf("\n");return 0;
+    }
+    int Ans=0;
+    for (register int i=2;i<=n;i++)
+        if (tpos[i] && SegmentTree::query(1,tpos[i],1,ind)==cntodd) Ans++,edge.pb(faind[i]);
+    if (cntodd==1) Ans++,edge.pb(fnum);
+    printf("%d\n",Ans);
+    sort(edge.begin(),edge.end());
+    for (register int i=0;i<int(edge.size());i++) printf("%d ",edge[i]);
+    printf("\n");
+    io.flush();
+#ifdef LOCAL
+    cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;
+#endif
+    return 0;
 }
