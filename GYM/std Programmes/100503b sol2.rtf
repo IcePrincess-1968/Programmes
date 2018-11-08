@@ -1,0 +1,751 @@
+{\rtf1\ansi\ansicpg936\deff0\nouicompat\deflang1033\deflangfe2052{\fonttbl{\f0\fnil\fcharset134 \'cb\'ce\'cc\'e5;}}
+{\colortbl ;\red0\green0\blue255;}
+{\*\generator Riched20 10.0.16299}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang2052 sankear\par
+\par
+#include <iostream>\par
+#include <cstdio>\par
+#include <cstdlib>\par
+#include <cmath>\par
+#include <ctime>\par
+#include <cstring>\par
+#include <cassert>\par
+#include <algorithm>\par
+#include <vector>\par
+#include <set>\par
+#include <map>\par
+#include <bitset>\par
+#include <queue>\par
+#include <deque>\par
+#include <complex>\par
+\par
+using namespace std;\par
+\par
+#define pb push_back\par
+#define mp make_pair\par
+#define fs first\par
+#define sc second\par
+#define pbk pop_back\par
+#define sz(s) int((s).size())\par
+#define len(s) int((s).size())\par
+#define all(s) (s).begin(), (s).end()\par
+#define y0 yy0\par
+#define y1 yy1\par
+#define next _next\par
+#define prev _prev\par
+#define link _link\par
+#define hash _hash\par
+#ifdef LOCAL42\par
+#define eprintf(...) fprintf(stderr, __VA_ARGS__)\par
+#else\par
+#define eprintf(...)\par
+#endif\par
+#if ( _WIN32 || _WIN64 || __WIN32__ || __WIN64__ )\par
+#define LLD "%I64d"\par
+#else\par
+#define LLD "%lld"\par
+#endif\par
+\par
+typedef long long ll;\par
+typedef long long llong;\par
+typedef long long int64;\par
+typedef unsigned int uint;\par
+typedef unsigned long long ull;\par
+typedef unsigned long long ullong;\par
+typedef unsigned long long lint;\par
+typedef pair<int, int> pii;\par
+typedef vector<int> vi;\par
+typedef long double ld;\par
+\par
+const int inf = int(1e9);\par
+const double eps = 1e-9;\par
+const double pi = 4 * atan(double(1));\par
+const int N = 6;\par
+const int K = 9 * N;\par
+\par
+int n, m;\par
+string c[N][N];\par
+bool hint[N][N];\par
+\par
+int horizontal[N][N], vertical[N][N];\par
+\par
+int restLen = 0;\par
+int sum[N * N], curMask[N * N], cnt[N * N];\par
+\par
+bool can[N][(1 << 10)][K];\par
+\par
+int canMask[N][(1 << 10)][K];\par
+\par
+int table[N][N];\par
+\par
+inline bool check(int x, int v) \{\par
+\tab if (curMask[x] & (1 << v)) \{\par
+\tab\tab return false;\par
+\tab\}\par
+\tab return can[cnt[x] - 1][curMask[x] ^ (1 << v)][sum[x]];\par
+\}\par
+\par
+inline void add(int x, int v) \{\par
+\tab curMask[x] ^= 1 << v;\par
+\tab cnt[x]--;\par
+\}\par
+\par
+inline void remove(int x, int v) \{\par
+\tab curMask[x] ^= 1 << v;\par
+\tab cnt[x]++;\par
+\}\par
+\par
+inline void print() \{\par
+\tab for (int i = 0; i < n; i++) \{\par
+\tab\tab for (int j = 0; j < m; j++) \{\par
+\tab\tab\tab if (hint[i][j]) \{\par
+\tab\tab\tab\tab printf("_ ");\par
+\tab\tab\tab\} else \{\par
+\tab\tab\tab\tab printf("%d ", table[i][j]);\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\tab puts("");\par
+\tab\}\par
+\tab exit(0);\par
+\}\par
+\par
+int lastBit[1 << 10];\par
+\par
+void make(int x, int y) \{\par
+\tab if (x >= n) \{\par
+\tab\tab return void (print());\par
+\tab\}\par
+\tab if (y >= m) \{\par
+\tab\tab return void (make(x + 1, 0));\par
+\tab\}\par
+\tab if (hint[x][y]) \{\par
+\tab\tab return void (make(x, y + 1));\par
+\tab\}\par
+\tab int curMsk = curMask[vertical[x][y]] | curMask[horizontal[x][y]];\par
+\tab curMsk = (~curMsk) & ((1 << 10) - 1);\par
+\tab curMsk = curMsk & canMask[cnt[vertical[x][y]]][curMask[vertical[x][y]]][sum[vertical[x][y]]];\par
+\tab curMsk = curMsk & canMask[cnt[horizontal[x][y]]][curMask[horizontal[x][y]]][sum[horizontal[x][y]]];\par
+\tab while (curMsk > 0) \{\par
+\tab\tab int i = lastBit[curMsk];\par
+\tab\tab if (i == 0) \{\par
+\tab\tab\tab break;\par
+\tab\tab\}\par
+\tab\tab curMsk ^= 1 << i;\par
+\tab\tab add(vertical[x][y], i);\par
+\tab\tab add(horizontal[x][y], i);\par
+\tab\tab table[x][y] = i;\par
+\tab\tab make(x, y + 1);\par
+\tab\tab remove(vertical[x][y], i);\par
+\tab\tab remove(horizontal[x][y], i);\par
+\tab\}\par
+\}\par
+\par
+int main() \{\par
+#ifndef LOCAL42\par
+    freopen("input.txt", "r", stdin);\par
+    freopen("output.txt", "w", stdout);\par
+#endif\par
+    cin >> n >> m;\par
+    for (int i = 0; i < n; i++) \{\par
+    \tab for (int j = 0; j < m; j++) \{\par
+    \tab\tab cin >> c[i][j];\par
+    \tab\}\par
+    \}\par
+    for (int i = 0; i < n; i++) \{\par
+    \tab for (int j = 0; j < m; j++) \{\par
+    \tab\tab hint[i][j] = c[i][j][0] != '.';\par
+    \tab\}\par
+    \}\par
+    for (int i = 0; i < n; i++) \{\par
+    \tab for (int j = 0; j < m; j++) \{\par
+    \tab\tab if (c[i][j][2] == '{{\field{\*\fldinst{HYPERLINK "\\\\\\\\'"}}{\fldrslt{\\\\'\ul0\cf0}}}}\f0\fs22 ) \{\par
+    \tab\tab\tab if (c[i][j][0] != 'X') \{\par
+    \tab\tab\tab\tab int restriction; sscanf(c[i][j].c_str(), "%d", &restriction);\par
+    \tab\tab\tab\tab sum[restLen++] = restriction;\par
+    \tab\tab\tab\tab for (int z = i + 1; z < n && !hint[z][j]; z++) \{\par
+    \tab\tab\tab\tab\tab vertical[z][j] = restLen - 1;\par
+    \tab\tab\tab\tab\tab cnt[restLen - 1]++;\par
+    \tab\tab\tab\tab\}\par
+    \tab\tab\tab\}\par
+    \tab\tab\tab if (c[i][j][3] != 'X') \{\par
+    \tab\tab\tab\tab int restriction; sscanf(c[i][j].c_str() + 3, "%d", &restriction);\par
+    \tab\tab\tab\tab sum[restLen++] = restriction;\par
+    \tab\tab\tab\tab for (int z = j + 1; z < m && !hint[i][z]; z++) \{\par
+    \tab\tab\tab\tab\tab horizontal[i][z] = restLen - 1;\par
+    \tab\tab\tab\tab\tab cnt[restLen - 1]++;\par
+    \tab\tab\tab\tab\}\par
+    \tab\tab\tab\}\par
+    \tab\tab\}\par
+    \tab\}\par
+    \}\par
+    for (int i = 0; i < (1 << 10); i++) \{\par
+    \tab for (int j = 10; j >= 0; j--) \{\par
+    \tab\tab if (i & (1 << j)) \{\par
+    \tab\tab\tab lastBit[i] = j;\par
+    \tab\tab\tab break;\par
+    \tab\tab\}\par
+    \tab\}\par
+    \}\par
+    for (int i = 0; i < N; i++) \{\par
+    \tab for (int j = 0; j < (1 << 10); j++) \{\par
+    \tab\tab for (int z = 0; z < K; z++) \{\par
+    \tab\tab\tab int sum = 0, cnt = 0;\par
+    \tab\tab\tab for (int l = 1; l < 10; l++) \{\par
+    \tab\tab\tab\tab if (j & (1 << l)) \{\par
+    \tab\tab\tab\tab\tab sum += l;\par
+    \tab\tab\tab\tab\tab cnt++;\par
+    \tab\tab\tab\tab\}\par
+    \tab\tab\tab\}\par
+    \tab\tab\tab if (sum == z) \{\par
+    \tab\tab\tab\tab can[0][j][z] = true;\par
+    \tab\tab\tab\}\par
+    \tab\tab\}\par
+    \tab\}\par
+    \}\par
+    for (int i = 1; i < N; i++) \{\par
+    \tab for (int j = 0; j < (1 << 10); j++) \{\par
+    \tab\tab for (int z = 0; z < K; z++) \{\par
+    \tab\tab\tab for (int l = 1; l < 10; l++) \{\par
+    \tab\tab\tab\tab if (!(j & (1 << l)) && can[i - 1][j | (1 << l)][z]) \{\par
+    \tab\tab\tab\tab\tab can[i][j][z] = true;\par
+    \tab\tab\tab\tab\tab break;\par
+    \tab\tab\tab\tab\}\par
+    \tab\tab\tab\}\par
+    \tab\tab\}\par
+    \tab\}\par
+    \}\par
+    for (int i = 1; i < N; i++) \{\par
+    \tab for (int j = 0; j < (1 << 10); j++) \{\par
+    \tab\tab for (int z = 0; z < K; z++) \{\par
+    \tab\tab\tab int cur = 0;\par
+    \tab\tab\tab for (int l = 1; l < 10; l++) \{\par
+    \tab\tab\tab\tab if (!(j & (1 << l)) && can[i - 1][j ^ (1 << l)][z]) \{\par
+    \tab\tab\tab\tab\tab cur ^= (1 << l);\par
+    \tab\tab\tab\tab\}\par
+    \tab\tab\tab\}\par
+    \tab\tab\tab canMask[i][j][z] = cur;\par
+    \tab\tab\}\par
+    \tab\}\par
+    \}\par
+    make(0, 0);\par
+    return 0;\par
+\}\par
+\par
+\par
+\par
+Saratov\par
+\par
+#ifdef SU1\par
+#define _GLIBCXX_DEBUG\par
+#endif\par
+\par
+#include <iostream>\par
+#include <iomanip>\par
+#include <cstdio>\par
+#include <cstdlib>\par
+#include <cstring>\par
+#include <cassert>\par
+#include <ctime>\par
+#include <climits>\par
+#include <cmath>\par
+#include <string>\par
+#include <vector>\par
+#include <map>\par
+#include <set>\par
+#include <stack>\par
+#include <queue>\par
+#include <algorithm>\par
+\par
+using namespace std;\par
+\par
+#define forn(i, n) for (int i = 0; i < int(n); i++)\par
+#define forl(i, n) for (int i = 1; i <= int(n); i++)\par
+#define fore(i, l, r) for (int i = int(l); i <= int(r); i++)\par
+#define ford(i, n) for (int i = int(n - 1); i >= 0; i--)\par
+#define sz(a) int((a).size())\par
+#define all(a) (a).begin(), (a).end()\par
+#define pb push_back\par
+#define mp make_pair\par
+#define x first\par
+#define y second\par
+#define ft first\par
+#define sc second\par
+\par
+typedef long long li;\par
+typedef long double ld;\par
+typedef pair<int, int> pt;\par
+\par
+const int INF = int(1e9);\par
+const li INF64 = li(1e18);\par
+const ld EPS = 1e-9, PI = acos(-1.0);\par
+\par
+char buf[100500];\par
+\par
+const int N = 10;\par
+bool space[N][N];\par
+int can[N][N][2];\par
+int sum[N][N][2];\par
+int cnt[N][N][2];\par
+\par
+int ans[N][N];\par
+int n, m;\par
+\par
+enum \{HOR, VER\};\par
+\par
+int ft[(1 << 9) + 300];\par
+\par
+bool canGet[36][(1 << 9) + 10][N];\par
+\par
+vector<pt> w;\par
+\par
+bool brute(int idx) \{\par
+    if (idx == sz(w)) return true;\par
+    int i = w[idx].x;\par
+    int j = w[idx].y;\par
+    if (!space[i][j]) return brute(idx + 1);\par
+    int mask = can[i][j][0] & can[i][j][1];\par
+    \par
+    if (!canGet[sum[i][j][HOR]][can[i][j][HOR]][cnt[i][j][HOR]] ||\par
+        !canGet[sum[i][j][VER]][can[i][j][VER]][cnt[i][j][VER]]) return false;\par
+        \par
+    if (cnt[i][j][VER] == 1) \{\par
+        int di = sum[i][j][VER] - 1;\par
+        if (di < 9 && (mask & (1 << di)))\par
+        \{\par
+            int sver = sum[i][j][VER] - (di + 1);\par
+            int shor = sum[i][j][HOR] - (di + 1);\par
+            if (sver < 0 || shor < 0) return false;\par
+            if (!space[i + 1][j] && sver != 0) return false;\par
+            if (!space[i][j + 1] && shor != 0) return false;\par
+            sum[i + 1][j][VER] = sver;\par
+            sum[i][j + 1][HOR] = shor;\par
+            can[i + 1][j][VER] = can[i][j][VER] ^ (1 << di);\par
+            can[i][j + 1][HOR] = can[i][j][HOR] ^ (1 << di);\par
+            ans[i][j] = di + 1;\par
+            if (brute(idx + 1)) return true;\par
+        \}\par
+        return false;\par
+    \}\par
+    \par
+    if (cnt[i][j][HOR] == 1) \{\par
+        int di = sum[i][j][HOR] - 1;\par
+        if (di < 9 && (mask & (1 << di)))\par
+        \{\par
+            int sver = sum[i][j][VER] - (di + 1);\par
+            int shor = sum[i][j][HOR] - (di + 1);\par
+            if (sver < 0 || shor < 0) return false;\par
+            if (!space[i + 1][j] && sver != 0) return false;\par
+            if (!space[i][j + 1] && shor != 0) return false;\par
+            sum[i + 1][j][VER] = sver;\par
+            sum[i][j + 1][HOR] = shor;\par
+            can[i + 1][j][VER] = can[i][j][VER] ^ (1 << di);\par
+            can[i][j + 1][HOR] = can[i][j][HOR] ^ (1 << di);\par
+            ans[i][j] = di + 1;\par
+            if (brute(idx + 1)) return true;\par
+        \}\par
+        return false;\par
+    \}\par
+    \par
+    while (mask) \{\par
+        //i(mask & (1 << di)) \{\par
+        int di = ft[mask];\par
+        mask ^= (1 << di);\par
+        \{\par
+            int vermask = can[i][j][VER] ^ (1 << di);\par
+            int hormask = can[i][j][HOR] ^ (1 << di);\par
+            int sver = sum[i][j][VER] - (di + 1);\par
+            int shor = sum[i][j][HOR] - (di + 1);\par
+            if (sver < 0 || shor < 0) break;\par
+            if (!canGet[sver][vermask][cnt[i + 1][j][VER]]) continue;\par
+            if (!canGet[shor][hormask][cnt[i][j + 1][HOR]]) continue;\par
+            sum[i + 1][j][VER] = sver;\par
+            sum[i][j + 1][HOR] = shor;\par
+            can[i + 1][j][VER] = vermask;\par
+            can[i][j + 1][HOR] = hormask;\par
+            ans[i][j] = di + 1;\par
+            if (brute(idx + 1)) return true;\par
+        \}\par
+    \}\par
+    return false;\par
+\}\par
+\par
+inline bool read()\par
+\{\par
+    assert(scanf("%d%d", &n, &m) == 2);\par
+    forn(i, n)\par
+        forn(j, m) \{\par
+            can[i][j][0] = can[i][j][1] = (1 << 9) - 1;\par
+            assert(scanf("%s", buf) == 1);\par
+            string s = buf;\par
+            if (s == ".....")\par
+                space[i][j] = true;\par
+            else \{\par
+                space[i][j] = false;\par
+                if (s[0] != 'X') \{\par
+                    sum[i + 1][j][VER] = (s[0] - '0') * 10 + s[1] - '0';\par
+                \}\par
+                if (s[3] != 'X') \{\par
+                    sum[i][j + 1][HOR] = (s[3] - '0') * 10 + s[4] - '0';\par
+                \}\par
+            \}\par
+        \}\par
+    for (int i = 0; i < n + m; i++) \{\par
+        for (int j = 0; j < INF; j++) \{\par
+            int x = i - j;\par
+            int y = j;\par
+            if (x < 0) break;\par
+            if (0 <= x && x < n && 0 <= y && y < m && space[x][y])\par
+                w.pb(pt(x, y));\par
+        \}\par
+    \}\par
+        \par
+    for (int i = n - 1; i >= 0; i--)\par
+        for (int j = m - 1; j >= 0; j--) \{\par
+            if (!space[i][j]) continue;\par
+            cnt[i][j][HOR] = cnt[i][j][VER] = 1;\par
+            if (space[i + 1][j])\par
+                cnt[i][j][VER] += cnt[i + 1][j][VER];\par
+            if (space[i][j + 1])\par
+                cnt[i][j][HOR] += cnt[i][j + 1][HOR];\par
+        \}\par
+    \par
+    if (brute(0)) \{\par
+        forn(i, n) \{\par
+            forn(j, m) \{\par
+                if (j) putchar(' ');\par
+                if (space[i][j])\par
+                    printf("%d", ans[i][j]);\par
+                else putchar('_');\par
+            \}\par
+            puts("");\par
+        \}\par
+    \} else throw;\par
+        \par
+    return true;\par
+\}\par
+\par
+inline void solve()\par
+\{\par
+\}\par
+\par
+int main()\par
+\{\par
+#ifdef SU1\par
+    freopen("input.txt", "rt", stdin);\par
+    //freopen("output.txt", "wt", stdout);\par
+#else\par
+    freopen("input.txt", "rt", stdin);\par
+    freopen("output.txt", "wt", stdout);\par
+#endif\par
+\par
+    cout << setprecision(10) << fixed;\par
+    cerr << setprecision(5) << fixed;\par
+    \par
+    forn(mask, 1 << 9)\par
+        canGet[0][mask][0] = true;\par
+    forn(sum, 36) \{\par
+        forl(cc, 5) \{\par
+            forn(mask, 1<<9) \{\par
+                int curCnt = 0;\par
+                forn(i, 9)\par
+                    if (mask & (1 << i))\par
+                        curCnt++;\par
+                if (curCnt < cc) continue;\par
+                forn(i, 9) \{\par
+                    if (mask & (1 << i)) \{\par
+                        if (sum - (i + 1) >= 0 && canGet[sum - (i + 1)][mask ^ (1 << i)][cc - 1]) \{\par
+                            canGet[sum][mask][cc] = true;\par
+                            break;\par
+                        \}\par
+                    \}\par
+                \}\par
+            \}\par
+        \}\par
+    \}\par
+    \par
+    forn(mask, 1<<9) \{\par
+        ft[mask] = -1;\par
+        forn(i, 9) \{\par
+            if (mask & (1 << i)) \{\par
+                ft[mask] = i;\par
+                break;\par
+            \}\par
+        \}\par
+    \}\par
+    \par
+    assert(read());\par
+    solve();\par
+\par
+    return 0;\par
+\}\par
+\par
+\par
+flydutchman\par
+\par
+#include<bits/stdc++.h>\par
+\par
+using namespace std;\par
+#define For(i,l,r) for (int i = l; i <= r; ++i)\par
+\par
+int n, m;\par
+char buf[11];\par
+int mark[55][55], rem[111], remGrids[111], vis[111], Left[11][11], Right[11][11], up[11][11], down[11][11], rec[111];\par
+pair<int,int> A[111], B[111];\par
+int totalRuns, totalGrids;\par
+int cnt = 0;\par
+int live[111];\par
+int pre[512][11][55];\par
+bool dfs(int x) \{\par
+\tab if (x > totalGrids) \{\par
+\tab\tab ++cnt;\par
+\tab\tab For(i,1,totalRuns) if (rem[i] != 0) return false ;\par
+\tab\tab return true;\par
+\tab\}\par
+\tab For(i,1,totalRuns) \{\par
+\tab\tab if (rem[i] > 10 * remGrids[i] - (remGrids[i] * (remGrids[i] + 1) / 2) || rem[i] < (remGrids[i] * (remGrids[i] + 1) / 2)) \{\par
+\tab\tab\tab return false ;\par
+\tab\tab\}\par
+\tab\}\par
+\tab For(i,1,totalRuns) \{\par
+\tab\tab if (!pre[(vis[i] >> 1) ^ 511][remGrids[i]][rem[i]]) return false ;\par
+\tab\}\par
+\tab int col = 0, Min = 10;\par
+\tab Min = 10;\par
+\tab For(i,1,totalRuns) if (rem[i] && remGrids[i] < Min) \{\par
+\tab\tab Min = remGrids[i];\par
+\tab\tab col = i;\par
+\tab\}\par
+\tab if (remGrids[col] == 0) return false ;\par
+\tab int index = 0; Min = 10;\par
+\tab For(i,1,totalGrids) if ((B[i].first == col || B[i].second == col) && live[i]) \{\par
+\tab\tab if (Min > 9 - __builtin_popcount(vis[B[i].first] | vis[B[i].second])) \{\par
+\tab\tab\tab Min = 9 - __builtin_popcount(vis[B[i].first] | vis[B[i].second]);\par
+\tab\tab\tab index = i;\par
+\tab\tab\}\par
+\tab\}\par
+\tab\par
+\tab live[index] = false ;\par
+\tab For(i,1,9) if (!(vis[B[index].first] >> i & 1) && !(vis[B[index].second] >> i & 1) && i <= min(rem[B[index].first], rem[B[index].second])) \{\par
+\tab\tab vis[B[index].first] |= 1 << i; vis[B[index].second] |= 1 << i;\par
+\tab\tab rem[B[index].first] -= i; rem[B[index].second] -= i;\par
+\tab\tab --remGrids[B[index].first]; --remGrids[B[index].second];\par
+\tab\tab rec[index] = i;\par
+\tab\tab if (dfs(x + 1)) return true;\par
+\tab\tab rem[B[index].first] += i; rem[B[index].second] += i;\par
+\tab\tab ++remGrids[B[index].first]; ++remGrids[B[index].second];\par
+\tab\tab vis[B[index].first] -= 1 << i; vis[B[index].second] -= 1 << i;\par
+\tab\}\par
+\tab live[index] = true;\par
+\tab return false ;\par
+\}\par
+\par
+int f[11][55];\par
+int main() \{\par
+\tab freopen("input.txt", "r", stdin); freopen("output.txt", "w", stdout);\par
+\tab for (int Mask = 0; Mask < 512; ++Mask) \{\par
+\tab\tab memset(f, 0, sizeof f);\par
+\tab\tab int cnt = 0;\par
+\tab\tab f[0][0] = 1;\par
+\tab\tab for (int i = 1; i < 10; ++i) if (Mask >> (i - 1) & 1) \{\par
+\tab\tab\tab for (int x = cnt; x >= 0; --x) for (int y = 0; y < 55; ++y) if (f[x][y]) \{\par
+\tab\tab\tab\tab if (y + i < 55) f[x + 1][y + i] = true;\par
+\tab\tab\tab\}\par
+\tab\tab\tab ++cnt;\par
+\tab\tab\}\par
+\tab\tab memcpy(pre[Mask], f, sizeof f);\par
+\tab\}\par
+\tab scanf("%d%d", &n, &m);\par
+\tab totalRuns = 0;\par
+\tab For(i,1,n) For(j,1,m) \{\par
+\tab\tab scanf("%s", buf);\par
+\tab\tab if (buf[2] == '.') \{\par
+\tab\tab\tab mark[i][j] = -2;\par
+\tab\tab\}\par
+\tab\tab if (buf[2] == 'X') \{\par
+\tab\tab\tab mark[i][j] = -1;\par
+\tab\tab\}\par
+\tab\tab if (buf[2] == '\\\\') \{\par
+\tab\tab\tab int sum1 = -1, sum2 = -1;\par
+\tab\tab\tab if (buf[0] != 'X') \{\par
+\tab\tab\tab\tab sscanf(buf, "%d", &sum1);\par
+\tab\tab\tab\tab rem[down[i][j] = ++totalRuns] = sum1;\par
+\tab\tab\tab\}\par
+\tab\tab\tab if (buf[3] != 'X') \{\par
+\tab\tab\tab\tab sscanf(buf + 3, "%d", &sum2);\par
+\tab\tab\tab\tab rem[Right[i][j] = ++totalRuns] = sum2;\par
+\tab\tab\tab\}\par
+\tab\tab\tab mark[i][j] = 1;\par
+\tab\tab\}\par
+\tab\}\par
+\tab\par
+\tab For(i,1,n) For(j,1,m) \{\par
+\tab\tab if (mark[i][j] > 0) \{\par
+\tab\tab\tab up[i][j] = down[i][j];\par
+\tab\tab\tab Left[i][j] = Right[i][j];\par
+\tab\tab\}\par
+\tab\tab else up[i][j] = up[i - 1][j], Left[i][j] = Left[i][j - 1];\par
+\tab\}\par
+\tab\par
+\tab totalGrids = 0;\par
+\tab For(i,1,n) For(j,1,m) if (mark[i][j] == -2) \{\par
+\tab\tab B[++totalGrids] = make_pair(up[i][j], Left[i][j]);\par
+\tab\tab ++remGrids[up[i][j]];\par
+\tab\tab ++remGrids[Left[i][j]];\par
+\tab\}\par
+\tab\par
+\tab For(i,1,totalGrids) live[i] = true;\par
+\tab assert(dfs(1));\par
+\tab\par
+\tab //cout << cnt << endl;\par
+\tab\tab\par
+\tab int nowGrids = 0;\par
+\tab For(i,1,n) For(j,1,m) \{\par
+\tab\tab if (mark[i][j] == -2) \{\par
+\tab\tab\tab ++nowGrids;\par
+\tab\tab\tab printf("%d", rec[nowGrids]);\par
+\tab\tab\} else printf("_");\par
+\tab\tab printf("%c", " \\n"[j == m]);\par
+\tab\}\tab\par
+\tab return 0;\par
+\}\par
+\par
+vepifanov TLE on test 72\par
+\par
+#include <cstdio>\par
+#include <numeric>\par
+#include <iostream>\par
+#include <vector>\par
+#include <set>\par
+#include <cstring>\par
+#include <string>\par
+#include <map>\par
+#include <cmath>\par
+#include <ctime>\par
+#include <algorithm>\par
+#include <bitset>\par
+#include <queue>\par
+#include <sstream>\par
+#include <deque>\par
+#include <cassert>\par
+\par
+using namespace std;\par
+\par
+#define mp make_pair\par
+#define pb push_back\par
+#define rep(i,n) for(int i = 0; i < (n); i++)\par
+#define re return\par
+#define fi first\par
+#define se second\par
+#define sz(x) ((int) (x).size())\par
+#define all(x) (x).begin(), (x).end()\par
+#define sqr(x) ((x) * (x))\par
+#define sqrt(x) sqrt(abs(x))\par
+#define y0 y3487465\par
+#define y1 y8687969\par
+#define fill(x,y) memset(x,y,sizeof(x))\par
+#define prev PREV\par
+#define j0 j1347829\par
+#define j1 j234892\par
+                         \par
+typedef vector<int> vi;\par
+typedef long long ll;\par
+typedef long double ld;\par
+typedef double D;\par
+typedef pair<int, int> ii;\par
+typedef vector<ii> vii;\par
+typedef vector<string> vs;\par
+typedef vector<vi> vvi;\par
+\par
+template<class T> T abs(T x) \{ re x > 0 ? x : -x; \}\par
+\par
+int n;\par
+int m;\par
+string g[6][6];\par
+vi u[6][6];\par
+ii w[72];\par
+int mask[72];\par
+int res[6][6];\par
+int o;\par
+\par
+int go (int i, int j) \{\par
+\tab if (j == m) re go (i + 1, 0);\par
+\tab if (i == n) \{\par
+\tab\tab for (int i = 0; i < n; i++) \{\par
+\tab\tab\tab for (int j = 0; j < m; j++)\par
+\tab\tab\tab\tab if (g[i][j] == ".....")\par
+\tab\tab\tab\tab\tab printf ("%d%c", res[i][j], " \\n"[int (j + 1 == m)]);\par
+\tab\tab\tab\tab else\tab\par
+\tab\tab\tab\tab\tab printf ("_%c", " \\n"[int (j + 1 == m)]);\par
+\tab\tab\}\par
+\tab\tab re 1;\par
+\tab\}\par
+\tab if (g[i][j] == ".....") \{\par
+\tab\tab for (int t = 1; t <= 9; t++) \{\par
+\tab\tab\tab int ok = 1;\par
+\tab\tab\tab for (int k = 0; k < sz (u[i][j]); k++) \{\par
+\tab\tab\tab\tab int s = u[i][j][k];\par
+\tab\tab\tab\tab if (w[s].fi - t < w[s].se - 1 || w[s].fi - t > (w[s].se - 1) * 9) ok = 0;\par
+\tab\tab\tab\tab if ((mask[s] >> t) & 1) ok = 0;\par
+\tab\tab\tab\}\par
+\tab\tab\tab if (ok) \{\par
+\tab\tab\tab\tab for (int k = 0; k < sz (u[i][j]); k++) \{\par
+\tab\tab\tab\tab\tab int s = u[i][j][k];\par
+\tab\tab\tab\tab\tab mask[s] |= 1 << t;\par
+\tab\tab\tab\tab\tab w[s].fi -= t;\par
+\tab\tab\tab\tab\tab w[s].se--;\par
+\tab\tab\tab\tab\}\par
+\tab\tab\tab\tab res[i][j] = t;\par
+\tab\tab\tab\tab if (go (i, j + 1)) re 1;\tab\par
+\tab\tab\tab\tab for (int k = 0; k < sz (u[i][j]); k++) \{\par
+\tab\tab\tab\tab\tab int s = u[i][j][k];\par
+\tab\tab\tab\tab\tab mask[s] ^= 1 << t;\par
+\tab\tab\tab\tab\tab w[s].fi += t;\par
+\tab\tab\tab\tab\tab w[s].se++;\par
+\tab\tab\tab\tab\}\tab\tab\tab\tab\par
+\tab\tab\tab\}\par
+\tab\tab\}\par
+\tab\} else re go (i, j + 1);\par
+\tab re 0;\par
+\}\par
+\par
+int main () \{\par
+    freopen ("input.txt", "r", stdin);\par
+    freopen ("output.txt", "w", stdout);\par
+    cin >> n >> m;\par
+    for (int i = 0; i < n; i++) \{\par
+    \tab for (int j = 0; j < m; j++) \{\par
+    \tab\tab string s;\par
+    \tab\tab cin >> g[i][j];\par
+    \tab\}\par
+    \}\par
+    for (int i = 0; i < n; i++)\par
+    \tab for (int j = 0; j < m; j++)\par
+    \tab\tab if (g[i][j] != ".....") \{\par
+    \tab\tab\tab if (g[i][j][0] != 'X') \{\par
+    \tab\tab\tab\tab int tmp = (g[i][j][0] - '0') * 10 + (g[i][j][1] - '0');\par
+    \tab\tab\tab\tab w[o] = mp (tmp, 0);\par
+    \tab\tab\tab\tab for (int k = i + 1; k < n; k++)\par
+    \tab\tab\tab\tab\tab if (g[k][j] == ".....") \{\par
+    \tab\tab\tab\tab\tab\tab u[k][j].pb (o);\par
+    \tab\tab\tab\tab\tab\tab w[o].se++;\par
+    \tab\tab\tab\tab\tab\} else break;\par
+    \tab\tab\tab\tab o++;\par
+    \tab\tab\tab\}\par
+    \tab\tab\tab if (g[i][j][3] != 'X') \{\par
+    \tab\tab\tab\tab int tmp = (g[i][j][3] - '0') * 10 + (g[i][j][4] - '0');\par
+    \tab\tab\tab\tab w[o] = mp (tmp, 0);\par
+    \tab\tab\tab\tab for (int k = j + 1; k < m; k++)\par
+    \tab\tab\tab\tab\tab if (g[i][k] == ".....") \{\par
+    \tab\tab\tab\tab\tab\tab u[i][k].pb (o);\par
+    \tab\tab\tab\tab\tab\tab w[o].se++;\par
+    \tab\tab\tab\tab\tab\} else break;\par
+    \tab\tab\tab\tab o++;\par
+    \tab\tab\tab\}\par
+    \tab\tab\}\par
+    go (0, 0);\par
+    return 0;\par
+\}\par
+\par
+\par
+}
+ 
