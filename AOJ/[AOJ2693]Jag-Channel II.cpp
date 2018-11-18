@@ -13,7 +13,7 @@ using namespace std;
 #define pLL pair<LL,LL>
 #define pii pair<double,double>
 #define LOWBIT(x) x & (-x)
-#define LOCAL true
+// #define LOCAL true
 
 const int INF=2e9;
 const LL LINF=2e16;
@@ -93,15 +93,16 @@ bool visited[66000][17][7];
 int n,k,d,lim;
 char s[48][48];
 
-int trans[17][17][7],Trans[17][17][7];
+vector<int> trans[17][17][7];int Trans[17][17][7];
 int p[48];
 
 char S[48];bool exist[48];
+char tmp[10];int Id[10];
 inline void Getstring(int id)
 {
     memset(exist,false,sizeof(exist));
     for (register int i=k;i>=1;i--) S[k-i+1]=s[id][i],exist[s[id][i]-'A'+1]=true;
-    char tmp[10];int pt=0;
+    int pt=0;
     for (register int i=1;i<=n;i++) if (!exist[i]) tmp[++pt]='A'+i-1;
     pt=k;for (register int i=1;i<=d;i++) S[++pt]=tmp[p[i]];
 }
@@ -120,9 +121,9 @@ inline bool Go(int id)
 
 inline int getid()
 {
-    char tmp[10];int pt=0;
+    int pt=0;
     for (register int i=1;i<=n;i++) if (!exist[i]) tmp[++pt]=S[i];
-    int Id[10];
+    memset(Id,0,sizeof(Id));
     for (register int i=1;i<=d;i++)
         for (register int j=1;j<=d;j++)
             Id[i]+=(tmp[i]>=tmp[j]);
@@ -143,14 +144,17 @@ inline void bfs()
     while (!q.empty())
     {
         int Mask=q.front();q.pop();int to=q.front();q.pop();int toid=q.front();q.pop();
-        for (register int cur=Mask;cur;cur^=LOWBIT(cur))
+        for (register int cur=Mask^(1<<(to-1));cur;cur^=LOWBIT(cur))
         {
-            int from=table[LOWBIT(cur)],id=trans[from][to][toid];
-            if (id)
+            int from=table[LOWBIT(cur)];
+            for (auto id : trans[from][to][toid])
             {
-                int toMask=Mask^(1<<(from-1));
-                visited[toMask][from][id]=true;
-                q.push(toMask);q.push(from);q.push(id);
+                int toMask=Mask^(1<<(to-1));
+                if (!visited[toMask][from][id])
+                {
+                    visited[toMask][from][id]=true;
+                    q.push(toMask);q.push(from);q.push(id);
+                }
             }
         }
     }
@@ -179,7 +183,7 @@ int main ()
                     if (sta)
                     {
                         int toid=getid();
-                        trans[from][to][toid]=id;
+                        trans[from][to][toid].pb(id);
                         Trans[from][to][id]=toid;
                     }
                 }
@@ -204,7 +208,7 @@ int main ()
             if (!(Mask&(1<<(j-1))))
             {
                 int toMask=Mask|(1<<(j-1));bool f=false;
-                for (register int id=1;id<=d;id++)
+                for (register int id=1;id<=lim;id++)
                     if (visited[Mask][ans[i-1]-'A'+1][id])
                     {
                         int toid=Trans[ans[i-1]-'A'+1][j][id];
@@ -217,7 +221,8 @@ int main ()
                 if (f) break;
             }
     }
-    io.printstring(ans+1);io.flush();
+    for (register int i=1;i<=n;i++) printf("%c",ans[i]);
+    printf("\n");
 #ifdef LOCAL
     cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;
 #endif
