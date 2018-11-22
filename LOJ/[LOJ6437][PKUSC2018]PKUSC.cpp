@@ -13,13 +13,13 @@ using namespace std;
 #define pLL pair<LL,LL>
 #define pii pair<double,double>
 #define LOWBIT(x) x & (-x)
-#define LOCAL true
+// #define LOCAL true
 
 const int INF=2e9;
 const LL LINF=2e16;
 const int magic=348;
 const int MOD=1e9+7;
-const double eps=1e-10;
+const double eps=7e-6;
 const double pi=acos(-1);
 
 struct fastio
@@ -90,32 +90,34 @@ template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y)
 
 const int MAXN=500;
 
-inline bool islarger(double x,double y) {return x-y>eps;}
-inline bool issmaller(double x,double y) {return x-y<-eps;}
-inline bool isequal(double x,double y) {return (!islarger(x,y)) && (!issmaller(x,y));}
+inline bool islarger(LB x,LB y) {return x-y>eps;}
+inline bool issmaller(LB x,LB y) {return x-y<-eps;}
+inline bool isequal(LB x,LB y) {return (!islarger(x,y)) && (!issmaller(x,y));}
 
 int n,m;
 
 struct Vector
 {
-    double x,y;
+    LB x,y;
     Vector () {}
-    inline Vector(double xx,double yy) {x=xx;y=yy;}
+    inline Vector(LB xx,LB yy) {x=xx;y=yy;}
     inline void input() {io.Get(x);io.Get(y);}
-    inline double calc_dist() {return sqrt(x*x+y*y);}
-    inline double calc_Dist() {return x*x+y*y;}
-    inline double calc_ang()
+    inline LB calc_dist() {return sqrt(x*x+y*y);}
+    inline LB calc_Dist() {return x*x+y*y;}
+    inline LB calc_ang()
     {
         if (isequal(x,0)) return islarger(y,0)?pi/2:pi/2*3;
-        double res=atan2(y,x);
-        if (islarger(res,0)) return res; else return pi*2+res;
+        LB res=atan2(y,x);
+        if (!issmaller(res,0)) return res; else return pi*2+res;
     }
+    inline bool operator == (const Vector &other) const {return isequal(x,other.x) && isequal(y,other.y);}
+    inline bool operator != (const Vector &other) const {return (!isequal(x,other.x)) || (!isequal(y,other.y));}
     inline Vector operator + (Vector other) {return Vector(x+other.x,y+other.y);}
     inline Vector operator - (Vector other) {return Vector(x-other.x,y-other.y);}
-    inline Vector operator * (double t) {return Vector(x*t,y*t);}
-    inline Vector operator / (double t) {return Vector(x/t,y/t);}
-    inline double dot(Vector other) {return x*other.x+y*other.y;}
-    inline double det(Vector other) {return x*other.y-y*other.x;}
+    inline Vector operator * (LB t) {return Vector(x*t,y*t);}
+    inline Vector operator / (LB t) {return Vector(x/t,y/t);}
+    inline LB dot(Vector other) {return x*other.x+y*other.y;}
+    inline LB det(Vector other) {return x*other.y-y*other.x;}
 }a[MAXN+48],b[MAXN+48];
 vector<Vector> ipt;
 
@@ -128,31 +130,56 @@ struct Line
 
 inline bool on_seg(Vector pt,Line l)
 {
-    return issmaller((l.pt1-pt).dot(l.pt2-pt),0);
+    return isequal((l.pt1-pt).det(l.pt2-pt),0) && (!islarger((l.pt1-pt).dot(l.pt2-pt),0));
 }
 
 inline Vector query_projection(Vector pt1,Vector pt2,Vector pt3)
 {
-    double k=(pt3-pt1).dot(pt2-pt1)/(pt2-pt1).dot(pt2-pt1);
+    if (on_seg(pt3,Line(pt1,pt2))) return pt3;
+    LB k=(pt3-pt1).dot(pt2-pt1)/(pt2-pt1).dot(pt2-pt1);
     return pt1+(pt2-pt1)*k;
 }
 
-inline void doit_intersection(double r,Line l)
+inline void doit_intersection(LB r,Line l)
 {
     Vector pt1=l.pt1,pt2=l.pt2;
     Vector pt0=query_projection(pt1,pt2,Vector(0,0));
     if (islarger(pt0.calc_Dist(),r)) return;
     Vector e=(pt2-pt1)/(pt2-pt1).calc_dist();
-    double delta=sqrt(r-pt0.calc_Dist());
-    Vector ins=pt0+e*delta;if (on_seg(pt0,l)) ipt.pb(ins);
-    ins=pt0-e*delta;if (on_seg(pt0,l)) ipt.pb(ins);
+    LB delta=sqrt(r-pt0.calc_Dist());
+    Vector ins=pt0+e*delta;if (on_seg(ins,l)) ipt.pb(ins);
+    ins=pt0-e*delta;if (on_seg(ins,l)) ipt.pb(ins);
 }
 
-inline bool in_polygon(Vector pt1)
+inline bool in_polygon(Vector pt)
 {
-    Vector pt2=Vector(pt1.x+1e7,pt1.y);
+    for (register int i=1;i<=m;i++) if (on_seg(pt,edge[i])) return false;
+    bool in=false;
     for (register int i=1;i<=m;i++)
+        if ((issmaller(edge[i].pt1.y,pt.y) && (!issmaller(edge[i].pt2.y,pt.y))) || ((!issmaller(edge[i].pt1.y,pt.y)) && issmaller(edge[i].pt2.y,pt.y)))
+        {
+            LB coef=(pt.y-edge[i].pt1.y)/(edge[i].pt2.y-edge[i].pt1.y);
+            Vector inter=edge[i].pt1+(edge[i].pt2-edge[i].pt1)*coef;
+            if (islarger(inter.x,pt.x)) in^=1;
+        }
+    return in;
 }
+
+inline Vector getmid(Vector pt1,Vector pt2,bool type)
+{
+    LB r=pt1.calc_dist();
+    LB seta1=pt1.calc_ang(),seta2=pt2.calc_ang()+(type?pi*2:0);
+    LB seta=(seta1+seta2)/2;
+    return Vector(r*cos(seta),r*sin(seta));
+}
+
+inline LB calc_ang(Vector pt1,Vector pt2,bool type)
+{
+    LB seta1=pt1.calc_ang(),seta2=pt2.calc_ang()+(type?pi*2:0);
+    return seta2-seta1;
+}
+
+inline bool cmp(Vector x,Vector y) {return issmaller(x.calc_ang(),y.calc_ang());}
 
 int main ()
 {
@@ -162,18 +189,40 @@ int main ()
     freopen ("a.out","w",stdout);
     cerr<<"Running..."<<endl;
 #endif
-    io.Get(n);io.Get(m);
+    io.Get(n);io.Get(m);LB ans=0;
     for (register int i=1;i<=n;i++) a[i].input();
     for (register int i=1;i<=m;i++) b[i].input();
     for (register int i=1;i<=m;i++) edge[i]=Line(b[i],b[i%m+1]);
     for (register int i=1;i<=n;i++)
     {
+        if (a[i]==Vector(0,0))
+        {
+            if (in_polygon(a[i])) ans++;
+            continue;
+        }
         ipt.clear();
         for (register int j=1;j<=m;j++) doit_intersection(a[i].calc_Dist(),edge[j]);
-        sort(ipt.begin(),ipt.end());
+        sort(ipt.begin(),ipt.end(),cmp);
         ipt.resize(unique(ipt.begin(),ipt.end())-ipt.begin());
+        if (int(ipt.size())<2)
+        {
+            bool polygon_in_circle=true;
+            for (register int j=1;j<=m;j++)
+                if (islarger(b[j].calc_Dist(),a[i].calc_Dist())) {polygon_in_circle=false;break;}
+            if (!polygon_in_circle) ans++;
+            continue;
+        }
+        LB sang=0;
+        for (register int j=0;j<int(ipt.size());j++)
+        {
+            Vector pt1=ipt[j],pt2=ipt[(j+1)%int(ipt.size())];
+            Vector M=getmid(pt1,pt2,j==(int(ipt.size())-1));
+            if (in_polygon(M)) sang+=calc_ang(pt1,pt2,j==(int(ipt.size())-1));
+        }
+        ans+=sang/(pi*2);
     }
-    io.flush();
+    double Ans=ans;
+    printf("%.5lf\n",Ans);
 #ifdef LOCAL
     cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;
 #endif
