@@ -13,7 +13,7 @@ using namespace std;
 #define pLL pair<LL,LL>
 #define pii pair<double,double>
 #define LOWBIT(x) x & (-x)
-#define LOCAL true
+// #define LOCAL true
 
 const int INF=2e9;
 const LL LINF=2e16;
@@ -94,7 +94,7 @@ int n,N;
 char s[MAXN+48];int a[MAXN+48],id[MAXN+48];
 int ans[MAXN+48];
 
-vector<int> boundary,inner;
+vector<int> boundary,inner,Free;
 
 namespace allone
 {
@@ -103,7 +103,7 @@ namespace allone
         if (n%4==0)
         {
             printf("Yes\n");
-            for (register int i=1,j=1;i<=n*2;i+=4,j+=2) printf("%d %d %d %d ",j,j+1,j,j+1);
+            for (register int i=1,j=1;i<=n;i+=4,j+=2) printf("%d %d %d %d ",j,j+1,j,j+1);
         }
         else
             printf("No\n");
@@ -112,7 +112,6 @@ namespace allone
 
 namespace four
 {
-    vector<int> free;
     inline void solve()
     {
         int ind=1;
@@ -121,9 +120,10 @@ namespace four
         assert(int(boundary.size())%2==0);
         for (register int i=1;i<int(boundary.size())-1;i+=2,ind++)
             ans[boundary[i]]=ans[boundary[i+1]]=ind;
-        free.clear();for (register int i=1;i<=n;i++) if (!ans[i]) free.pb(i);
-        for (register int i=0;i<int(free.size());i+=2,ind++)
-            ans[free[i]]=ans[free[i+1]]=ind;
+        ans[boundary[0]]=ans[boundary[int(boundary.size())-1]]=ind++;
+        Free.clear();for (register int i=1;i<=n;i++) if (!ans[i]) Free.pb(i);
+        for (register int i=0;i<int(Free.size());i+=2,ind++)
+            ans[Free[i]]=ans[Free[i+1]]=ind;
         printf("Yes\n");
         for (register int i=1;i<=n;i++) printf("%d ",ans[i]);
         puts("");
@@ -149,12 +149,37 @@ namespace two
         ans[id[pt2]]=ans[id[pt3]]=ind++;
         for (register int i=pt1+1;i<pt2;i++)
         {
-            if (a[i-1]==0 && a[i]==1) ans[last]=ans[id[i]]=ind++;
-            if (a[i-1]==1 && a[i]==0) last=id[i];
+            if (a[i-1]==0 && a[i]==1) ans[id[last]]=ans[id[i]]=ind++;
+            if (a[i-1]==1 && a[i]==0) last=i;
         }
         boundary.clear();inner.clear();
-        boundary.pb(id[1]);
-        for (register int i=2;i<pt1;i++)
+        for (register int i=1;i<pt1;i++)
+        {
+            if (a[i-1]==1 && a[i]==1) {inner.pb(i);continue;}
+            if (a[i-1] || a[i]) {boundary.pb(i);continue;}
+        }
+        boundary.pb(pt1);
+        for (register int i=pt2+2;i<=pt3-1;i++) inner.pb(i);
+        for (register int i=pt1+2;i<last;i++) if (a[i-1]==1 && a[i]==1) inner.pb(i);
+        boundary.pb(last);
+        for (register int i=pt3+1;i<=n;i++)
+        {
+            if (a[i-1]==1 && a[i]==1) {inner.pb(i);continue;}
+            if (a[i-1] || a[i]) {boundary.pb(i);continue;}
+        }
+        for (register int i=1;i<int(boundary.size())-1;i+=2) ans[id[boundary[i]]]=ans[id[boundary[i+1]]]=ind++;
+        ans[id[boundary[0]]]=ans[id[boundary[int(boundary.size())-1]]]=ind++;
+        assert(int(inner.size())%4==0);
+        for (register int i=0;i<int(inner.size());i+=4,ind+=2)
+        {
+            ans[id[inner[i]]]=ans[id[inner[i+2]]]=ind;
+            ans[id[inner[i+1]]]=ans[id[inner[i+3]]]=ind+1;
+        }
+        Free.clear();
+        for (register int i=1;i<=n;i++) if (!ans[i]) Free.pb(i);
+        for (register int i=0;i<int(Free.size());i+=2) ans[Free[i]]=ans[Free[i+1]]=ind++;
+        puts("Yes");
+        for (register int i=1;i<=n;i++) printf("%d ",ans[i]);
     }
 }
 
@@ -174,13 +199,11 @@ int main ()
     for (register int i=1;i<=n-pt;i++) a[i]=1;
     for (register int i=1;i<=n-pt;i++) id[i]=i+pt;for (register int i=n-pt+1,j=1;j<=pt;i++,j++) id[i]=j;
     boundary.clear();inner.clear();
-    boundary.pb(id[1]);
-    for (register int i=1;i<=N-1;i++)
+    for (register int i=1;i<=n;i++)
     {
-        if (a[i] && a[i+1]) {inner.pb(id[i+1]);continue;}
-        if (a[i] || a[i+1]) {boundary.pb(id[i+1]);continue;}
+        if (i!=1 && i!=n && a[i-1] && a[i]) {inner.pb(id[i]);continue;}
+        if (a[i-1] || a[i]) {boundary.pb(id[i]);continue;}
     }
-    boundary.pb(id[n]);
     int cnt=int(inner.size());
     if (cnt&1) {printf("No\n");return 0;}
     if (cnt%4==0) four::solve(); else two::solve();
