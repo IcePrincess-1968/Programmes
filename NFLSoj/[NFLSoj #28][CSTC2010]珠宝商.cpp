@@ -122,7 +122,6 @@ struct SAM
         last=np;
     }
     inline int go(int cur,int w) {return nxt[cur][w]?nxt[cur][w]:-1;}
-    //from bottom to top
     inline void build(char s[])
     {
         for (register int i=1;i<=tot;i++) ord[i]=mp(maxn[i],i);
@@ -194,18 +193,86 @@ inline void dfs_sam(int cur,int father,Pair scur,int op)
     for (auto y : v[cur]) if (y!=father && !visited[y]) dfs_sam(y,cur,scur,op);
 }
 
+vector<int> tree_list,List;int fa[MAXN+48],depth[MAXN+48];
+inline void dfs_small(int cur,int father)
+{
+    tree_list.pb(cur);fa[cur]=father;
+    for (auto y : v[cur]) if (y!=father && !visited[y]) depth[y]=depth[cur]+1,dfs_small(y,cur);
+}
+
+inline int getlca(int u,int v)
+{
+    if (depth[u]<depth[v]) swap(u,v);
+    while (depth[u]>depth[v]) u=fa[u];
+    if (u==v) return u;
+    while (u!=v) u=fa[u],v=fa[v];
+    return u;
+}
+
 inline void solve(int cur)
 {
     getsz(cur,-1);
     if (sz[cur]<=MAGIC) {swork(cur,-1);return;}
-    int rt=getrt(cur,-1,sz[cur]);visited[rt]=true;
+    int rt=getrt(cur,-1,sz[cur]);getsz(rt,-1);visited[rt]=true;
     for (auto y : v[rt])
         if (!visited[y])
         {
-            dfs_sam(y,rt,mp(1,0),0);dfs_sam(y,rt,trans(mp(1,0),1,rt),1);
-            sam[0].pushdown();sam[1].pushdown();
-            for (register int i=2;i<=m;i++) ans-=1ll*sam[0].mark[sam[0].pos[i-1]]*sam[1].mark[sam[1].pos[m+1-i]];
-            sam[0].clear_mark();sam[1].clear_mark();
+            if (sz[y]>=MAGIC)
+            {
+                dfs_sam(y,rt,mp(1,0),0);dfs_sam(y,rt,trans(mp(1,0),1,rt),1);
+                sam[0].pushdown();sam[1].pushdown();
+                for (register int i=2;i<=m;i++) ans-=1ll*sam[0].mark[sam[0].pos[i-1]]*sam[1].mark[sam[1].pos[m+1-i]];
+                sam[0].clear_mark();sam[1].clear_mark();
+            }
+            else
+            {
+                tree_list.clear();depth[y]=1;dfs_small(y,-1);
+                for (register int i=0;i<int(tree_list.size());i++)
+                    for (register int j=0;j<int(tree_list.size());j++)
+                    {
+                        int pt1=tree_list[i],pt2=tree_list[j];
+                        int LCA=getlca(pt1,pt2);int scur=sam[0].root;
+                        while (pt1!=LCA)
+                        {
+                            scur=sam[0].go(scur,a[pt1]-'a'+1);
+                            if (scur==-1) break;
+                            pt1=fa[pt1];
+                        }
+                        if (scur==-1) continue;
+                        List.clear();
+                        do
+                        {
+                            List.pb(pt1);
+                            if (pt1==y) break;
+                            pt1=fa[pt1];
+                        }
+                        while (true);
+                        for (auto pt : List)
+                        {
+                            scur=sam[0].go(scur,a[pt]-'a'+1);
+                            if (scur==-1) break;
+                        }
+                        if (scur==-1) continue;
+                        reverse(List.begin(),List.end());
+                        scur=sam[0].go(scur,a[rt]-'a'+1);
+                        if (scur==-1) continue;
+                        for (auto pt : List)
+                        {
+                            scur=sam[0].go(scur,a[pt]-'a'+1);
+                            if (scur==-1) break;
+                        }
+                        if (scur==-1) continue;
+                        List.clear();while (pt2!=LCA) List.pb(pt2),pt2=fa[pt2];
+                        reverse(List.begin(),List.end());
+                        for (auto pt : List) 
+                        {
+                            scur=sam[0].go(scur,a[pt]-'a'+1);
+                            if (scur==-1) break;
+                        }
+                        if (scur==-1) continue;
+                        ans-=sam[0].sz[scur];
+                    }
+            }
         }
     for (auto y : v[rt])
         if (!visited[y])
