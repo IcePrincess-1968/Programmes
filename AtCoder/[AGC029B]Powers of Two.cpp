@@ -14,7 +14,6 @@ using namespace std;
 #define pii pair<double,double>
 #define LOWBIT(x) x & (-x)
 // #define LOCAL true
-#define Online true
 
 const int INF=2e9;
 const LL LINF=2e16;
@@ -89,46 +88,11 @@ inline void Sub(int &x,int y,int MO) {x=sub(x-y,MO);}
 template<typename T> inline int quick_pow(int x,T y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
 template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
 
-const int MAXN=1e5;
+const int MAXN=2e5;
 
-int n,m;
+multiset<int> s;
 
-vector<int> v[MAXN+48];
-int anc[MAXN+48][21],depth[MAXN+48],L[MAXN+48],R[MAXN+48],ind;
-int mark[MAXN+48];
-
-inline void dfs(int cur,int father)
-{
-    L[cur]=++ind;
-    for (register int i=0;i<int(v[cur].size());i++)
-    {
-        int y=v[cur][i];
-        if (y!=father)
-        {
-            depth[y]=depth[cur]+1;
-            anc[y][0]=cur;for (register int j=1;j<=17;j++) anc[y][j]=anc[anc[y][j-1]][j-1];
-            dfs(y,cur);
-        }
-    }
-    R[cur]=ind;
-}
-
-inline bool isanc(int x,int y)
-{
-    if (depth[x]>depth[y]) return false;
-    for (register int i=17;i>=0;i--)
-        if (depth[anc[y][i]]>=depth[x]) y=anc[y][i];
-    return x==y;
-}
-
-inline int jump(int x,int y)
-{
-    for (register int i=17;i>=0;i--)
-        if (depth[anc[x][i]]>depth[y]) x=anc[x][i];
-    return x;
-}
-
-inline void add_mark(int x,int y) {mark[x]++;mark[y+1]--;}
+LL pw[48];int a[MAXN+48];
 
 int main ()
 {
@@ -138,25 +102,27 @@ int main ()
     freopen ("a.out","w",stdout);
     cerr<<"Running..."<<endl;
 #endif
-#ifdef Online
-    freopen ("gathering.in","r",stdin);
-    freopen ("gathering.out","w",stdout);
-#endif
-    scanf("%d%d",&n,&m);int x,y;
-    for (register int i=1;i<=n-1;i++) scanf("%d%d",&x,&y),v[x].pb(y),v[y].pb(x);
-    depth[1]=1;dfs(1,-1);
-    while (m--)
+    int n,x;scanf("%d",&n);
+    for (register int i=1;i<=n;i++) scanf("%d",&x),s.insert(x);int cnt=1;
+    for (multiset<int>::iterator iter=s.begin();iter!=s.end();iter++,cnt++) a[cnt]=(*iter);
+    pw[0]=1;for (register int i=1;i<=41;i++) pw[i]=pw[i-1]+pw[i-1];
+    int ans=0;
+    for (register int i=n;i>=1;i--)
     {
-        scanf("%d%d",&x,&y);
-        if (isanc(x,y))
+        if (s.find(a[i])==s.end()) continue;
+        multiset<int>::iterator iter=s.find(a[i]);s.erase(iter);
+        int pt=31;while (a[i]+a[i]<pw[pt] && pt) pt--;
+        for (register int j=pt;j>=1;j--)
         {
-            int tt=jump(y,x);
-            add_mark(1,L[tt]-1),add_mark(R[tt]+1,n);
+            int need=pw[j]-a[i];
+            if (s.find(need)!=s.end())
+            {
+                iter=s.find(need);s.erase(iter);
+                ++ans;break;
+            }
         }
-        else add_mark(L[x],R[x]);
     }
-    for (register int i=2;i<=n;i++) mark[i]+=mark[i-1];
-    for (register int i=1;i<=n;i++) if (mark[L[i]]==0) puts("1"); else puts("0");
+    printf("%d\n",ans);
     io.flush();
 #ifdef LOCAL
     cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;

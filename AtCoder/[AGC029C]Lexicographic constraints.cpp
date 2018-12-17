@@ -14,7 +14,6 @@ using namespace std;
 #define pii pair<double,double>
 #define LOWBIT(x) x & (-x)
 // #define LOCAL true
-#define Online true
 
 const int INF=2e9;
 const LL LINF=2e16;
@@ -89,46 +88,35 @@ inline void Sub(int &x,int y,int MO) {x=sub(x-y,MO);}
 template<typename T> inline int quick_pow(int x,T y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
 template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
 
-const int MAXN=1e5;
+const int MAXN=2e5;
 
-int n,m;
+int n,a[MAXN+48];
+map<int,int> cur;int maxbit;
 
-vector<int> v[MAXN+48];
-int anc[MAXN+48][21],depth[MAXN+48],L[MAXN+48],R[MAXN+48],ind;
-int mark[MAXN+48];
-
-inline void dfs(int cur,int father)
+inline bool addone(int pt,int N)
 {
-    L[cur]=++ind;
-    for (register int i=0;i<int(v[cur].size());i++)
+    while (pt<=maxbit && cur[pt]==N-1) cur[pt]=0,pt++;
+    if (pt>maxbit) return false;
+    cur[pt]++;return true;
+}
+
+inline bool check(int N)
+{
+    cur.clear();
+    if (N==1)
     {
-        int y=v[cur][i];
-        if (y!=father)
-        {
-            depth[y]=depth[cur]+1;
-            anc[y][0]=cur;for (register int j=1;j<=17;j++) anc[y][j]=anc[anc[y][j-1]][j-1];
-            dfs(y,cur);
-        }
+        for (register int i=2;i<=n;i++) if (a[i]<=a[i-1]) return false;
+        return true;
     }
-    R[cur]=ind;
+    for (register int i=2;i<=n;i++)
+    {
+        if (a[i]>a[i-1]) continue;
+        int low=maxbit-a[i]+1;
+        while (!cur.empty() && cur.begin()->x<low) cur.erase(cur.begin());
+        bool sta=addone(low,N);if (!sta) return false;
+    }
+    return true;
 }
-
-inline bool isanc(int x,int y)
-{
-    if (depth[x]>depth[y]) return false;
-    for (register int i=17;i>=0;i--)
-        if (depth[anc[y][i]]>=depth[x]) y=anc[y][i];
-    return x==y;
-}
-
-inline int jump(int x,int y)
-{
-    for (register int i=17;i>=0;i--)
-        if (depth[anc[x][i]]>depth[y]) x=anc[x][i];
-    return x;
-}
-
-inline void add_mark(int x,int y) {mark[x]++;mark[y+1]--;}
 
 int main ()
 {
@@ -138,25 +126,14 @@ int main ()
     freopen ("a.out","w",stdout);
     cerr<<"Running..."<<endl;
 #endif
-#ifdef Online
-    freopen ("gathering.in","r",stdin);
-    freopen ("gathering.out","w",stdout);
-#endif
-    scanf("%d%d",&n,&m);int x,y;
-    for (register int i=1;i<=n-1;i++) scanf("%d%d",&x,&y),v[x].pb(y),v[y].pb(x);
-    depth[1]=1;dfs(1,-1);
-    while (m--)
+    scanf("%d",&n);for (register int i=1;i<=n;i++) scanf("%d",a+i),check_max(maxbit,a[i]);
+    int l=1,r=n,mid,ans;
+    while (l<=r)
     {
-        scanf("%d%d",&x,&y);
-        if (isanc(x,y))
-        {
-            int tt=jump(y,x);
-            add_mark(1,L[tt]-1),add_mark(R[tt]+1,n);
-        }
-        else add_mark(L[x],R[x]);
+        mid=(l+r)>>1;
+        if (check(mid)) ans=mid,r=mid-1; else l=mid+1;
     }
-    for (register int i=2;i<=n;i++) mark[i]+=mark[i-1];
-    for (register int i=1;i<=n;i++) if (mark[L[i]]==0) puts("1"); else puts("0");
+    printf("%d\n",ans);
     io.flush();
 #ifdef LOCAL
     cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;
