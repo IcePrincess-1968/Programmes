@@ -108,7 +108,6 @@ int main ()
     x=1;y=1;int cnt=0;
     for (;;)
     {
-        // cerr<<"*"<<x<<' '<<y<<' '<<cnt<<endl;
         while (pt[y]<=int(v[y].size())-1 && v[y][pt[y]]<x) pt[y]++;
         int lim=(pt[y]<=int(v[y].size())-1)?v[y][pt[y]]:h+1;
         check_min(ans,cnt+lim-x);
