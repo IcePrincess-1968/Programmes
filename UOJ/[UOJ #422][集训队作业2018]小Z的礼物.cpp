@@ -90,8 +90,7 @@ template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y)
 
 int n,m;
 char a[10][300];int Mp[300];
-int popcount[1048],cnt[1048];
-int dp[2][65][1548][2];
+int dp[2][7][65][3048][2];
 
 int main ()
 {
@@ -103,51 +102,40 @@ int main ()
 #endif
     scanf("%d%d",&n,&m);
     for (register int i=1;i<=n;i++) scanf("%s",a[i]+1);
-    for (register int j=1;j<=m;j++)
+    int ans=0,all=n*(m-1)+(n-1)*m,cur=0,nxt=1;
+    dp[cur][1][0][0][0]=1;
+    for (register int i=1;i<=m;i++)
     {
-        Mp[j]=0;
-        for (register int i=1;i<=n;i++)
-            if (a[i][j]=='*') Mp[j]|=(1<<(i-1));
-    }
-    for (register int Mask=1;Mask<=(1<<n)-1;Mask++) popcount[Mask]=popcount[Mask^LOWBIT(Mask)]+1;
-    for (register int Mask=0;Mask<=(1<<n)-1;Mask++)
-    {
-        cnt[Mask]=popcount[Mask]*2;
-        for (register int i=1;i<=n-1;i++) if ((Mask&(1<<(i-1))) && (Mask&(1<<i))) cnt[Mask]--;
-        if (Mask&1) cnt[Mask]--;
-        if (Mask&(1<<(n-1))) cnt[Mask]--;
-    }
-    int all=n*(m-1)+(n-1)*m,cur=0,nxt=1;
-    for (register int Mask=Mp[1];;Mask=(Mask-1)&Mp[1])
-    {
-        Add(dp[cur][Mask][cnt[Mask]+popcount[Mask]][popcount[Mask]&1],1);
-        if (!Mask) break;
-    }
-    for (register int i=1;i<=m-1;i++)
-    {
-        for (register int Mask=0;Mask<=(1<<n)-1;Mask++)
-            for (register int num=0;num<=i*n*2;num++)
-                for (register int op=0;op<=1;op++)
-                    if (dp[cur][Mask][num][op])
-                    {
-                        for (register int toMask=Mp[i+1];;toMask=(toMask-1)&Mp[i+1])
+        for (register int j=1;j<=n;j++)
+            for (register int Mask=0;Mask<=(1<<n)-1;Mask++)
+                for (register int num=0;num<=i*n*2;num++)
+                    for (register int op=0;op<=1;op++)
+                        if (dp[cur][j][Mask][num][op])
                         {
-                            int tonum=num+cnt[toMask]+(popcount[toMask]-popcount[Mask&toMask]);
-                            if (i!=m-1) tonum+=popcount[toMask];
-                            int toop=(op+popcount[toMask])&1;
-                            Add(dp[nxt][toMask][tonum][toop],dp[cur][Mask][num][op]);
-                            if (!toMask) break;
+                            // not choose
+                            int toMask=Mask;if (toMask&(1<<(j-1))) toMask^=(1<<(j-1));
+                            if (j!=n) Add(dp[cur][j+1][toMask][num][op],dp[cur][j][Mask][num][op]);
+                            else Add(dp[nxt][1][toMask][num][op],dp[cur][j][Mask][num][op]);
+                            // choose
+                            if (a[j][i]=='*')
+                            {
+                                int toMask=Mask|(1<<(j-1)),tonum=num+4;
+                                if (i==1 || Mask&(1<<(j-1))) tonum--;
+                                if (j==1 || Mask&(1<<(j-2))) tonum--;
+                                if (i==m) tonum--;
+                                if (j==n) tonum--;
+                                if (j!=n) Add(dp[cur][j+1][toMask][tonum][(op+1)&1],dp[cur][j][Mask][num][op]);
+                                else Add(dp[nxt][1][toMask][tonum][(op+1)&1],dp[cur][j][Mask][num][op]);
+                            }
+                            dp[cur][j][Mask][num][op]=0;
                         }
-                        dp[cur][Mask][num][op]=0;
-                    }
         cur^=1;nxt^=1;
     }
-    int ans=0;
     for (register int Mask=0;Mask<=(1<<n)-1;Mask++)
         for (register int num=1;num<=all;num++)
         {
-            if (dp[cur][Mask][num][0]) Sub(ans,1ll*dp[cur][Mask][num][0]*all%MOD*quick_pow(num,MOD-2)%MOD);
-            if (dp[cur][Mask][num][1]) Add(ans,1ll*dp[cur][Mask][num][1]*all%MOD*quick_pow(num,MOD-2)%MOD);
+            if (dp[cur][1][Mask][num][0]) Sub(ans,1ll*all*quick_pow(num,MOD-2)%MOD*dp[cur][1][Mask][num][0]%MOD);
+            if (dp[cur][1][Mask][num][1]) Add(ans,1ll*all*quick_pow(num,MOD-2)%MOD*dp[cur][1][Mask][num][1]%MOD);
         }
     printf("%d\n",ans);
 #ifdef LOCAL
