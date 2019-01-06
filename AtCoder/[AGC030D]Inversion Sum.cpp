@@ -13,7 +13,7 @@ using namespace std;
 #define pLL pair<LL,LL>
 #define pii pair<double,double>
 #define LOWBIT(x) x & (-x)
-#define LOCAL true
+// #define LOCAL true
 
 const int INF=2e9;
 const LL LINF=2e16;
@@ -91,7 +91,7 @@ template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y)
 const int MAXN=3000;
 
 int n,q,a[MAXN+48];
-int dp1[MAXN+48][MAXN+48],dp2[MAXN+48][MAXN+48],tmp[MAXN+48][MAXN+48];
+int dp[MAXN+48][MAXN+48];
 
 int main ()
 {
@@ -101,20 +101,28 @@ int main ()
     freopen ("a.out","w",stdout);
     cerr<<"Running..."<<endl;
 #endif
-    scanf("%d%d",&n,&q);int l,r;
+    scanf("%d%d",&n,&q);int l,r,inv2=quick_pow(2,MOD-2);
     for (register int i=1;i<=n;i++) scanf("%d",a+i);
-    for (register int i=1;i<=n-1;i++)
-        for (register int j=i+1;j<=n;j++)
-            dp1[i][j]=(a[i]<a[j]),dp2[i][j]=(a[i]>a[j]);
-    while (q--)
+    for (register int i=1;i<=n;i++)
+        for (register int j=1;j<=n;j++)
+            dp[i][j]=(a[i]>a[j]);
+    for (register int ope=1;ope<=q;ope++)
     {
-        scanf("%d%d",&l,&r);if (l>r) swap(l,r);
+        scanf("%d%d",&l,&r);
+        dp[l][r]=dp[r][l]=1ll*add(dp[l][r]+dp[r][l])*inv2%MOD;
         for (register int i=1;i<=n;i++)
         {
             if (i==l || i==r) continue;
-            int x=i,y=l;if (x>y) swap(x,y);
-            tmp[x][y]=dp1[x][y]+
+            dp[i][l]=dp[i][r]=1ll*add(dp[i][l]+dp[i][r])*inv2%MOD;
+            dp[l][i]=dp[r][i]=1ll*add(dp[l][i]+dp[r][i])*inv2%MOD;
+        }
     }
+    int ans=0;
+    for (register int i=1;i<=n-1;i++)
+        for (register int j=i+1;j<=n;j++)
+            Add(ans,dp[i][j]);
+    ans=1ll*ans*quick_pow(2,q)%MOD;
+    printf("%d\n",ans);
     io.flush();
 #ifdef LOCAL
     cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;
