@@ -1,0 +1,132 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+const int SIZE = 30, MAXN = 60;
+const int inf = 1e9;
+
+const int dx[] = {0, 0, 1, -1};
+const int dy[] = {1, -1, 0, 0};
+
+char grid[SIZE][SIZE], word[MAXN];
+bool vis[SIZE][SIZE];
+int dp[2][SIZE][SIZE], dis[SIZE][SIZE];
+int N, M, sx, sy;
+
+struct Node {
+  int x, y;
+  Node() {}
+  Node(int x, int y) : x(x), y(y) {}
+};
+
+inline bool fit(int x, int y) {
+  return x >= 0 && x < N && y >= 0 && y < M;
+}
+
+void spfa(queue<Node> &Q, int dp[SIZE][SIZE]) {
+  while (!Q.empty()) {
+    int x = Q.front().x, y = Q.front().y; Q.pop();
+    vis[x][y] = false;
+    for (int k = 0; k < 4; ++ k) {
+      int xx = x + dx[k], yy = y + dy[k];
+      if (!fit(xx, yy) || grid[xx][yy] != '.') continue;
+      if (dp[xx][yy] > dp[x][y] + 1) {
+        dp[xx][yy] = dp[x][y] + 1;
+        if (!vis[xx][yy]) {
+          vis[xx][yy] = true;
+          Q.push(Node(xx, yy));
+        }
+      }
+    }
+  }
+}
+
+void bfs() {
+  queue<Node> Q;
+  for (int x = 0; x < N; ++ x) for (int y = 0; y < M; ++ y) dis[x][y] = inf;
+  Q.push(Node(sx, sy)); dis[sx][sy] = 0;
+  while (!Q.empty()) {
+    int x = Q.front().x, y = Q.front().y; Q.pop();
+    for (int k = 0; k < 4; ++ k) {
+      int xx = x + dx[k], yy = y + dy[k];
+      if (!fit(xx, yy) || grid[xx][yy] == '#') continue;
+      if (dis[xx][yy] == inf) {
+        dis[xx][yy] = dis[x][y] + 1;
+        Q.push(Node(xx, yy));
+      }
+    }
+  }
+}
+
+int solve(char word[]) {
+  int L = strlen(word), now = 0, next;
+  for (int i = 0; i < N; ++ i) {
+    for (int j = 0; j < M; ++ j) {
+      if (word[0] == grid[i][j]) dp[0][i][j] = dis[i][j];
+      else dp[0][i][j] = inf;
+    }
+  }
+  for (int i = 1; i < L; ++ i, now ^= 1) {
+    queue<Node> Q; next = now ^ 1;
+    for (int x = 0; x < N; ++ x) for (int y = 0; y < M; ++ y) {
+      dp[next][x][y] = inf;
+      vis[x][y] = false;
+    }
+    for (int x = 0; x < N; ++ x) {
+      for (int y = 0; y < M; ++ y) {
+        if (dp[now][x][y] != inf) {
+          Q.push(Node(x, y)); vis[x][y] = true;
+          if (word[i] == grid[x][y]) dp[next][x][y] = dp[now][x][y];
+        }
+      }
+    }
+    spfa(Q, dp[now]);
+    for (int x = 0; x < N; ++ x) {
+      for (int y = 0; y < M; ++ y) {
+        if (dp[now][x][y] == inf) continue;
+        for (int k = 0; k < 4; ++ k) {
+          int xx = x + dx[k], yy = y + dy[k];
+          if (!fit(xx, yy)) continue;
+          if (word[i] == grid[xx][yy]) {
+            dp[next][xx][yy] = min(dp[next][xx][yy], dp[now][x][y] + 1);
+          }
+        }
+      }
+    }
+  }
+  int ret = inf;
+  for (int x = 0; x < N; ++ x) {
+    for (int y = 0; y < M; ++ y) {
+      ret = min(ret, dp[now][x][y]);
+    }
+  }
+  return ret;
+}
+
+int main() {
+  int T; scanf("%d", &T);
+  while (T --) {
+    scanf("%d%d", &N, &M);
+    sx = -1;
+    for (int i = 0; i < N; ++ i) {
+      scanf("%s", grid[i]);
+      for (int j = 0; j < M; ++ j) {
+        if (grid[i][j] == '@'){
+          assert(sx == -1);
+          sx = i, sy = j;
+          grid[i][j] = '.';
+        }
+      }
+    }
+    bfs();
+    assert(sx != -1);
+    int ret = inf, Q; scanf("%d", &Q);
+    while (Q --) {
+      scanf("%s", word);
+      int tmp = solve(word);
+      ret = min(ret, tmp);
+    }
+    if (ret >= inf) ret = -1;
+    printf("%d\n", ret);
+  }
+  return 0;
+}

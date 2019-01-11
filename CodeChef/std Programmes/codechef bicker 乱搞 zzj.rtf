@@ -1,0 +1,571 @@
+{\rtf1\ansi\ansicpg936\deff0\nouicompat\deflang1033\deflangfe2052{\fonttbl{\f0\fnil\fcharset134 \'cb\'ce\'cc\'e5;}}
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang2052 0.2x\par
+\par
+#include <bits/stdc++.h>\par
+using namespace std;\par
+\par
+typedef long long LL;\par
+typedef long double LD;\par
+\par
+const int N=500+5;\par
+const int M=10000+5;\par
+const int C=100;\par
+const int B=10;\par
+const LD T=1;\par
+\par
+struct Edge\{int to,nxt,w;\}ed[M<<1],eq[M<<1];\par
+time_t all,cur;\par
+int n,d,q,topd,topq,hd[N],hq[N];\par
+int ansd,ansq,curd,curq;\par
+bool st[N],ans[N];\par
+\par
+template <typename tn>\par
+inline void rd(tn& x)\par
+\{\par
+\tab char ch;\par
+\tab for (;!isdigit(ch=getchar()););\par
+\tab for (x=ch-48;isdigit(ch=getchar());x=x*10+ch-48);\par
+\}\par
+\par
+inline void add(Edge *e,int *hd,int& top,int x,int y,int w)\par
+\{\par
+\tab e[++top].to=y;e[top].w=w;e[top].nxt=hd[x];hd[x]=top;\par
+\tab e[++top].to=x;e[top].w=w;e[top].nxt=hd[y];hd[y]=top;\par
+\}\par
+\par
+inline bool better(int q1,int d1,int q2,int d2)\par
+\{\par
+\tab //cerr<<q1<<'/'<<d1<<' '<<q2<<'/'<<d2<<endl;\par
+\tab return d1 && q1*(LL)d2<q2*(LL)d1;\par
+\}\par
+\par
+inline void init(int p)\par
+\{\par
+\tab //cerr<<p<<endl;\par
+\tab memset(st,0,sizeof st);\par
+\tab for (int i=1;i<=n;i+=p) st[i]=1;\par
+\tab random_shuffle(st+1,st+n+1);\par
+\tab curd=curq=0;\par
+\tab //for (int i=1;i<=n;++i) fprintf(stderr,"%d%c",st[i]," \\n"[i==n]);\par
+\tab for (int i=1;i<=n;++i)\par
+\tab\{\par
+\tab\tab for (int j=hd[i];j;j=ed[j].nxt)\par
+\tab\tab\tab if (st[i]!=st[ed[j].to]) curd+=ed[j].w;\par
+\tab\tab for (int j=hq[i];j;j=eq[j].nxt)\par
+\tab\tab\tab if (st[i]!=st[eq[j].to]) curq+=eq[j].w;\par
+\tab\}\par
+\tab curd/=2;curq/=2;\par
+\tab //cerr<<curq<<' '<<curd<<endl;\par
+\}\par
+\par
+inline void swp(int& now)\par
+\{\par
+\tab //while ((now=rand()%n+1)==lst);\par
+\tab now=rand()%n+1;\par
+\tab for (int i=hd[now];i;i=ed[i].nxt)\par
+\tab\tab if (st[now]==st[ed[i].to]) curd+=ed[i].w;\par
+\tab\tab else curd-=ed[i].w;\par
+\tab for (int i=hq[now];i;i=eq[i].nxt)\par
+\tab\tab if (st[now]==st[eq[i].to]) curq+=eq[i].w;\par
+\tab\tab else curq-=eq[i].w;\par
+\tab st[now]^=1;\par
+\}\par
+\par
+inline void solve(void)\par
+\{\par
+\tab memset(hd,0,sizeof hd);\par
+\tab memset(hq,0,sizeof hq);\par
+\tab memset(ans,0,sizeof ans);\par
+\tab memset(st,0,sizeof st);\par
+\tab topd=topq=0;ansd=0;ansq=1;\par
+\tab rd(n);rd(d);rd(q);\par
+\tab int x,y,w;\par
+\tab for (int i=1;i<=d;++i)\par
+\tab\tab rd(x),rd(y),rd(w),add(ed,hd,topd,x,y,w);\par
+\tab for (int i=1;i<=q;++i)\par
+\tab\tab rd(x),rd(y),rd(w),add(eq,hq,topq,x,y,w);\par
+\tab int sqrtn=(int)ceil(sqrt(n)),flag,td,tq;\par
+/*\tab bool tf=0;\par
+\tab while (!tf)\par
+\tab\{\par
+\tab\tab init(sqrtn);flag=0;\par
+\tab\tab for (int i=1,j,k;i<=C && flag<=B;++i)\par
+\tab\tab\{\par
+\tab\tab\tab td=curd;tq=curq;swp(j);swp(k);\par
+\tab\tab\tab if (!better(curq,curd,tq,td))\par
+\tab\tab\tab\tab curd=td,curq=tq,st[j]^=1,st[k]^=1,++flag;\par
+\tab\tab\tab else flag=0;\par
+\tab\tab\tab if (better(curq,curd,ansq,ansd))\par
+\tab\tab\tab\tab ansd=curd,ansq=curq,memcpy(ans+1,st+1,n);\par
+\tab\tab\tab if (clock()-all>cur)\{tf=1;break;\}\par
+\tab\tab\}\par
+\tab\tab if (clock()-all>cur)\{tf=1;break;\}\par
+\tab\tab //cerr<<ansd<<' '<<ansq<<endl;\par
+\tab\}*/\par
+\tab int bst=-1;\par
+\tab for (int i=1;i<=n;++i)\par
+\tab\{\par
+\tab\tab td=tq=0;\par
+\tab\tab for (int j=hd[i];j;j=ed[j].nxt)\par
+\tab\tab\tab td+=ed[j].w;\par
+\tab\tab for (int j=hq[i];j;j=eq[j].nxt)\par
+\tab\tab\tab tq+=eq[j].w;\par
+\tab\tab if (better(tq,td,ansq,ansd))\par
+\tab\tab\tab ansd=curd,ansq=curq,bst=i;\par
+\tab\}\par
+\tab printf("1 %d\\n",bst);\par
+/*\tab int tot=0;\par
+\tab for (int i=1;i<=n;++i) tot+=ans[i];\par
+\tab printf("%d",tot);\par
+\tab for (int i=1;i<=n;++i)\par
+\tab\tab if (ans[i]) printf(" %d",i);\par
+\tab putchar('\\n');*/\par
+\tab //cerr<<ansd<<' '<<ansq<<endl;\par
+\}\par
+\par
+int main()\par
+\{\par
+\tab srand(12345671);\par
+\tab int t;\par
+\tab for (rd(t);t;--t) cur=(int)((T*1000000/*CLOCKS_PER_SEC*/*.8-(all=clock()))/t),solve();\par
+\tab return 0;\par
+\}\par
+\par
+0.6x\par
+\par
+#include <bits/stdc++.h>\par
+using namespace std;\par
+\par
+typedef long long LL;\par
+typedef long double LD;\par
+\par
+const int N=500+5;\par
+const int M=10000+5;\par
+//const int C=100;\par
+//const int B=10;\par
+const LD T=.5;\par
+\par
+struct Edge\{int to,nxt,w;\}ed[M<<1],eq[M<<1];\par
+time_t start,cur;\par
+int n,d,q,topd,topq,hd[N],hq[N],pos[N];\par
+int ansd,ansq,curd,curq;\par
+bool st[N],ans[N];\par
+\par
+template <typename tn>\par
+inline void rd(tn& x)\par
+\{\par
+\tab char ch;\par
+\tab for (;!isdigit(ch=getchar()););\par
+\tab for (x=ch-48;isdigit(ch=getchar());x=x*10+ch-48);\par
+\}\par
+\par
+inline void add(Edge *e,int *hd,int& top,int x,int y,int w)\par
+\{\par
+\tab e[++top].to=y;e[top].w=w;e[top].nxt=hd[x];hd[x]=top;\par
+\tab e[++top].to=x;e[top].w=w;e[top].nxt=hd[y];hd[y]=top;\par
+\}\par
+\par
+inline bool better(int q1,int d1,int q2,int d2)\par
+\{\par
+\tab return d1 && q1*(LL)d2<q2*(LL)d1;\par
+\}\par
+\par
+inline void pre(void)\par
+\{\par
+\tab int bst=-1,td,tq;\par
+\tab for (int i=1;i<=n;++i)\par
+\tab\{\par
+\tab\tab td=tq=0;\par
+\tab\tab for (int j=hd[i];j;j=ed[j].nxt) td+=ed[j].w;\par
+\tab\tab for (int j=hq[i];j;j=eq[j].nxt) tq+=eq[j].w;\par
+\tab\tab if (better(tq,td,ansq,ansd))\par
+\tab\tab\tab ansd=td,ansq=tq,bst=i;\par
+\tab\}\par
+\tab ans[bst]=1;\par
+\}\par
+\par
+inline void init(int c)\par
+\{\par
+\tab memset(st,0,sizeof st);\par
+\tab for (int i=1;i<=c;++i) st[i]=1;\par
+\tab random_shuffle(st+1,st+n+1);\par
+\tab curd=curq=0;\par
+\tab for (int i=1;i<=n;++i)\par
+\tab\{\par
+\tab\tab for (int j=hd[i];j;j=ed[j].nxt)\par
+\tab\tab\tab if (st[i]!=st[ed[j].to]) curd+=ed[j].w;\par
+\tab\tab for (int j=hq[i];j;j=eq[j].nxt)\par
+\tab\tab\tab if (st[i]!=st[eq[j].to]) curq+=eq[j].w;\par
+\tab\}\par
+\tab curd/=2;curq/=2;\par
+\tab if (better(curq,curd,ansq,ansd))\par
+\tab\tab ansd=curd,ansq=curq,memcpy(ans+1,st+1,n);\par
+\}\par
+\par
+inline void maintain(void)\par
+\{\par
+\tab int td,tq;\par
+\tab bool flag;\par
+\tab for (int i=1;i<=10 && flag;++i)\par
+\tab\{\par
+\tab\tab flag=0;\par
+\tab\tab random_shuffle(pos+1,pos+n+1);\par
+\tab\tab for (int i=1,j;i<=n;++i)\par
+\tab\tab\{\par
+\tab\tab\tab j=pos[i];td=curd;tq=curq;\par
+\tab\tab\tab for (int k=hd[j];k;k=ed[k].nxt)\par
+\tab\tab\tab\tab if (st[j]==st[ed[k].to]) td+=ed[k].w;\par
+\tab\tab\tab\tab else td-=ed[k].w;\par
+\tab\tab\tab for (int k=hq[j];k;k=eq[k].nxt)\par
+\tab\tab\tab\tab if (st[j]==st[eq[k].to]) tq+=eq[k].w;\par
+\tab\tab\tab\tab else tq-=eq[k].w;\par
+\tab\tab\tab if (better(tq,td,curq,curd))\par
+\tab\tab\tab\tab curd=td,curq=tq,st[j]^=1,flag=1;\par
+\tab\tab\}\par
+\tab\tab if (clock()-start>cur) break;\par
+\tab\}\par
+\tab if (better(curq,curd,ansq,ansd))\par
+\tab\tab ansd=curd,ansq=curq,memcpy(ans+1,st+1,n);\par
+\}\par
+\par
+inline void solve(void)\par
+\{\par
+\tab memset(hd,0,sizeof hd);\par
+\tab memset(hq,0,sizeof hq);\par
+\tab memset(ans,0,sizeof ans);\par
+\tab memset(st,0,sizeof st);\par
+\tab topd=topq=0;ansd=0;ansq=1;\par
+\tab rd(n);rd(d);rd(q);\par
+\tab for (int i=1;i<=n;++i) pos[i]=i;\par
+\tab int x,y,w;\par
+\tab for (int i=1;i<=d;++i)\par
+\tab\tab rd(x),rd(y),rd(w),add(ed,hd,topd,x,y,w);\par
+\tab for (int i=1;i<=q;++i)\par
+\tab\tab rd(x),rd(y),rd(w),add(eq,hq,topq,x,y,w);\par
+\tab pre();\par
+\tab int sqrtn=(int)ceil(sqrt(n));\par
+\tab bool qt=0;\par
+\tab for (int i=2;i<=sqrtn/2 && !qt;++i)\par
+\tab\tab for (int j=0;j<=sqrtn && !qt;++j)\par
+\tab\tab\{\par
+\tab\tab\tab init(i);\par
+\tab\tab\tab maintain();\par
+\tab\tab\tab if (clock()-start>cur)\{qt=1;break;\}\par
+\tab\tab\}\par
+\tab int tot=0;\par
+\tab for (int i=1;i<=n;++i) tot+=ans[i];\par
+\tab printf("%d",tot);\par
+\tab for (int i=1;i<=n;++i)\par
+\tab\tab if (ans[i]) printf(" %d",i);\par
+\tab putchar('\\n');\par
+\}\par
+\par
+int main()\par
+\{\par
+\tab srand(120);\par
+\tab int t;\par
+\tab for (rd(t);t;--t)\par
+\tab\tab start=clock(),\par
+\tab\tab cur=(int)((T*1000000*.8-start)/t),\par
+\tab\tab solve();\par
+\tab return 0;\par
+\}\par
+\par
+\par
+\par
+0.9x\par
+\par
+\par
+#include <bits/stdc++.h>\par
+using namespace std;\par
+\par
+typedef long long LL;\par
+typedef long double LD;\par
+\par
+const int N=500+5;\par
+const int M=10000+5;\par
+//const int C=100;\par
+//const int B=10;\par
+const LD T=.5;\par
+\par
+struct Edge\{int to,nxt,w;\}ed[M<<1],eq[M<<1];\par
+time_t start,cur;\par
+int n,d,q,topd,topq,hd[N],hq[N],pos[N];\par
+int ansd,ansq,curd,curq;\par
+bool st[N],ans[N];\par
+\par
+template <typename tn>\par
+inline void rd(tn& x)\par
+\{\par
+\tab char ch;\par
+\tab for (;!isdigit(ch=getchar()););\par
+\tab for (x=ch-48;isdigit(ch=getchar());x=x*10+ch-48);\par
+\}\par
+\par
+inline void add(Edge *e,int *hd,int& top,int x,int y,int w)\par
+\{\par
+\tab e[++top].to=y;e[top].w=w;e[top].nxt=hd[x];hd[x]=top;\par
+\tab e[++top].to=x;e[top].w=w;e[top].nxt=hd[y];hd[y]=top;\par
+\}\par
+\par
+inline bool better(int q1,int d1,int q2,int d2)\par
+\{\par
+\tab return d1 && q1*(LL)d2<q2*(LL)d1;\par
+\}\par
+\par
+inline void pre(void)\par
+\{\par
+\tab int bst=-1,td,tq;\par
+\tab for (int i=1;i<=n;++i)\par
+\tab\{\par
+\tab\tab td=tq=0;\par
+\tab\tab for (int j=hd[i];j;j=ed[j].nxt) td+=ed[j].w;\par
+\tab\tab for (int j=hq[i];j;j=eq[j].nxt) tq+=eq[j].w;\par
+\tab\tab if (better(tq,td,ansq,ansd))\par
+\tab\tab\tab ansd=td,ansq=tq,bst=i;\par
+\tab\}\par
+\tab ans[bst]=st[bst]=1;\par
+\tab curd=ansd;curq=ansq;\par
+\}\par
+\par
+inline void init(int c)\par
+\{\par
+\tab memset(st,0,sizeof st);\par
+\tab for (int i=1;i<=c;++i) st[i]=1;\par
+\tab random_shuffle(st+1,st+n+1);\par
+\tab curd=curq=0;\par
+\tab for (int i=1;i<=n;++i)\par
+\tab\{\par
+\tab\tab for (int j=hd[i];j;j=ed[j].nxt)\par
+\tab\tab\tab if (st[i]!=st[ed[j].to]) curd+=ed[j].w;\par
+\tab\tab for (int j=hq[i];j;j=eq[j].nxt)\par
+\tab\tab\tab if (st[i]!=st[eq[j].to]) curq+=eq[j].w;\par
+\tab\}\par
+\tab curd/=2;curq/=2;\par
+\tab if (better(curq,curd,ansq,ansd))\par
+\tab\tab ansd=curd,ansq=curq,memcpy(ans+1,st+1,n);\par
+\}\par
+\par
+inline void maintain(void)\par
+\{\par
+\tab int td,tq;\par
+\tab bool flag=1;\par
+\tab for (int i=1;i<=10 && flag;++i)\par
+\tab\{\par
+\tab\tab flag=0;\par
+\tab\tab random_shuffle(pos+1,pos+n+1);\par
+\tab\tab for (int i=1,j;i<=n;++i)\par
+\tab\tab\{\par
+\tab\tab\tab j=pos[i];td=curd;tq=curq;\par
+\tab\tab\tab for (int k=hd[j];k;k=ed[k].nxt)\par
+\tab\tab\tab\tab if (st[j]==st[ed[k].to]) td+=ed[k].w;\par
+\tab\tab\tab\tab else td-=ed[k].w;\par
+\tab\tab\tab for (int k=hq[j];k;k=eq[k].nxt)\par
+\tab\tab\tab\tab if (st[j]==st[eq[k].to]) tq+=eq[k].w;\par
+\tab\tab\tab\tab else tq-=eq[k].w;\par
+\tab\tab\tab if (better(tq,td,curq,curd))\par
+\tab\tab\tab\tab curd=td,curq=tq,st[j]^=1,flag=1;\par
+\tab\tab\}\par
+\tab\tab if (clock()-start>cur) break;\par
+\tab\}\par
+\tab if (better(curq,curd,ansq,ansd))\par
+\tab\tab ansd=curd,ansq=curq,memcpy(ans+1,st+1,n);\par
+\}\par
+\par
+inline void solve(void)\par
+\{\par
+\tab memset(hd,0,sizeof hd);\par
+\tab memset(hq,0,sizeof hq);\par
+\tab memset(ans,0,sizeof ans);\par
+\tab memset(st,0,sizeof st);\par
+\tab topd=topq=0;ansd=0;ansq=1;\par
+\tab rd(n);rd(d);rd(q);\par
+\tab for (int i=1;i<=n;++i) pos[i]=i;\par
+\tab int x,y,w;\par
+\tab for (int i=1;i<=d;++i)\par
+\tab\tab rd(x),rd(y),rd(w),add(ed,hd,topd,x,y,w);\par
+\tab for (int i=1;i<=q;++i)\par
+\tab\tab rd(x),rd(y),rd(w),add(eq,hq,topq,x,y,w);\par
+\tab pre();maintain();\par
+\tab int sqrtn=(int)ceil(sqrt(n));\par
+\tab bool qt=0;\par
+\tab for (int i=2;i<=sqrtn/2 && !qt;++i)\par
+\tab\tab for (int j=0;j<=sqrtn && !qt;++j)\par
+\tab\tab\{\par
+\tab\tab\tab init(i);\par
+\tab\tab\tab maintain();\par
+\tab\tab\tab if (clock()-start>cur)\{qt=1;break;\}\par
+\tab\tab\}\par
+\tab int tot=0;\par
+\tab for (int i=1;i<=n;++i) tot+=ans[i];\par
+\tab printf("%d",tot);\par
+\tab for (int i=1;i<=n;++i)\par
+\tab\tab if (ans[i]) printf(" %d",i);\par
+\tab putchar('\\n');\par
+\}\par
+\par
+int main()\par
+\{\par
+\tab srand(120);\par
+\tab int t;\par
+\tab for (rd(t);t;--t)\par
+\tab\tab start=clock(),\par
+\tab\tab cur=(int)((T*1000000*.8-start)/t),\par
+\tab\tab solve();\par
+\tab return 0;\par
+\}\par
+\par
+\par
+0.997\par
+\par
+#include <bits/stdc++.h>\par
+using namespace std;\par
+\par
+typedef long long LL;\par
+typedef long double LD;\par
+\par
+const int N=500+5;\par
+const int M=10000+5;\par
+//const int C=100;\par
+//const int B=10;\par
+const LD T=.6;\par
+\par
+//random_device seed;\par
+mt19937 ran(123);\par
+//ranlux48 ran(seed());\par
+\par
+struct Edge\{int to,nxt,w;\}ed[M<<1],eq[M<<1];\par
+time_t start,cur;\par
+int n,d,q,topd,topq,hd[N],hq[N],pos[N];\par
+int ansd,ansq,curd,curq;\par
+bool st[N],ans[N];\par
+\par
+template <typename tn>\par
+inline void rd(tn& x)\par
+\{\par
+\tab char ch;\par
+\tab for (;!isdigit(ch=getchar()););\par
+\tab for (x=ch-48;isdigit(ch=getchar());x=x*10+ch-48);\par
+\}\par
+\par
+template <typename tn>\par
+inline void shuffle(tn *a,int n)\par
+\{\par
+\tab for (int i=1;i<n;++i)\par
+\tab\tab swap(a[ran()%i+1],a[i+1]);\par
+\}\par
+\par
+inline void add(Edge *e,int *hd,int& top,int x,int y,int w)\par
+\{\par
+\tab e[++top].to=y;e[top].w=w;e[top].nxt=hd[x];hd[x]=top;\par
+\tab e[++top].to=x;e[top].w=w;e[top].nxt=hd[y];hd[y]=top;\par
+\}\par
+\par
+inline bool better(int q1,int d1,int q2,int d2)\par
+\{\par
+\tab return d1 && q1*(LL)d2<q2*(LL)d1;\par
+\}\par
+\par
+inline void pre(void)\par
+\{\par
+\tab int bst=-1,td,tq;\par
+\tab for (int i=1;i<=n;++i)\par
+\tab\{\par
+\tab\tab td=tq=0;\par
+\tab\tab for (int j=hd[i];j;j=ed[j].nxt) td+=ed[j].w;\par
+\tab\tab for (int j=hq[i];j;j=eq[j].nxt) tq+=eq[j].w;\par
+\tab\tab if (better(tq,td,ansq,ansd))\par
+\tab\tab\tab ansd=td,ansq=tq,bst=i;\par
+\tab\}\par
+\tab ans[bst]=st[bst]=1;\par
+\tab curd=ansd;curq=ansq;\par
+\}\par
+\par
+inline void init(int c)\par
+\{\par
+\tab memset(st,0,sizeof st);\par
+\tab for (int i=1;i<=c;++i) st[i]=1;\par
+\tab shuffle(st,n);\par
+\tab curd=curq=0;\par
+\tab for (int i=1;i<=n;++i)\par
+\tab\{\par
+\tab\tab for (int j=hd[i];j;j=ed[j].nxt)\par
+\tab\tab\tab if (st[i]!=st[ed[j].to]) curd+=ed[j].w;\par
+\tab\tab for (int j=hq[i];j;j=eq[j].nxt)\par
+\tab\tab\tab if (st[i]!=st[eq[j].to]) curq+=eq[j].w;\par
+\tab\}\par
+\tab curd/=2;curq/=2;\par
+\tab if (better(curq,curd,ansq,ansd))\par
+\tab\tab ansd=curd,ansq=curq,memcpy(ans+1,st+1,n);\par
+\}\par
+\par
+inline void maintain(void)\par
+\{\par
+\tab int td,tq;\par
+\tab bool flag=1;\par
+\tab for (int i=1;i<=10 && flag;++i)\par
+\tab\{\par
+\tab\tab flag=0;\par
+\tab\tab shuffle(pos,n);\par
+\tab\tab for (int i=1,j;i<=n;++i)\par
+\tab\tab\{\par
+\tab\tab\tab j=pos[i];td=curd;tq=curq;\par
+\tab\tab\tab for (int k=hd[j];k;k=ed[k].nxt)\par
+\tab\tab\tab\tab if (st[j]==st[ed[k].to]) td+=ed[k].w;\par
+\tab\tab\tab\tab else td-=ed[k].w;\par
+\tab\tab\tab for (int k=hq[j];k;k=eq[k].nxt)\par
+\tab\tab\tab\tab if (st[j]==st[eq[k].to]) tq+=eq[k].w;\par
+\tab\tab\tab\tab else tq-=eq[k].w;\par
+\tab\tab\tab if (better(tq,td,curq,curd))\par
+\tab\tab\tab\tab curd=td,curq=tq,st[j]^=1,flag=1;\par
+\tab\tab\}\par
+\tab\tab //if (clock()-start>cur) break;\par
+\tab\}\par
+\tab if (better(curq,curd,ansq,ansd))\par
+\tab\tab ansd=curd,ansq=curq,memcpy(ans+1,st+1,n);\par
+\}\par
+\par
+inline void solve(void)\par
+\{\par
+\tab memset(hd,0,sizeof hd);\par
+\tab memset(hq,0,sizeof hq);\par
+\tab memset(ans,0,sizeof ans);\par
+\tab memset(st,0,sizeof st);\par
+\tab topd=topq=0;ansd=0;ansq=1;\par
+\tab rd(n);rd(d);rd(q);\par
+\tab for (int i=1;i<=n;++i) pos[i]=i;\par
+\tab int x,y,w;\par
+\tab for (int i=1;i<=d;++i)\par
+\tab\tab rd(x),rd(y),rd(w),add(ed,hd,topd,x,y,w);\par
+\tab for (int i=1;i<=q;++i)\par
+\tab\tab rd(x),rd(y),rd(w),add(eq,hq,topq,x,y,w);\par
+\tab pre();maintain();\par
+\tab int sqrtn=(int)ceil(sqrt(n));\par
+\tab bool qt=0;\par
+\tab for (int i=2;i<=sqrtn/2 && !qt;++i)\par
+\tab\tab for (int j=0;j<=sqrtn;++j)\par
+\tab\tab\{\par
+\tab\tab\tab init(i);\par
+\tab\tab\tab maintain();\par
+\tab\tab\tab if (clock()-start>cur)\{qt=1;break;\}\par
+\tab\tab\}\par
+\tab int tot=0;\par
+\tab for (int i=1;i<=n;++i) tot+=ans[i];\par
+\tab printf("%d",tot);\par
+\tab for (int i=1;i<=n;++i)\par
+\tab\tab if (ans[i]) printf(" %d",i);\par
+\tab putchar('\\n');\par
+\}\par
+\par
+int main()\par
+\{\par
+\tab int t;\par
+\tab for (rd(t);t;--t)\par
+\tab\tab start=clock(),\par
+\tab\tab cur=(int)((T*1000000*.995-start)/t),\par
+\tab\tab solve();\par
+\tab return 0;\par
+\}\par
+}
+ 
