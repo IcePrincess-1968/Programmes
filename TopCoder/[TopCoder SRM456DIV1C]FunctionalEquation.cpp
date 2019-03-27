@@ -88,70 +88,55 @@ inline void Sub(int &x,int y,int MO) {x=sub(x-y,MO);}
 template<typename T> inline int quick_pow(int x,T y) {int res=1;while (y) {if (y&1) res=1ll*res*x%MOD;x=1ll*x*x%MOD;y>>=1;}return res;}
 template<typename T> inline int quick_pow(int x,T y,int MO) {int res=1;while (y) {if (y&1) res=1ll*res*x%MO;x=1ll*x*x%MO;y>>=1;}return res;}
 
-const int MAXN=400;
+const int MAXN=1e4;
 
-int n;
-int a[MAXN+48][MAXN+48],b[MAXN+48][MAXN+48];
+LL x[MAXN+48],y[MAXN+48],cost[48][48],dp[1000048];
 
-inline void Swap(int id1,int id2)
+class FunctionalEquation
 {
-    for (register int i=1;i<=n;i++) swap(a[id1][i],a[id2][i]),swap(b[id1][i],b[id2][i]);
-}
+	public:
+		inline LL minAbsSum(int C, int N, int xzero, int xprod, int xadd, int xmod, int yzero, int yprod, int yadd, int ymod)
+		{
+			x[0]=xzero;y[0]=yzero;
+			for (register int i=1;i<N;i++) x[i]=(x[i-1]*xprod+xadd)%xmod,y[i]=(y[i-1]*yprod+yadd)%ymod;
+			for (register int i=0;i<C;i++)
+				for (register int j=0;j<C;j++)
+				{
+					int cnt=0;vector<int> cur;cur.clear();
+					for (register int k=0;k<N;k++)
+						if (x[k]%(2*C)==2*i) cnt++,cur.pb(x[k]-y[k]+j-i);
+						else if (x[k]%(2*C)==2*j+1) cnt++,cur.pb(y[k]-x[k]+j-i-C+1);
+					if (!cnt) {cost[i][j]=0;continue;}
+					sort(cur.begin(),cur.end());
+					LL minn=cur[cnt/2]%C;if (minn<0) minn+=C;
+					LL delta=minn-cur[cnt/2],sum1=0,sum2=0;
+					for (register int k=0;k<cnt;k++) cur[k]+=delta,sum1+=myabs(cur[k]),cur[k]-=C,sum2+=myabs(cur[k]);
+					cost[i][j]=min(sum1,sum2);
+				}
+			for (register int Mask=0;Mask<=(1<<C)-1;Mask++) dp[Mask]=LINF;dp[0]=0;
+			for (register int Mask=1;Mask<=(1<<C)-1;Mask++)
+			{
+				int cnt=__builtin_popcount(Mask);
+				for (register int i=0;i<C;i++) if (Mask&(1<<i)) check_min(dp[Mask],dp[Mask^(1<<i)]+cost[cnt-1][i]);
+			}
+			return dp[(1<<C)-1];
+		}
+};
 
-inline void Mul(int id,int t)
-{
-    for (register int i=1;i<=n;i++) a[id][i]=1ll*a[id][i]*t%MOD,b[id][i]=1ll*b[id][i]*t%MOD;
-}
-
-inline void Minus(int id1,int id2)
-{
-    for (register int i=1;i<=n;i++) Sub(a[id1][i],a[id2][i]),Sub(b[id1][i],b[id2][i]);
-}
-
-inline void gause()
-{
-    for (register int i=1;i<=n;i++)
-    {
-        int pt=i;while (pt<=n && a[pt][i]==0) pt++;
-        if (pt>n) {puts("No Solution\n");exit(0);}
-        Swap(i,pt);
-        for (register int j=1;j<=n;j++)
-            if (j!=i && a[j][i])
-            {
-                int t=1ll*a[i][i]*quick_pow(a[j][i],MOD-2)%MOD;
-                Mul(j,t);Minus(j,i);
-            }
-    }
-    for (register int i=1;i<=n;i++)
-    {
-        int t=quick_pow(a[i][i],MOD-2);
-        Mul(i,t);
-    }
-}
-
+#ifdef LOCAL
 int main ()
 {
 #ifdef LOCAL
-    double TIME=clock();
-    freopen ("a.in","r",stdin);
-    freopen ("a.out","w",stdout);
-    cerr<<"Running..."<<endl;
+	double TIME=clock();
+	freopen ("a.in","r",stdin);
+	cerr<<"Running..."<<endl;
 #endif
-    io.Get(n);
-    for (register int i=1;i<=n;i++)
-        for (register int j=1;j<=n;j++)
-            io.Get(a[i][j]);
-    memset(b,0,sizeof(b));for (register int i=1;i<=n;i++) b[i][i]=1;
-    gause();
-    for (register int i=1;i<=n;i++)
-    {
-        for (register int j=1;j<=n;j++)
-            printf("%d ",b[i][j]);
-        printf("\n");
-    }
-    io.flush();
+	FunctionalEquation A;
+	int C;int N; int xzero; int xprod; int xadd; int xmod; int yzero; int yprod; int yadd; int ymod;
+	while (cin>>C>>N>>xzero>>xprod>>xadd>>xmod>>yzero>>yprod>>yadd>>ymod) cout<<A.minAbsSum(C,N,xzero,xprod,xadd,xmod,yzero,yprod,yadd,ymod)<<endl;
+	io.flush();
 #ifdef LOCAL
-    cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;
+	cerr<<"Exec Time: "<<(clock()-TIME)/CLOCKS_PER_SEC<<endl;
 #endif
-    return 0;
 }
+#endif
