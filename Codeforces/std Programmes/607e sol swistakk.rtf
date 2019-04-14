@@ -1,0 +1,615 @@
+{\rtf1\ansi\ansicpg936\deff0\nouicompat\deflang1033\deflangfe2052{\fonttbl{\f0\fnil\fcharset134 \'cb\'ce\'cc\'e5;}}
+{\colortbl ;\red0\green0\blue255;}
+{\*\generator Riched20 10.0.17134}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang2052 #include <bits/stdc++.h>\par
+#define MP make_pair\par
+#define PB push_back\par
+#define int long long\par
+#define st first\par
+#define nd second\par
+#define rd third\par
+#define FOR(i, a, b) for(int i =(a); i <=(b); ++i)\par
+#define RE(i, n) FOR(i, 1, n)\par
+#define FORD(i, a, b) for(int i = (a); i >= (b); --i)\par
+#define REP(i, n) for(int i = 0;i <(n); ++i)\par
+#define VAR(v, i) __typeof(i) v=(i)\par
+#define FORE(i, c) for(VAR(i, (c).begin()); i != (c).end(); ++i)\par
+#define ALL(x) (x).begin(), (x).end()\par
+#define SZ(x) ((int)(x).size())\par
+using namespace std;\par
+template<typename TH> void _dbg(const char* sdbg, TH h) \{ cerr<<sdbg<<"="<<h<<"\\n"; \}\par
+template<typename TH, typename... TA> void _dbg(const char* sdbg, TH h, TA... t) \{\par
+  while(*sdbg != ',')cerr<<*sdbg++; cerr<<"="<<h<<","; _dbg(sdbg+1, t...);\par
+\}\par
+#ifdef LOCAL\par
+#define debug(...) _dbg(#__VA_ARGS__, __VA_ARGS__)\par
+#define debugv(x) \{\{cerr <<#x <<" = "; FORE(itt, (x)) cerr <<*itt <<", "; cerr <<"\\n"; \}\}\par
+#else\par
+#define debug(...) (__VA_ARGS__)\par
+#define debugv(x)\par
+#define cerr if(0)cout\par
+#endif\par
+#define make(type, x) type x; cin>>x;\par
+#define make2(type, x, y) type x, y; cin>>x>>y;\par
+#define make3(type, x, y, z) type x, y, z; cin>>x>>y>>z;\par
+#define make4(type, x, y, z, t) type x, y, z, t; cin>>x>>y>>z>>t;\par
+#define next ____next\par
+#define prev ____prev\par
+#define left ____left\par
+#define hash ____hash\par
+typedef long long ll;\par
+typedef long double LD;\par
+typedef pair<int, int> PII;\par
+typedef pair<ll, ll> PLL;\par
+typedef vector<int> VI;\par
+typedef vector<VI> VVI;\par
+typedef vector<ll> VLL;\par
+typedef vector<pair<int, int> > VPII;\par
+typedef vector<pair<ll, ll> > VPLL;\par
+\par
+template<class C> void mini(C&a4, C b4)\{a4=min(a4, b4); \}\par
+template<class C> void maxi(C&a4, C b4)\{a4=max(a4, b4); \}\par
+template<class T1, class T2>\par
+ostream& operator<< (ostream &out, pair<T1, T2> pair) \{ return out << "(" << pair.first << ", " << pair.second << ")";\}\par
+template<class A, class B, class C> struct Triple \{ A first; B second; C third;\par
+  bool operator<(const Triple& t) const \{ if (st != t.st) return st < t.st; if (nd != t.nd) return nd < t.nd; return rd < t.rd; \} \};\par
+template<class T> void ResizeVec(T&, vector<int>) \{\}\par
+template<class T> void ResizeVec(vector<T>& vec, vector<int> sz) \{\par
+  vec.resize(sz[0]); sz.erase(sz.begin()); if (sz.empty()) \{ return; \}\par
+  for (T& v : vec) \{ ResizeVec(v, sz); \}\par
+\}\par
+typedef Triple<int, int, int> TIII;\par
+template<class A, class B, class C>\par
+ostream& operator<< (ostream &out, Triple<A, B, C> t) \{ return out << "(" << t.st << ", " << t.nd << ", " << t.rd << ")"; \}\par
+template<class T> ostream& operator<<(ostream& out, vector<T> vec) \{ out<<"("; for (auto& v: vec) out<<v<<", "; return out<<")"; \}\par
+\par
+typedef long double LD;\par
+const LD kEps = 1e-9;\par
+const LD kPi = 2 * acos(0);\par
+LD Sq(LD x) \{\par
+  return x * x;\par
+\}\par
+struct Point \{\par
+  LD x, y;\par
+  Point(LD a = 0, LD b = 0) : x(a), y(b) \{\}\par
+  Point(const Point& a) : x(a.x), y(a.y) \{\}\par
+  void operator=(const Point& a) \{ x = a.x; y = a.y; \}\par
+  Point operator+(const Point& a) const \{ Point p(x + a.x, y + a.y); return p; \}\par
+  Point operator-(const Point& a) const \{ Point p(x - a.x, y - a.y); return p; \}\par
+  Point operator*(LD a) const \{ Point p(x * a, y * a); return p; \}\par
+  Point operator/(LD a) const \{ assert(a > kEps); Point p(x / a, y / a); return p; \}\par
+  Point& operator+=(const Point& a) \{ x += a.x; y += a.y; return *this; \}\par
+  Point& operator-=(const Point& a) \{ x -= a.x; y -= a.y; return *this; \}\par
+  Point& operator*=(LD a) \{ x *= a; y *= a; return *this;\}\par
+  Point& operator/=(LD a) \{ assert(a > kEps); x /= a; y /= a; return *this; \}\par
+  \par
+  bool IsZero() const \{\par
+    return abs(x) < kEps && abs(y) < kEps;\par
+  \}\par
+  bool operator==(const Point& a) const \{\par
+    return (*this - a).IsZero();\par
+  \}\par
+  LD CrossProd(const Point& a) const \{\par
+    return x * a.y - y * a.x;\par
+  \}\par
+  LD CrossProd(Point a, Point b) const \{\par
+    a -= *this;\par
+    b -= *this;\par
+    return a.CrossProd(b);\par
+  \}\par
+  LD DotProd(const Point& a) const \{\par
+    return x * a.x + y * a.y;\par
+  \}\par
+  LD Norm() const \{\par
+    return sqrt(x * x + y * y);\par
+  \}\par
+  void NormalizeSelf() \{\par
+    *this /= Norm();\par
+  \}\par
+  Point Normalize() \{\par
+    Point res(*this);\par
+    res.NormalizeSelf();\par
+    return res;\par
+  \}\par
+  LD Dist(const Point& a) const \{\par
+    return (*this - a).Norm();\par
+  \}\par
+  LD Angle() const \{\par
+    return atan2(y, x);\par
+  \}\par
+  void RotateSelf(LD angle) \{\par
+    LD c = cos(angle);\par
+    LD s = sin(angle);\par
+    LD nx = x * c - y * s;\par
+    LD ny = y * c + x * s;\par
+    y = ny;\par
+    x = nx;\par
+  \}\par
+  Point Rotate(LD angle) const \{\par
+    Point res(*this);\par
+    res.RotateSelf(angle);\par
+    return res;\par
+  \}\par
+  static bool LexCmp(const Point& a, const Point& b) \{\par
+    if (abs(a.x - b.x) > kEps) \{\par
+      return a.x < b.x;\par
+    \}\par
+    return a.y < b.y;\par
+  \}\par
+  friend ostream& operator<<(ostream& out, Point m);\par
+\};\par
+\par
+ostream& operator<<(ostream& out, Point p) \{\par
+  out << "(" << p.x << ", " << p.y << ")";\par
+  return out;\par
+\}\par
+\par
+struct Circle \{\par
+  Point center;\par
+  LD r;\par
+  Circle(LD x, LD y, LD rad) \{\par
+    center = Point(x, y);\par
+    r = rad;\par
+  \}\par
+  Circle(const Point& a, LD rad) : center(a), r(rad) \{\}\par
+  LD Area() const \{\par
+    return kPi * r * r;\par
+  \}\par
+  LD Perimeter() const \{\par
+    return 2 * kPi * r;\par
+  \}\par
+  LD Diameter() const \{\par
+    return 2 * r;\par
+  \}\par
+  Point RotateRightMost(LD ang) const \{\par
+    Point right_most(r, 0);\par
+    Point res = right_most.Rotate(ang);\par
+    return center + res;\par
+  \}\par
+  bool operator==(const Circle& c) const \{\par
+    return center == c.center && abs(r - c.r) < kEps;\par
+  \}\par
+\};\par
+\par
+struct Line \{\par
+  Point p[2];\par
+  bool is_seg;\par
+  Line(Point a, Point b, bool is_seg_ = false) \{\par
+    p[0] = a;\par
+    p[1] = b;\par
+    is_seg = is_seg_;\par
+  \}\par
+  Line() \{\par
+  \}\par
+  Point& operator[](int a) \{\par
+    return p[a];\par
+  \}\par
+  static bool VectorsInOneHalfPlaneCmp(Line a, Line b) \{\par
+    return (a[1] - a[0]).CrossProd(b[1] - b[0]) > 0;\par
+  \}\par
+  Point NormalVector() \{\par
+    Point perp = p[1] - p[0];\par
+    perp.RotateSelf(kPi / 2);\par
+    perp.NormalizeSelf();\par
+    return perp;\par
+  \}\par
+  \par
+  // (A, B, C) such that A^2 + B^2 = 1, (A, B) > (0, 0)\par
+  vector<LD> LineEqNormLD() \{ // seems ok\par
+    LD A = p[1].y - p[0].y;\par
+    LD B = p[0].x - p[1].x;\par
+    LD C = -(A * p[0].x + B * p[0].y);\par
+    assert(abs(A * p[1].x + B * p[1].y + C) < kEps);\par
+    LD norm = sqrt(A * A + B * B);\par
+    vector<LD> res\{A, B, C\};\par
+    for (auto& x : res) \{ x /= norm; \}\par
+    if (A < -kEps || (abs(A) < kEps && B < -kEps)) \{\par
+      for (auto& x : res) \{ x *= -1; \}\par
+    \}\par
+    return res;\par
+  \}\par
+  \par
+  // assumes that coordinates are integers!\par
+  vector<int> LineEqNormInt() \{ // seems ok\par
+    int A = round(p[1].y - p[0].y);\par
+    int B = round(p[0].x - p[1].x);\par
+    int C = -(A * p[0].x + B * p[0].y);\par
+    int gcd = abs(__gcd(A, __gcd(B, C)));\par
+    vector<int> res\{A, B, C\};\par
+    for (auto& x : res) \{ x /= gcd; \}\par
+    if (A < 0 || (A == 0 && B < 0)) \{\par
+      for (auto& x : res) \{ x *= -1; \}\par
+    \}\par
+    return res;\par
+  \}\par
+\};\par
+\par
+struct Utils \{\par
+  // 0, 1, 2 or 3 pts. In case of 3 pts it means they are equal\par
+  // TODO get rid of those idiotic pointers and references, copying here would be no harm \par
+  static vector<Point> InterCircleCircle(Circle& a, Circle& b) \{\par
+    Circle* c = &a;\par
+    Circle* d = &b;\par
+    if (a.r + kEps < b.r) \{\par
+      swap(c, d);\par
+    \}\par
+    if (a == b) \{\par
+      return vector<Point>\{a.RotateRightMost(0), a.RotateRightMost(2 * kPi / 3),\par
+          a.RotateRightMost(4 * kPi / 3)\};\par
+    \}\par
+    Point diff = d->center - c->center;\par
+    LD dis = diff.Norm();\par
+    LD ang = diff.Angle();\par
+    LD longest = max(max(c->r, d->r), dis);\par
+    if (2 * longest > c->r + d->r + dis + kEps) \{\par
+      return vector<Point>();\par
+    \}\par
+    if (abs(2 * longest - c->r - d->r - dis) < 2 * kEps) \{\par
+      return vector<Point>\{c->RotateRightMost(ang)\};\par
+    \}\par
+    LD proj_diff = (c->r * c->r - d->r * d->r) / dis;\par
+    LD r1_proj = (dis + proj_diff) / 2;\par
+    LD ang_deviation = acos(r1_proj / c->r);\par
+    LD ang1 = ang - ang_deviation;\par
+    LD ang2 = ang + ang_deviation;\par
+    return vector<Point>\{c->RotateRightMost(ang1), c->RotateRightMost(ang2)\};\par
+  \}\par
+  \par
+  //TODO change it to vector<Point>, intersection could be nothing, point or line\par
+  static Point InterLineLine(Line& a, Line& b) \{ // working fine\par
+    Point vec_a = a[1] - a[0];\par
+    Point vec_b1 = b[1] - a[0];\par
+    Point vec_b0 = b[0] - a[0]; \par
+    LD tr_area = vec_b1.CrossProd(vec_b0);\par
+    LD quad_area = vec_b1.CrossProd(vec_a) + vec_a.CrossProd(vec_b0);\par
+//     if (abs(quad_area) < kEps) \{\par
+//       throw Parallel();\par
+//     \}\par
+    return Point(a[0] + vec_a * (tr_area / quad_area));\par
+  \}\par
+//   static Polygon InterHalfPlanes(vector<Line>& line) \{ // left side is valid\par
+//     const double R = 2e9;\par
+//     line.push_back(Line(Point(R, R), Point(R, -R)));\par
+//     line.push_back(Line(Point(R, -R), Point(-R, -R)));\par
+//     line.push_back(Line(Point(-R, -R), Point(-R, R)));\par
+//     line.push_back(Line(Point(-R, R), Point(R, R)));\par
+//     vector<Line> half[2]; // half[0] - downward, half[1] - upward\par
+//     for (auto l : line) \{\par
+//       half[(l[0].x > l[1].x) || (l[0].x > l[1].x && l[0].y > l[1].y)].PB(l);\par
+//     \}\par
+//     for (int dir = -1; dir <= 1; dir += 2) \{\par
+//       int hull_num = (dir + 1) / 2;\par
+//       vector<Line>& H = half[hull_num];\par
+//       sort(H.begin(), H.end(), Line::VectorsInOneHalfPlaneCmp);\par
+//       for (int i = 0; i < SZ(H); i++) \{\par
+//         //TODO\par
+//       \}\par
+//       //TODO\par
+//     \}\par
+//   \}\par
+    \par
+  \par
+  static Point ProjPointToLine(Point p, Line l) \{ ///Tested\par
+    Point diff = l[1] - l[0];\par
+    return l[0] + diff * (diff.DotProd(p - l[0]) / diff.DotProd(diff));\par
+  \}\par
+  \par
+  static Point ReflectPtWRTLine(Point p, Line l) \{\par
+    Point proj = ProjPointToLine(p, l);\par
+    return proj * 2 - p;\par
+  \}\par
+  \par
+  static vector<Point> InterCircleLine(Circle c, Line l) \{ /// Tested here: {{\field{\*\fldinst{HYPERLINK http://codeforces.com/gym/100554/submission/10197624 }}{\fldrslt{http://codeforces.com/gym/100554/submission/10197624\ul0\cf0}}}}\f0\fs22\par
+    Point proj = ProjPointToLine(c.center, l);\par
+    LD dis_proj = c.center.Dist(proj);\par
+    if (dis_proj > c.r + kEps) \{ return vector<Point>(); \}\par
+    LD a = sqrt(c.r * c.r - dis_proj * dis_proj);\par
+    Point dir = l[1] - l[0];\par
+    dir.NormalizeSelf();\par
+    vector<Point> cands\{proj + dir * a, proj - dir * a\};\par
+    if (cands[0].Dist(cands[1]) < kEps) \{ return vector<Point>\{proj\}; \}\par
+    return cands;\par
+  \}\par
+  \par
+  static bool PtBelongToLine(Line l, Point p) \{\par
+    return abs(l[0].CrossProd(l[1], p)) < kEps;\par
+  \}\par
+  \par
+  static bool PtBelongToSeg(Line l, Point p) \{ // seems ok\par
+    return abs(p.Dist(l[0]) + p.Dist(l[1]) - l[0].Dist(l[1])) < kEps;\par
+  \}\par
+  \par
+  static vector<Point> InterCircleSeg(Circle c, Line l) \{ //seems ok\par
+    vector<Point> from_line = InterCircleLine(c, l);\par
+    vector<Point> res;\par
+    for (auto p : from_line) \{\par
+      if (PtBelongToSeg(l, p)) \{ res.PB(p); \}\par
+    \}\par
+    return res;\par
+  \}\par
+  \par
+  static vector<Point> TangencyPtsToCircle(Circle c, Point p) \{ // seems ok\par
+    assert(c.center.Dist(p) > c.r + kEps); // or return vector<Point>() if needed\par
+    Point mid = (c.center + p) / 2;\par
+    Circle aux_circ = Circle(mid, c.center.Dist(p) / 2);\par
+    return InterCircleCircle(aux_circ, c);\par
+  \}\par
+  \par
+  static bool AreParallel(Line l1, Line l2) \{ // seems ok\par
+    return abs(l1[0].CrossProd(l2[0], l1[1]) - l1[0].CrossProd(l2[1], l1[1])) < kEps;\par
+  \}\par
+  \par
+  // returns a vector of points such that their convex hull is intersection of those segments\par
+  // SZ(res) == 0 => empty intersection, SZ(res) == 1 => intersection is a point, SZ(res) == 2 => intersection is a segment\par
+  static vector<Point> InterSegs(Line l1, Line l2) \{ // seems ok\par
+    if (!Point::LexCmp(l1[0], l1[1])) \{ swap(l1[0], l1[1]); \}\par
+    if (!Point::LexCmp(l2[0], l2[1])) \{ swap(l2[0], l2[1]); \}\par
+    if (AreParallel(l1, l2)) \{\par
+      if (!PtBelongToLine(l1, l2[0])) \{ return vector<Point>(); \}\par
+      vector<Point> ends(2);\par
+      for (int tr = 0; tr < 2; tr++) \{\par
+        if (Point::LexCmp(l1[tr], l2[tr]) ^ tr) \{\par
+          ends[tr] = l2[tr];\par
+        \} else \{\par
+          ends[tr] = l1[tr];\par
+        \}\par
+      \}\par
+      if ((ends[1] - ends[0]).IsZero()) \{\par
+        ends.pop_back();\par
+      \}\par
+      if (SZ(ends) == 2 && Point::LexCmp(ends[1], ends[0])) \{ return vector<Point>(); \}\par
+      return ends;\par
+    \} else \{\par
+      Point p = InterLineLine(l1, l2);\par
+      if (PtBelongToSeg(l1, p) && PtBelongToSeg(l2, p)) \{ return vector<Point>\{p\}; \}\par
+      return vector<Point>();\par
+    \}\par
+  \}\par
+  static LD Angle(Point P, Point Q, Point R) \{ // angle PQR\par
+    LD ang2 = (P - Q).Angle();\par
+    LD ang1 = (R - Q).Angle();\par
+    LD ans = ang1 - ang2;\par
+    if (ans < kEps) \{\par
+      ans += 2 * kPi;\par
+    \}\par
+    return ans;\par
+  \}\par
+  \par
+  // tested here: {{\field{\*\fldinst{HYPERLINK http://codeforces.com/contest/600/submission/14961583 }}{\fldrslt{http://codeforces.com/contest/600/submission/14961583\ul0\cf0}}}}\f0\fs22\par
+  // DON'T change anything as this will lead to precision errors\par
+  // don't know why, but this is the only version which works precisely even for very mean cases\par
+  static LD DiskInterArea(Circle c1, Circle c2) \{ // tested here: {{\field{\*\fldinst{HYPERLINK http://opentrains.snarknews.info/~ejudge/team.cgi?contest_id=006254 }}{\fldrslt{http://opentrains.snarknews.info/~ejudge/team.cgi?contest_id=006254\ul0\cf0}}}}\f0\fs22  problem I\par
+    if (c1.r < c2.r) \{\par
+      swap(c1, c2);\par
+    \}\par
+    LD d = c1.center.Dist(c2.center);\par
+    if (c1.r + c2.r < d + kEps) \{\par
+      return 0;\par
+    \}\par
+    if (c1.r - c2.r > d - kEps) \{\par
+      return kPi * Sq(c2.r);\par
+    \}\par
+    LD alfa = acos((Sq(d) + Sq(c1.r) - Sq(c2.r)) / (2 * d * c1.r));\par
+    LD beta = acos((Sq(d) + Sq(c2.r) - Sq(c1.r)) / (2 * d * c2.r));\par
+    return alfa * Sq(c1.r) + beta * Sq(c2.r) - sin(2 * alfa) * Sq(c1.r) / 2 - sin(2 * beta) * Sq(c2.r) / 2;\par
+  \}\par
+\};\par
+\par
+struct Polygon \{\par
+  vector<Point> pts;\par
+  Polygon(vector<Point> pts_) : pts(pts_) \{\}\par
+  Polygon() : Polygon(vector<Point>()) \{\}\par
+  void Add(Point p) \{\par
+    pts.push_back(p);\par
+  \}\par
+  double Area() \{\par
+    double area = 0;\par
+    for (int i = 0; i < SZ(pts); i++) \{\par
+      area += pts[i].CrossProd(pts[(i + 1) % SZ(pts)]);\par
+    \}\par
+    area /= 2;\par
+    return area;\par
+  \}\par
+  void OrientCounterclockwise() \{\par
+    if (Area() < 0) \{\par
+      reverse(pts.begin(), pts.end());\par
+    \}\par
+  \}\par
+  int next(int a) \{\par
+    if (a + 1 < SZ(pts)) \{\par
+      return a + 1;\par
+    \}\par
+    return 0;\par
+  \}\par
+  pair<int, int> FurthestPair() \{ // tested here: {{\field{\*\fldinst{HYPERLINK http://codeforces.com/contest/333/submission/11058065 }}{\fldrslt{http://codeforces.com/contest/333/submission/11058065\ul0\cf0}}}}\f0\fs22\par
+    MakeConvexHull();\par
+    OrientCounterclockwise();\par
+    int furth = 1;\par
+    pair<int, int> best_pair = make_pair(0, 0);\par
+    double best_dis = 0;\par
+    for (int i = 0; i < SZ(pts); i++) \{\par
+      Point side = pts[next(i)] - pts[i];\par
+      while (side.CrossProd(pts[furth] - pts[i]) < side.CrossProd(pts[next(furth)] - pts[i])) \{\par
+        furth = next(furth);\par
+      \}\par
+      vector<int> vec\{i, next(i)\};\par
+      for (auto ind : vec) \{\par
+        if (pts[ind].Dist(pts[furth]) > best_dis) \{\par
+          best_pair = make_pair(ind, furth);\par
+          best_dis = pts[ind].Dist(pts[furth]);\par
+        \}\par
+      \}\par
+      cerr<<"Furthest from: "<<pts[i]<<"-"<<pts[next(i)]<<" is "<<pts[furth]<<endl;\par
+    \}\par
+    return best_pair;\par
+  \}\par
+  void MakeConvexHull() \{ // tested everywhere {{\field{\*\fldinst{HYPERLINK http://codeforces.com/contest/333/submission/11058065 }}{\fldrslt{http://codeforces.com/contest/333/submission/11058065\ul0\cf0}}}}\f0\fs22\par
+    vector<Point> one_way_hull[2];\par
+    sort(pts.begin(), pts.end(), Point::LexCmp);\par
+    for (int dir = -1; dir <= 1; dir += 2) \{\par
+      int hull_num = (dir + 1) / 2;\par
+      auto& H = one_way_hull[hull_num];\par
+      one_way_hull[hull_num].push_back(pts[0]);\par
+      if (SZ(pts) > 1) \{\par
+        H.push_back(pts[1]);\par
+      \}\par
+      for (int i = 2; i < SZ(pts); i++) \{\par
+        while (SZ(H) >= 2 &&\par
+            dir * (pts[i] - H[SZ(H) - 2]).CrossProd(H.back() - H[SZ(H) - 2]) > -kEps) \{\par
+          H.pop_back();\par
+        \}\par
+        H.push_back(pts[i]);\par
+      \}\par
+    \}\par
+    pts.clear();\par
+    for (auto p : one_way_hull[1]) \{\par
+      pts.push_back(p);\par
+    \}\par
+    for (int i = SZ(one_way_hull[0]) - 2; i >= 1; i--) \{\par
+      pts.push_back(one_way_hull[0][i]);\par
+    \}\par
+  \}\par
+  vector<vector<bool>> InsideDiagonalsMatrix() \{ // tested here: {{\field{\*\fldinst{HYPERLINK http://codeforces.com/contest/438/submission/11063385 }}{\fldrslt{http://codeforces.com/contest/438/submission/11063385\ul0\cf0}}}}\f0\fs22\par
+    int n = pts.size();\par
+    vector<vector<bool>> res(n, vector<bool>(n));\par
+    for (int i = 0; i < n; i++) \{\par
+      for (int j = 0; j < n; j++) \{\par
+        Line diag(pts[i], pts[j]);\par
+        if (i == j || abs(i - j) == 1 || abs(i - j) == n - 1) \{ continue; \}\par
+        res[i][j] = 1;\par
+        for (int k = 0; k < n; k++) \{\par
+          int kk = next(k);\par
+          Line side(pts[k], pts[kk]);\par
+          if (k == i || k == j || kk == i || kk == j) \{ continue; \}\par
+          vector<Point> inter = Utils::InterSegs(diag, side);\par
+          if (SZ(inter)) \{ res[i][j] = 0; \}\par
+        \}\par
+        int act = next(i);\par
+        LD areas[2] = \{0, 0\};\par
+        int passed_j = 0;\par
+        while (act != i) \{\par
+          passed_j |= (act == j);\par
+          areas[passed_j] += pts[i].CrossProd(pts[act], pts[next(act)]);\par
+          act = next(act);\par
+        \}\par
+        if (areas[0] * areas[1] < kEps) \{\par
+          res[i][j] = 0;\par
+        \}\par
+      \}\par
+    \}\par
+    return res;\par
+  \}\par
+\};\par
+\par
+\par
+const int N = 5e4 + 5;\par
+Line l[N];\par
+int was[N];\par
+const int M = 1 << 17;\par
+int drz[M];\par
+int magic(int n) \{\par
+  return n - (n & (n - 1));\par
+\}\par
+void Add(int a, int v) \{\par
+  while (a < M) \{\par
+    drz[a] += v;\par
+    a += magic(a);\par
+  \}\par
+\}\par
+int Sum(int a) \{\par
+  int sum = 0;\par
+  while (a) \{\par
+    sum += drz[a];\par
+    a -= magic(a);\par
+  \}\par
+  return sum;\par
+\}\par
+#undef int\par
+int main() \{\par
+#define int long long\par
+\par
+  ios_base::sync_with_stdio(0);\par
+  cout << fixed << setprecision(10);\par
+  cerr << fixed << setprecision(1);\par
+  cin.tie(0);\par
+  //double beg_clock = 1.0 * clock() / CLOCKS_PER_SEC;\par
+  \par
+  int n;\par
+  cin>>n;\par
+  int m;\par
+  LD x, y;\par
+  cin>>x>>y>>m;\par
+  x /= 1000;\par
+  y /= 1000;\par
+  Point q\{x, y\};\par
+  RE (i, n) \{\par
+    LD a, b;\par
+    cin>>a>>b;\par
+    a /= 1000;\par
+    b /= 1000;\par
+    l[i] = \{\{0, b\}, \{1, a + b\}\};\par
+  \}\par
+  LD kl = 0, kp = 1e10;\par
+  int max_iter = 100;\par
+  RE (iter, max_iter) \{\par
+    LD aktc = (kl + kp) / 2;\par
+    Circle c\{q, aktc\};\par
+    vector<pair<LD, int>> evs;\par
+    RE (i, n) \{\par
+      vector<Point> inters = Utils::InterCircleLine(c, l[i]);\par
+      if (SZ(inters) == 2) \{\par
+        REP (tr, 2) \{\par
+          evs.PB(\{(inters[tr] - q).Angle(), i\});\par
+        \}\par
+      \}\par
+    \}\par
+    sort(ALL(evs));\par
+    LD sum = 0;\par
+    LD found = 0;\par
+    set<PII> secik;\par
+    debugv(evs);\par
+    for (int ii = 0; ii < SZ(evs); ii++) \{\par
+      int nr = evs[ii].nd;\par
+      if (was[nr]) \{\par
+        Add(was[nr], -1);\par
+        found += Sum(ii + 1) - Sum(was[nr]);\par
+        if (max_iter == iter) \{\par
+          secik.erase(\{-was[nr], nr\});\par
+          for (auto it : secik) \{\par
+            if (it.st > -was[nr]) \{\par
+              break;\par
+            \}\par
+            LD diss = q.Dist(Utils::InterLineLine(l[it.nd], l[nr]));\par
+            if (diss > 1e-7) \{\par
+              sum += diss;\par
+            \}\par
+          \}\par
+        \}\par
+        was[nr] = 0;\par
+      \} else \{\par
+        was[nr] = ii + 1;\par
+        if (max_iter == iter) \{\par
+          secik.insert(\{-was[nr], nr\});      \par
+        \}\par
+        Add(was[nr], 1);\par
+      \}\par
+    \}\par
+    debug(aktc, found, kl, kp);\par
+    if (iter == max_iter) \{\par
+      debug(aktc);\par
+      if (aktc > 1e-9) \{\par
+        cout<<sum + (m - found) * aktc<<endl;\par
+      \} else \{\par
+        cout<<"0\\n";\par
+      \}\par
+    \}\par
+    if (found < m) \{\par
+      kl = aktc;\par
+    \} else \{\par
+      kp = aktc;\par
+    \}\par
+  \}\par
+  return 0;\par
+\}\par
+}
+ 
