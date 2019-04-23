@@ -219,7 +219,7 @@ inline void solve()
 	for (register int i=1;i<=na;i++) addedge(tot*2+i,tot*2+na+i),val[tot*2+na+i]=lena[i];
 	for (register int i=1;i<=tot;i++)
 	{
-		for (register int j=0;j<int(tb[i].size());j++) addedge(i,tot*2+na*2+tb[i][j]),addedge(tot*2+na*2+tb[i][j],tot+i);
+		for (register int j=0;j<int(tb[i].size());j++) addedge(tot*2+na*2+tb[i][j],tot+i);
 		if (int(ta[i].size())) addedge(i,tot*2+ta[i][0]);
 		for (register int j=0;j<int(ta[i].size())-1;j++) addedge(tot*2+ta[i][j],tot*2+ta[i][j+1]);
 		int pt=0;
